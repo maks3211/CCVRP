@@ -8,6 +8,8 @@ struct Node {
     int id;
     double x, y;
     int demand = 0;
+    Node() = default;
+	Node(int i, double x, double y, int d) : id(i), x(x), y(y), demand(d) {}
 };
 
 struct CVRPInstance {

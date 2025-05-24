@@ -46,7 +46,9 @@ CVRPInstance parseCVRPFile(const std::string& filename) {
                 int id;
                 double x, y;
                 std::istringstream(line) >> id >> x >> y;
-                instance.nodes[id - 1] = { id, x, y };
+                instance.nodes[id - 1].id = id;
+                instance.nodes[id - 1].x = x;
+                instance.nodes[id - 1].y = y;
             }
             else if (current == DEMAND) {
                 int id, demand;
