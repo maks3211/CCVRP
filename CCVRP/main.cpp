@@ -119,11 +119,15 @@ double f(std::vector<Route> &s)
 	result += capacity_penalty; // dodajemy karę za przekroczenie pojemności
     return result;
 }
-
-//n1 n2 n3
-//std::vector<Route>
+/// <summary>
+/// 
+/// </summary>
+/// <param name="s">Solution to permute</param>
+/// <param name="neighborhood">neighborhood type allowed vales 1,2 or 3</param>
+/// <returns></returns>
 std::vector<Route> N(std::vector<Route>& s, int neighborhood)
 {
+    int block_size = 3; // rozmiar bloku w przypadku N2
     //zakladamy ze sprawdzanie rozpoczynam od pierwszego klienta z pierwszej trasy i sprawdzam po kolei
 	std::vector<Route> s_prime = s; // kopia s
 	double f_s = f(s); 
@@ -185,9 +189,65 @@ std::vector<Route> N(std::vector<Route>& s, int neighborhood)
         }
         return s_prime;
         break;
-    case 2:
-        //TODO block insert 
-		break;
+    case 2:       
+        //iteracja przez wyszstkie pojazdy
+        for (int r = 0; r < s.size(); r++)
+        {
+            //iteracja przez wszystkich klientow - intra route - nie wychodze poza dana trase, poza baza, ona nie moze byc przestawiona
+            for (int c = 1; c < s[r].customers.size() - block_size; c++)
+            {
+                for (int i = c + block_size; i <= s[r].customers.size(); i++) 
+                {
+       
+                    std::vector<Node> block(s_prime[r].customers.begin() + c, s_prime[r].customers.begin() + c + block_size);
+                    s_prime[r].customers.erase(s_prime[r].customers.begin() + c, s_prime[r].customers.begin() + c + block_size);
+                    int insertPos = (i > c) ? i - block_size : i;
+                    s_prime[r].customers.insert(s_prime[r].customers.begin() + insertPos, block.begin(), block.end());
+                    if (f_s > f(s_prime))
+                    {
+                      return s_prime; // zwracam pierwsze lepsze s_prime
+                    }
+                    else // nie ma poprawy to wrc do oryginalnego rozwiazania
+                    {
+                        s_prime[r].customers.erase(s_prime[r].customers.begin() + insertPos, s_prime[r].customers.begin() + insertPos + block_size);
+                        s_prime[r].customers.insert(s_prime[r].customers.begin() + c, block.begin(), block.end());
+                    }         
+       
+                }
+            }
+        }
+
+        //inter szukanie poprawy poprzez zamiane miedzy roznymi pojazdami
+        for (int r = 0; r < s.size() - 1; r++)
+        {
+            for (int rr = r + 1; rr < s.size(); rr++)
+            {
+                //iteracja przez kolejnych klientow w trasie r
+                for (int i = 1; i < s[r].customers.size() - block_size; i++)
+                {
+                    for (int ii = 1; ii < s[rr].customers.size(); ii++)
+                    {
+
+                        std::vector<Node> block(s_prime[r].customers.begin() + i, s_prime[r].customers.begin() + i + block_size);
+                        s_prime[r].customers.erase(s_prime[r].customers.begin() + i, s_prime[r].customers.begin() + i + block_size);
+                        s_prime[rr].customers.insert(s_prime[rr].customers.begin() + ii, block.begin(), block.end());
+
+                        if (f_s > f(s_prime))
+                        {
+                            return s_prime; // zwracam pierwsze lepsze s_prime
+                        }
+                        else // nie ma poprawy to wrc do oryginalnego rozwiazania
+                        {
+                            s_prime[rr].customers.erase(s_prime[rr].customers.begin() + ii, s_prime[rr].customers.begin() + ii + block_size);
+                            s_prime[r].customers.insert(s_prime[r].customers.begin() + i, block.begin(), block.end());
+
+                        }
+                    }
+                }
+            }
+        }
+        return s_prime;
+        break;
 	case 3:
         //iteracja przez wyszstkie pojazdy
         for (int r = 0; r < s.size(); r++)
@@ -430,6 +490,7 @@ int main()
     std::cout << "Koniec algorithm 1";
    
     N(routes,1);
+
     //w routes pierwszy element to zawsze baza, czyli routes[i][0] == 1 
 
 
