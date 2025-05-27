@@ -59,34 +59,26 @@ InsertionResult find_best_insertion_improved(Route& route, Node& i)
     int place = 1;
 	double cost = std::numeric_limits<double>::infinity();
     int p = route.customers.size() - 1;
-   // std::cout << " start ";
     for (int j = 0; j < route.customers.size(); j++)
     {
         double currentCost = 0.0;
         double a = 0.0;
         double b = 0.0;
         double c = 0.0;
-       // std::cout << " jeen  ";
         for (int h = 0; h < j; h++)
         {
-           // std::cout << " przeddwa  ";
 			a += euclidean_distance(route.customers[h], route.customers[h + 1]);
-            //std::cout << " dwa  ";
         }
 
         b = euclidean_distance(route.customers[j],i);
-      //  std::cout << " trzy  ";
         int tmp = p - j;
         if (tmp <= 0)
         {
-           // std::cout << " zero ";
             c = 0;
         }
         else if (tmp > 0)
         {    
-           // std::cout << " przedcztery  ";
             c = tmp * (euclidean_distance(route.customers[j],i) + euclidean_distance(route.customers[j+1], i));
-           // std::cout << " cztery  ";
         }
 
 		currentCost = a + b + c;    
@@ -96,11 +88,176 @@ InsertionResult find_best_insertion_improved(Route& route, Node& i)
             place = j;
         }
     }
-   // std::cout << " return  " << std::endl;
 	return InsertionResult(place, route.vehicle_id, cost);  // place - po ktorym wstawic nowego klienta if place == 0 to nowy bedzie na idx 1 
 }
 
+//funkcja zwraca koszt calej trasy pi
+double g(Route &pi)
+{
+	int p = pi.customers.size() - 1; // liczba klientów w trasie (minus baza)
+    double result = 0.0;
+    for (int i = 1; i <= p; i++)
+    {
+		result += (p - i + 1) * euclidean_distance(pi.customers[i-1], pi.customers[i]);
+    }
+    return result;
+}
 
+double f(std::vector<Route> &s)
+{
+    double alfa = 10.1;
+    double result = 0.0;
+    double capacity_penalty = 0.0;
+    int m = s.size(); // ile pojazdow
+	//suma wszystkich kosztow
+    for (int k = 0; k < m; k++)
+    {
+		result += g(s[k]);               //max(0, s[k].initial capacity - s[k].ile ma zaladowane = ile zostalo miejsca)
+        capacity_penalty += std::max(0, s[k].remaining_capacity);
+    }
+    capacity_penalty *= alfa;
+	result += capacity_penalty; // dodajemy karę za przekroczenie pojemności
+    return result;
+}
+
+//n1 n2 n3
+//std::vector<Route>
+std::vector<Route> N(std::vector<Route>& s, int neighborhood)
+{
+    //zakladamy ze sprawdzanie rozpoczynam od pierwszego klienta z pierwszej trasy i sprawdzam po kolei
+	std::vector<Route> s_prime = s; // kopia s
+	double f_s = f(s); 
+    switch (neighborhood) {
+    case 1:
+        //iteracja przez wyszstkie pojazdy
+        for (int r = 0; r < s.size(); r++)
+        {
+            //iteracja przez wszystkich klientow - intra route - nie wychodze poza dana trase, poza baza, ona nie moze byc przestawiona
+            for (int c = 1; c < s[r].customers.size() - 1; c++)
+            {
+                for (int i = c + 1; i < s[r].customers.size(); i++) // miejsce za ktore wstawic klienta c, czyli np i = 2 to c bedzie na pozycji 3 
+                {
+					auto client = s_prime[r].customers[c]; // klient ktorego przestawiam
+                    s_prime[r].customers.erase(s_prime[r].customers.begin() + c);
+
+					s_prime[r].customers.insert(s_prime[r].customers.begin() + i, client); // wstawiam klienta na miejsce i
+                
+                     if (f_s > f(s_prime))
+                     {
+                         return s_prime; // zwracam pierwsze lepsze s_prime
+                     }
+                     else // nie ma poprawy to wrc do oryginalnego rozwiazania
+                     {
+                       s_prime[r].customers.erase(s_prime[r].customers.begin() + i);
+                       s_prime[r].customers.insert(s_prime[r].customers.begin() + c, client);
+                     }
+                }
+            }
+        }
+
+        //inter szukanie poprawy poprzez zamiane miedzy roznymi pojazdami
+        for (int r = 0; r < s.size() - 1; r++)
+        {
+            for (int rr = r + 1; rr < s.size(); rr++)
+            {
+                //iteracja przez kolejnych klientow w trasie r
+                for (int i = 1; i < s[r].customers.size(); i++)
+                {
+                    for (int ii = 1; ii < s[rr].customers.size(); ii++)
+                    {
+                        auto client = s_prime[r].customers[i]; // klient ktorego przestawiam
+                        s_prime[r].customers.erase(s_prime[r].customers.begin() + i); // usuwam klienta ktorego przestawiam
+
+                        s_prime[rr].customers.insert(s_prime[rr].customers.begin() + ii, client); // wstawiam klienta do innego pojazdu na miejsce ii
+
+                        if (f_s > f(s_prime))
+                        {
+                            return s_prime; // zwracam pierwsze lepsze s_prime
+                        }
+                        else // nie ma poprawy to wrc do oryginalnego rozwiazania
+                        {
+							s_prime[rr].customers.erase(s_prime[rr].customers.begin() + ii); // usuwam wstawionego klienta z innego pojazdu
+							s_prime[r].customers.insert(s_prime[r].customers.begin() + i, client); //wstawiam klienta z powrotem do oryginalnego pojazdu
+                        }
+                    }
+                }
+            }
+        }
+        return s_prime;
+        break;
+    case 2:
+        //TODO block insert 
+		break;
+	case 3:
+        //iteracja przez wyszstkie pojazdy
+        for (int r = 0; r < s.size(); r++)
+        {
+            //iteracja przez wszystkich klientow - intra route - nie wychodze poza dana trase, poza baza, ona nie moze byc przestawiona
+            for (int c = 1; c < s[r].customers.size() - 1; c++)
+            {
+                for (int i = c + 1; i < s[r].customers.size(); i++)
+                {
+                    std::swap(s_prime[r].customers[c], s_prime[r].customers[i]);
+                    if (f_s > f(s_prime))
+                    {
+                        return s_prime; // zwracam pierwsze lepsze s_prime
+                    }
+                    else // nie ma poprawy to wrc do oryginalnego rozwiazania
+                    {
+                        std::swap(s_prime[r].customers[c], s_prime[r].customers[i]);
+                    }
+                }
+            }
+        }
+        //inter szukanie poprawy poprzez zamiane miedzy roznymi pojazdami
+        for (int r = 0; r < s.size() - 1; r++)
+        {
+            for (int rr = r + 1; rr < s.size(); rr++)
+            {
+                //iteracja przez kolejnych klientow w trasie r
+                for (int i = 1; i < s[r].customers.size(); i++)
+                {
+                    for (int ii = 1; ii < s[rr].customers.size(); ii++)
+                    {
+                        std::swap(s_prime[r].customers[i], s_prime[rr].customers[ii]);
+                        if (f_s > f(s_prime))
+                        {
+                            return s_prime; // zwracam pierwsze lepsze s_prime
+                        }
+                        else // nie ma poprawy to wrc do oryginalnego rozwiazania
+                        {
+                            std::swap(s_prime[r].customers[i], s_prime[rr].customers[ii]);
+                        }
+                    }
+                }
+            }
+        }
+        return s_prime;
+		break;
+    default:
+		break;
+    }
+
+}
+
+void vnd()
+{
+    int k = 1;
+
+    while (k < 3)
+    {
+      //  s_prim = N(k);
+      //  if f(s) > f(s_prim)
+      //  {
+      //      s = s_prim;
+      //      k = 1;
+      //  }
+      //  else
+      //  {
+      //      k = k + 1;
+      //  }
+    }
+}
 
 
 
@@ -198,7 +355,7 @@ int main()
 
 
     //Zdefiniowanie nowych tras - kazde auto ma po jednej, pustej trasie
-    for (int i = 0; i <= num_vehicles; ++i) {
+    for (int i = 0; i < num_vehicles; ++i) {
         routes.push_back(Route(i, instance.capacity));  // Pojazd i o odpowiedniej pojemności
     }
 
@@ -225,53 +382,54 @@ int main()
 	//zwolnie pamięci
     std::vector<int>().swap(indexes_to_remove);
 
-
-
     //wstawienie pozostalych klientow
-	//usuniecie bazy z listy klientów
+	//usuniecie magazynu z listy klientów
     instance.nodes.erase(instance.nodes.begin());
 
  
 
-    //od tego zaczac
+   //ETAP 2 
     for (int i = instance.nodes.size() - 1; i >=0; i--)
     {
-        InsertionResult best_insertion;
-        best_insertion.cost = std::numeric_limits<double>::infinity();
+        InsertionResult best_feasible_insertion;
+        InsertionResult best_any_insertion;
+        best_feasible_insertion.cost = std::numeric_limits<double>::infinity();
+        best_any_insertion.cost = std::numeric_limits<double>::infinity();
 
 
-        //r-1 ??
+		//r-1 ?? - raczej nie bo niby dlaczego - musimy przejsc przez wszystkie pojazdy
         for (int r = 0; r < routes.size(); r++)
         {
-            if(instance.nodes[i].demand > routes[r].remaining_capacity)
-            {
-                //std::cout << "ZAPOTRZEBOWANIE: " << instance.nodes[i].demand <<" ile miejsca " << routes[r].remaining_capacity << std::endl;
-                continue; // nie ma miejsca w trasie
-		    }
-        
             InsertionResult insertion = find_best_insertion_improved(routes[r], instance.nodes[i]);
-   
-            if (insertion.cost < best_insertion.cost )
+            // Zapisz najlepszą wstawkę tylko jeśli trasa ma wolne miejsce
+            if (instance.nodes[i].demand <= routes[r].remaining_capacity)
             {
-              best_insertion = insertion;
+                if (insertion.cost < best_feasible_insertion.cost)
+                {
+                    best_feasible_insertion = insertion;
+                }
+            }
+
+            // Niezależnie od pojemności – zapisz najlepszą ogólnie
+            if (insertion.cost < best_any_insertion.cost)
+            {
+                best_any_insertion = insertion;
             }
         }
 
-        //sprawdzono wszystkie pojazdy dla danego klienta
-        //TODO dodac warunek jezeli nie bedzie zadanych dostepnch miejsc to force 
-		routes[best_insertion.route_id].add_customer(instance.nodes[i], best_insertion.cost, best_insertion.place);
+        InsertionResult chosen_insertion = (best_feasible_insertion.cost < std::numeric_limits<double>::infinity())
+            ? best_feasible_insertion
+            : best_any_insertion;
+   
+        routes[chosen_insertion.route_id].add_customer(instance.nodes[i], chosen_insertion.cost, chosen_insertion.place,false);
         instance.nodes.erase(instance.nodes.begin() + i);
-        best_insertion.cost = std::numeric_limits<double>::infinity();
     }
 
 
 
-
-
-
-    //najlepsze wstawienie klienta 1 do trasu 0
-    std::cout << "Koniec";
-
+    std::cout << "Koniec algorithm 1";
+   
+    N(routes,1);
     //w routes pierwszy element to zawsze baza, czyli routes[i][0] == 1 
 
 
@@ -288,6 +446,8 @@ int main()
     //DELTA
         
 
+
+	//Etap 3: VND
 
 
 
