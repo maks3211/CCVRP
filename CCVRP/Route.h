@@ -7,7 +7,7 @@ struct Route {
     int remaining_capacity;  // Pozosta³a pojemnoœæ pojazdu
     int initial_capacity;  // Pozosta³a pojemnoœæ pojazdu
     double route_cost;  // Ca³kowity koszt trasy (odleg³oœæ)
-
+    double route_cost_improved;
     Route(int vehicle_id, int capacity) : vehicle_id(vehicle_id), remaining_capacity(capacity), route_cost(0) {
         customers.push_back(Node(1,0,0,0));  // Dodaj depozyt na pocz¹tek trasy
 		initial_capacity = capacity;  // Zapisz pocz¹tkow¹ pojemnoœæ
