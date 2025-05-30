@@ -1,11 +1,15 @@
 ﻿
 
 #include <iostream>
+
 #include <algorithm>
 #include <random>
+
 #include <unordered_map>
 #include "CvrpParser.h"
 #include "Route.h"
+
+#include <chrono>
 double euclidean_distance(double x1, double y1, double x2, double y2)
 {
 	return sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
@@ -100,7 +104,7 @@ double g(Route &pi)
     double result = 0.0;
     for (int i = 1; i <= p; i++)
     {
-		result += (p - i + 1) * euclidean_distance(pi.customers[i-1], pi.customers[i]);
+        result += (p - i + 1) * euclidean_distance(pi.customers[i - 1], pi.customers[i]);
     }
     return result;
 }
@@ -344,7 +348,7 @@ std::vector<Route> VND(std::vector<Route>& s_initial)
     std::vector<Route> s_prim;
     while (k <= 3)
     {
-        std::cout << k << "\n";
+      //  std::cout << k << "\n";
         s_prim = N(s,k);
         if ( f(s) > f(s_prim) )
         {
@@ -403,13 +407,12 @@ std::vector<Route> P(std::vector<Route>& s, int procedure)
 
         auto& route = s_prime[random_client.first];
         auto client = route.customers[random_client.second];
-
+        
       
         //zapisujemy orginalny koszt trasy ktora bedziemy modyfikowac
         double best_cost = g(route);
         int best_pos = -1;
 
-        route.remaining_capacity += client.demand; // przywracamy pojemnosc pojazdu, bo klient zostal usuniety
         route.customers.erase(route.customers.begin() + random_client.second);
         for (int p = 1; p <= route.customers.size(); p++)
         {
@@ -417,27 +420,23 @@ std::vector<Route> P(std::vector<Route>& s, int procedure)
             {
                 continue;
             }
-            if (client.demand > route.remaining_capacity)
-            {
-                continue; // nie ma miejsca w trasie, wiec nie przestawiamy klienta
-            }
 
             auto temp_customers = route.customers;
             temp_customers.insert(temp_customers.begin() + p, client);
 
             Route temp_route = route; 
             temp_route.customers = temp_customers;
-            temp_route.remaining_capacity -= client.demand;
             //obliczamy nowy koszt trasy
             double current_cost = g(temp_route);
             if (current_cost < best_cost) {
                 best_cost = current_cost;
 				best_pos = p; // zapisujemy najlepsza pozycje
+                
             }
         }
         if (best_pos != -1) {
             route.customers.insert(route.customers.begin() + best_pos, client);
-            route.remaining_capacity -= client.demand;
+			route.route_cost = best_cost; // aktualizujemy koszt trasy
         }
         else
         {
@@ -447,7 +446,7 @@ std::vector<Route> P(std::vector<Route>& s, int procedure)
     }
     case 2:
     {
-		std::cout << "\nP2\n";
+        //Szukamy najlepszej pozycja poza aktualna trasa
         std::pair<int, int> random_client = get_random_client(s);
 
         auto client = s_prime[random_client.first].customers[random_client.second]; // losowy klient ktorego przestawiam
@@ -493,15 +492,25 @@ std::vector<Route> P(std::vector<Route>& s, int procedure)
                 double cost_delta = (first_route_init_cost + second_route_init_cost) - (first_route_removed_cost + second_route_removed_cost);
                 if (cost_delta > best_delta) // oznacza ze poprawa
                 {
-                    std::cout << "POPRAWA \n";
+                    std::cout << "P2 POPRAWA \n";
                     best_delta = cost_delta;
                     s_best = s_prime;
                     s_best[r] = temp_route;
                     s_best[random_client.first] = first_route;
+
+                    s_best[random_client.first].route_cost = first_route_removed_cost;
+                    s_best[r].route_cost = second_route_removed_cost;
                 }
             }
         }
-        return (best_delta > 0.0) ? s_best : s;
+
+        if (best_delta > 0.0)
+        {
+
+            return s_best;
+        }
+        return s;
+    
     }
     case 3:
     { // P3 wymianiamy dwoch losowych klientow z losowych tras nastepnie przestawiamy klienta z pierwszej trasy na kazda inna pozycje w kazdej innej trasie poza trasa 
@@ -557,8 +566,14 @@ std::vector<Route> P(std::vector<Route>& s, int procedure)
 
                 if (delta > best_delta) // jest poprawa
                 {
+                    std::cout << "P3 POPRAWA \n";
 					s_best[random_clientA.first] = A_route; // aktualizujemy trase A
 					s_best[p] = p_route; // aktualizujemy trase p
+
+                    s_best[random_clientA.first].route_cost = A_new_cost;
+                    s_best[p].route_cost = p_new_cost;
+
+
                 }
             }
         }
@@ -613,16 +628,48 @@ double delta(std::vector<Route> &s1, std::vector<Route>&s2, int alfa = 5)
     return 1.0 + (alfa * (static_cast<double>(dif(s1, s2)) / n));
 }
 
-std::vector<Route> SVNS(std::vector<Route>& s)
+
+//Na wejscie dajemy rozwiazanie poczatkowe wygenerowane przez constructive heurestic
+std::vector<Route> SVNS(std::vector<Route>& solution, int k_max = 3)
 {
-	std::vector<Route> s_best = s; 
-	//PERTURABATION PHASE P(N) TRZEBA ZROBIC - DONE 
-	// VND PHASE  - DONE
-	//f(s) - DONE 
-	//delta (s,s`) - TRZEBA ZROBIC DONE
+    float beta = 1.02;
+    int k = 1;
+    std::vector<Route> s = solution; // operujemy na kopi
+    std::vector<Route> s_best = s; // == s* w opisie algorytmu
 
-
-
+    std::vector<Route> s_prim;
+    std::vector<Route> s_bis;
+    while (k <= k_max)
+    {
+        for (int i = 1; i <= k; i++)
+        {
+            //trzeba obliczyc koszt imporved g przed uzyciem!!!!
+			s_prim = P(s, k); // wywolanie P1, P2 lub P3
+        }
+		s_bis = VND(s_prim); 
+        double f_s = f(s); 
+		double f_s_bis = f(s_bis);
+		double delta_s_s_bis = delta(s, s_bis); 
+		double f_s_best = f(s_best);
+        if ( f_s_bis  < std::min(f_s * delta_s_s_bis,beta*f_s_best))
+        {
+            s = s_bis;
+            k = 1;
+        }
+        else
+        {
+			k = k + 1;
+        }
+        if (f_s_bis < f_s_best)
+        {
+            std::cout << "Jest poprawa \n";
+			s_best = s_bis;
+        }
+        else
+        {
+			std::cout << "Brak poprawy \n";
+        }
+    }
     return s_best;
 }
 
@@ -696,7 +743,6 @@ int main()
 
     //instance.nodes 
 
-    std::cout << "Hello World!\n";
     const int num_vehicles = 9;
 
     CVRPInstance instance = parseCVRPFile("InputData/Golden_1.vrp");
@@ -707,7 +753,7 @@ int main()
     std::cout << "Pojemnosc pojazdu: " << instance.capacity << "\n";
 
    
-
+    auto start = std::chrono::high_resolution_clock::now();
     
     //K to zbiór pojazdów np. {1,2,3}
     //|K| to liczebność zbioru  = 3
@@ -759,7 +805,7 @@ int main()
 
  
 
-   //ETAP 2 
+   //ETAP 2 -- dla kazdego klienta sprawdzamy wszystkie mozliwe mijesca i wstawiamy w to ktore powoduje najmnieszjy wzrost kosztu
     for (int i = instance.nodes.size() - 1; i >=0; i--)
     {
         InsertionResult best_feasible_insertion;
@@ -816,19 +862,44 @@ int main()
 
     //DELTA
         
-
+    system("cls");
     for (int i = 0; i < routes.size(); i++)
     {
    	routes[i].route_cost = g(routes[i]); // oblicz koszt trasy
     }
+    double result_cost = 0.0;
+    for (int i = 0; i < routes.size(); i++)
+    {
+        result_cost += routes[i].route_cost;
+    }
+    std::cout << "Koszt rozwiazania przed poprawa: " << result_cost << "\n";
+    std::vector<Route> best = SVNS(routes);
+	std::cout << "Koniec SVNS\n";
+    
+
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double, std::milli> duration = end - start;
+    std::cout << "==================  CZAS WYKONANIA: " << duration.count()/1000 << "s  ==================\n";
 
 
-	//Etap 3: VND
-   //  routes = VND(routes);
+    result_cost = 0.0;
+    for (int i = 0; i < best.size(); i++)
+    {
+        result_cost += best[i].route_cost;
+    }
+    std::cout << "Koszt rozwiazania: " << result_cost << "\n";
+    
 
-     std::cout << "START P =-=--===-";
-     std::vector<Route> routess =  P(routes, 3);
-     std::cout << "KONIEC P =-=--===-   ";
-
+    std::cout << "=============================================================================\n";
+    for (int i = 0; i < best.size(); i++)
+    {
+        std::cout << "Trasa " << i << std::endl;
+        for (const auto& customer : best[i].customers)
+        {
+            std::cout << customer.id << "->";
+        }
+		std::cout << "\nKoszt trasy: " << best[i].route_cost << "\n";
+        std::cout << "Pozostala pojemnosc: " << best[i].remaining_capacity << std::endl;
+    }
 }
 
