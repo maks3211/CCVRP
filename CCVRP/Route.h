@@ -1,3 +1,4 @@
+#pragma once
 #include "CvrpTypes.h"
 
 //Zawiera vector klientow, id pojazdu, pozostala pojemnosc oraz koszt trasy

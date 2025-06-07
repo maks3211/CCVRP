@@ -129,10 +129,12 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="CvrpParser.cpp" />
+    <ClCompile Include="ResultsParser.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CvrpParser.h" />
     <ClInclude Include="CvrpTypes.h" />
+    <ClInclude Include="ResultsParser.h" />
     <ClInclude Include="Route.h" />
   </ItemGroup>
   <ItemGroup>
