@@ -104,6 +104,8 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>D:\Nauka\SEM1\NTWI\CCVRP\CCVRP\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -118,6 +120,8 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>D:\Nauka\SEM1\NTWI\CCVRP\CCVRP\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -128,14 +132,22 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="CvrpParser.cpp" />
     <ClCompile Include="ResultsParser.cpp" />
+    <ClCompile Include="src\cvrp_parser.cpp" />
+    <ClCompile Include="src\IO_handler.cpp" />
+    <ClCompile Include="src\random_utils.cpp" />
+    <ClCompile Include="src\skewed_vns.cpp" />
+    <ClCompile Include="src\utils.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CvrpParser.h" />
-    <ClInclude Include="CvrpTypes.h" />
+    <ClInclude Include="include\cvrp_parser.h" />
+    <ClInclude Include="include\cvrp_types.h" />
+    <ClInclude Include="include\IO_handler.h" />
+    <ClInclude Include="include\random_utils.h" />
+    <ClInclude Include="include\route.h" />
+    <ClInclude Include="include\skewed_vns.h" />
+    <ClInclude Include="include\utils.h" />
     <ClInclude Include="ResultsParser.h" />
-    <ClInclude Include="Route.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="InputData\Golden_1.vrp" />

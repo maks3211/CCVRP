@@ -1,6 +1,4 @@
-#include "CvrpParser.h"
-#include <fstream>
-#include <sstream>
+#include "cvrp_parser.h"
 
 CVRPInstance parseCVRPFile(const std::string& filename) {
 

@@ -1,0 +1,67 @@
+#pragma once
+#include <iostream>
+#include <unordered_set>
+#include <unordered_map>
+#include "cvrp_types.h"
+#include "route.h"
+
+/// <summary>
+/// Calculates the Euclidean distance between two 2D points
+/// </summary>
+/// <param name="x1">X coordinate of the first point</param>
+/// <param name="y1">Y coordinate of the first point</param>
+/// <param name="x2">X coordinate of the second point</param>
+/// <param name="y2">Y coordinate of the second point</param>
+/// <returns>The Euclidean distance between the two points</returns>
+double euclidean_distance(double x1, double y1, double x2, double y2);
+
+
+/// <summary>
+/// Calculates the Euclidean distance between two nodes
+/// </summary>
+/// <param name="n1">- First node</param>
+/// <param name="n2">- Second node</param>
+/// <returns>The Euclidean distance between the two nodes</returns>
+double euclidean_distance(Node n1, Node n2);
+
+/// <summary>
+/// Computes distances from a given node to all other nodes in the CVRP instance
+/// </summary>
+/// <param name="from_node">- The index of the node from which distances are calculated</param>
+/// <param name="instance">- The CVRPInstance containing all nodes</param>
+/// <returns>A vector of pairs representing distances and node indices</returns>
+std::vector<std::pair<double, int>> get_all_distances(const int from_node, const CVRPInstance& instance);
+
+
+InsertionResult find_best_insertion(Route& route, Node& i);
+
+/// <summary>
+/// Koszt calej trasy
+/// </summary>
+/// <param name="pi"></param>
+/// <returns></returns>
+double g(Route& pi);
+int dif(std::vector<Route>& s1, std::vector<Route>& s2);
+
+/// <summary>
+/// Checks for duplicate customer IDs within a single route
+/// </summary>
+/// <param name="customers">- A vector of Node objects representing customers in a route</param>
+/// <returns>true if any duplicate IDs are found; false otherwise</returns>
+bool has_duplicate_ids_in_route(const std::vector<Node>& customers);
+
+
+/// <summary>
+/// Checks all routes for internal duplicates
+/// </summary>
+/// <param name="routes">- A vector of Route objects</param>
+/// <returns>true if at least one route contains duplicates; false otherwise</returns>
+bool any_duplicates(const std::vector<Route>& routes);
+
+
+/// <summary>
+///  Checks for global duplicates across multiple routes.
+/// </summary>
+/// <param name="routes">- A vector of Route objects</param>
+/// <returns>true if any customer is assigned to more than one route; false otherwise</returns>
+bool any_global_duplicates(const std::vector<Route>& routes);
