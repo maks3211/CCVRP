@@ -81,6 +81,33 @@ double g(Route& pi)
     return result;
 }
 
+void calculate_cost(Result& result)
+{
+    double total_cost = 0.0;
+    double cost;
+    for (auto& route : result.routes)
+    {
+        cost = g(route);
+		route.route_cost = cost;
+        total_cost += cost;
+    }
+	result.total_cost = total_cost;
+}
+
+void calculate_remaining_capacity(Result& result)
+{
+	
+    for (auto& route : result.routes)
+    {
+        int total_demand = 0;
+        for (auto& node : route.customers)
+        {
+            total_demand += node.demand;
+        }
+        route.remaining_capacity = route.initial_capacity - total_demand;
+    }
+}
+
 int dif(std::vector<Route>& s1, std::vector<Route>& s2)
 {
 
@@ -167,4 +194,16 @@ bool any_global_duplicates(const std::vector<Route>& routes) {
         }
     }
     return any_duplicates;
+}
+
+bool has_negtive_capacity(const Result& result)
+{
+    for(auto &a : result.routes)
+    {
+        if (a.remaining_capacity < 0)
+        {
+			return true;
+        }
+    }
+	return false;
 }

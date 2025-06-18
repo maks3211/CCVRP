@@ -29,6 +29,6 @@ public:
 	IO_handler(const std::string& base_name);
 	CVRPInstance get_instance();	
 	void save_solution(Result &solution);
-	Result load_solution(int number = 0,std::string name = "");
+	Result load_solution(int number = 0,std::string name = "", std::string custom_folder = "");
 	void set_base_name(const std::string& new_base_name);
 };

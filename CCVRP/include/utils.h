@@ -41,6 +41,10 @@ InsertionResult find_best_insertion(Route& route, Node& i);
 /// <param name="pi"></param>
 /// <returns></returns>
 double g(Route& pi);
+
+void calculate_cost(Result &result);
+void calculate_remaining_capacity(Result& result);
+
 int dif(std::vector<Route>& s1, std::vector<Route>& s2);
 
 /// <summary>
@@ -65,3 +69,6 @@ bool any_duplicates(const std::vector<Route>& routes);
 /// <param name="routes">- A vector of Route objects</param>
 /// <returns>true if any customer is assigned to more than one route; false otherwise</returns>
 bool any_global_duplicates(const std::vector<Route>& routes);
+
+
+bool has_negtive_capacity(const Result& result);

@@ -132,7 +132,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="ResultsParser.cpp" />
     <ClCompile Include="src\cvrp_parser.cpp" />
     <ClCompile Include="src\IO_handler.cpp" />
     <ClCompile Include="src\random_utils.cpp" />
@@ -147,7 +146,6 @@
     <ClInclude Include="include\route.h" />
     <ClInclude Include="include\skewed_vns.h" />
     <ClInclude Include="include\utils.h" />
-    <ClInclude Include="ResultsParser.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="InputData\Golden_1.vrp" />

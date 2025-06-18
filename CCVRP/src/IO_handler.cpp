@@ -1,4 +1,4 @@
-#include "IO_handler.h"
+ï»¿#include "IO_handler.h"
 
 IO_handler::IO_handler(const std::string& base_name): base_name(base_name) {
 	set_base_name(base_name);
@@ -119,9 +119,9 @@ CVRPInstance IO_handler::get_instance()
 
 void IO_handler::save_solution(Result &solution)
 {
-    std::string base_folder = std::filesystem::path(result_path).parent_path().string();  
-    std::string base_filename = std::filesystem::path(result_path).stem().string();     
-    std::string extension = std::filesystem::path(result_path).extension().string();   
+    std::string base_folder = std::filesystem::path(result_path).parent_path().string();
+    std::string base_filename = std::filesystem::path(result_path).stem().string();
+    std::string extension = std::filesystem::path(result_path).extension().string();
 
     if (folder_exists(base_folder + "/" + base_filename))
     {
@@ -136,12 +136,13 @@ void IO_handler::save_solution(Result &solution)
 
 
 
+
     std::ofstream out(result_path); 
     int ile = 0;
     for (int i = 0; i < solution.routes.size(); i++)
     {
       
-        out << "Route #" << (i + 1) << ": ";
+        out << "Route #" << (i) << ": ";
         for (const auto& customer : solution.routes[i].customers)
         {
             out << customer.id << " ";
@@ -153,13 +154,14 @@ void IO_handler::save_solution(Result &solution)
 	out <<"\n" << create_table(solution);
 }
 //NOT WORKING YET - TO DO
-Result IO_handler::load_solution(int number,std::string name)
+Result IO_handler::load_solution(int number,std::string name, std::string custom_folder)
 {
     std::string filename;
     std::string stem;
+
     if (name.empty()) {
-        filename = base_name; // np. "zadanie.vrp"
-        stem = std::filesystem::path(base_name).stem().string(); // np. "zadanie"
+        filename = base_name;
+        stem = std::filesystem::path(base_name).stem().string();
     }
     else {
         filename = name;
@@ -173,25 +175,31 @@ Result IO_handler::load_solution(int number,std::string name)
         filename = stem + "_" + std::to_string(number) + ".vrp";
     }
 
-    // Pierwsza próba: Results/filename
-    std::string try1 = "Results/" + filename;
+    std::string try1, try2;
 
-    // Druga próba: Results/stem/filename
-    std::string try2 = "Results/" + stem + "/" + filename;
+    if (!custom_folder.empty()) {
+        try1 = "Results/" + custom_folder + "/" + filename;
+        //try2 = "";  // pomiÅ„ lub zostaw jako zapas
+        try2 = "Results/" + custom_folder + "/" + stem + "/" + filename;
+    }
+    else {
+        try1 = "Results/" + filename;
+        try2 = "Results/" + stem + "/" + filename;
+    }
 
     if (std::filesystem::exists(try1)) {
         result_path = try1;
     }
-    else if (std::filesystem::exists(try2)) {
+    else if (!try2.empty() && std::filesystem::exists(try2)) {
         result_path = try2;
     }
     else {
-        throw std::runtime_error("Nie znaleziono pliku rozwi¹zania: " + try1 + " ani " + try2);
+        throw std::runtime_error("Nie znaleziono pliku rozwiÄ…zania: " + try1 + (try2.empty() ? "" : (" ani " + try2)));
     }
 
     std::ifstream file(result_path);
     if (!file) {
-        throw std::runtime_error("Nie mo¿na otworzyæ pliku: " + result_path);
+        throw std::runtime_error("Nie moÅ¼na otworzyÄ‡ pliku: " + result_path);
     }
 
 
@@ -235,11 +243,11 @@ Result IO_handler::load_solution(int number,std::string name)
                     route.customers.push_back(it->second);
                 }
                 else {
-                    std::cerr << "Brak klienta o ID: " << client_id << " w danych wejœciowych.\n";
+                    std::cerr << "Brak klienta o ID: " << client_id << " w danych wejÅ›ciowych.\n";
                 }
             }
 
-            // Nie ustawiamy remaining_capacity ani route_cost - bêd¹ wczytane z tabeli
+            // Nie ustawiamy remaining_capacity ani route_cost - bÄ™dÄ… wczytane z tabeli
             routes.push_back(route);
         }
         else if (line.find("Total solution cost:") == 0)
@@ -247,7 +255,7 @@ Result IO_handler::load_solution(int number,std::string name)
             size_t pos = line.find(':');
             if (pos != std::string::npos) {
                 std::string cost_str = line.substr(pos + 1);
-                // usuñ bia³e znaki z pocz¹tku i koñca
+                // usuÅ„ biaÅ‚e znaki z poczÄ…tku i koÅ„ca
                 cost_str.erase(0, cost_str.find_first_not_of(" \t"));
                 cost_str.erase(cost_str.find_last_not_of(" \t") + 1);
 
@@ -255,11 +263,11 @@ Result IO_handler::load_solution(int number,std::string name)
             }
         }
 
-        // Po sekcji tras szukamy nag³ówka tabeli
+        // Po sekcji tras szukamy nagÅ‚Ã³wka tabeli
         else if (line.find("Route | Remaining capacity") != std::string::npos) {
             reading_table = true;
 
-            // Pomijamy liniê separatora
+            // Pomijamy liniÄ™ separatora
             std::getline(file, line);
             continue;
         }
@@ -277,11 +285,11 @@ Result IO_handler::load_solution(int number,std::string name)
             double route_cost;
             int num_clients;
 
-            char sep; // do pomijania separatorów '|'
+            char sep; // do pomijania separatorÃ³w '|'
             iss >> route_num >> sep;
 
             // Usuwamy spacje i wczytujemy pola oddzielone '|'
-            // Poniewa¿ format jest sta³y, mo¿na czytaæ pola z '|' jako separator
+            // PoniewaÅ¼ format jest staÅ‚y, moÅ¼na czytaÄ‡ pola z '|' jako separator
 
             std::string rem_cap_str, route_cost_str, num_clients_str;
 
@@ -289,7 +297,7 @@ Result IO_handler::load_solution(int number,std::string name)
             std::getline(iss, route_cost_str, '|');
             std::getline(iss, num_clients_str, '|');
 
-            // Usuwamy bia³e znaki
+            // Usuwamy biaÅ‚e znaki
             auto trim = [](std::string& s) {
                 s.erase(0, s.find_first_not_of(" \t\n\r\f\v"));
                 s.erase(s.find_last_not_of(" \t\n\r\f\v") + 1);
@@ -303,11 +311,11 @@ Result IO_handler::load_solution(int number,std::string name)
             route_cost = std::stod(route_cost_str);
             num_clients = std::stoi(num_clients_str);
 
-            // Aktualizujemy odpowiedni¹ trasê
+            // Aktualizujemy odpowiedniÄ… trasÄ™
             if (route_num > 0 && route_num <= (int)routes.size()) {
                 routes[route_num - 1].remaining_capacity = rem_capacity;
                 routes[route_num - 1].route_cost = route_cost;
-                // Mo¿esz te¿ opcjonalnie weryfikowaæ num_clients z routes[route_num - 1].customers.size()
+                // MoÅ¼esz teÅ¼ opcjonalnie weryfikowaÄ‡ num_clients z routes[route_num - 1].customers.size()
             }
         }
     }
@@ -354,7 +362,7 @@ std::string IO_handler::create_table(Result& solution)
 
     for (int s = 0; s < solution.routes.size(); s++)
     {
-		oss << std::setw(column_widths[0]) << std::left << solution.routes[s].vehicle_id + 1 << " | ";
+		oss << std::setw(column_widths[0]) << std::left << solution.routes[s].vehicle_id << " | ";
 		oss << std::setw(column_widths[1]) << std::left << solution.routes[s].remaining_capacity << " | ";
 		oss << std::setw(column_widths[2]) << std::left << solution.routes[s].route_cost << " | ";
 		oss << std::setw(column_widths[3]) << std::left << solution.routes[s].customers.size() << " | ";

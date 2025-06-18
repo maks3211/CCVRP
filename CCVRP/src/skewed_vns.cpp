@@ -134,7 +134,6 @@
 
             for (int i = 1; i <= k; i++)
             {
-                //trzeba obliczyc koszt imporved g przed uzyciem!!!!
                 s_prim = P(s_prim, k); // wywolanie P1, P2 lub P3
             }
 
