@@ -118,47 +118,55 @@
     std::vector<Route> Skewed_VNS::SVNS(std::vector<Route>& solution, int k_max)
     {
         float beta = 1.02;
-        int k = 1;
+        int k;
         std::vector<Route> s = solution; // operujemy na kopi
         std::vector<Route> s_best = s; // == s* w opisie algorytmu
 
         std::vector<Route> s_prim;
         std::vector<Route> s_bis;
 
-
-
-        while (k <= k_max)
+        //Main loop end condition 
+        int no_improve_count = 0;
+        int max_no_improve = 35;
+        while (no_improve_count < max_no_improve)
         {
-            s_prim = s;
 
+            k = 1;
+            while (k <= k_max)
+            {
+                s_prim = s;
 
-            for (int i = 1; i <= k; i++)
-            {
-                s_prim = P(s_prim, k); // wywolanie P1, P2 lub P3
-            }
+                //?????
+                for (int i = 1; i <= k; i++)
+                {
+                    s_prim = P(s_prim, k); //perturbation
+                }
 
-            s_bis = VND(s_prim);
-            double f_s = f(s);
-            double f_s_bis = f(s_bis);
-            double delta_s_s_bis = delta(s, s_bis);
-            double f_s_best = f(s_best);
-            if (f_s_bis < std::min(f_s * delta_s_s_bis, beta * f_s_best))
-            {
-                s = s_bis;
-                k = 1;
-            }
-            else
-            {
-                k = k + 1;
-            }
-            if (f_s_bis < f_s_best)
-            {
-              //  std::cout << "Jest poprawa \n";
-                s_best = s_bis;
-            }
-            else
-            {
-                //std::cout << "Brak poprawy \n";
+                s_bis = VND(s_prim);        //local search 
+                double f_s = f(s);
+                double f_s_bis = f(s_bis);
+                double delta_s_s_bis = delta(s, s_bis);
+                double f_s_best = f(s_best);
+                if (f_s_bis < std::min(f_s * delta_s_s_bis, beta * f_s_best))  //skewed move 
+                {
+                    s = s_bis;
+                    k = 1;
+                }
+                else
+                {
+                    k = k + 1;
+                }
+                if (f_s_bis < f_s_best)
+                {
+                  //  std::cout << "Jest poprawa \n";
+                    s_best = s_bis;
+                    no_improve_count = 0;
+                }
+                else
+                {
+                    //std::cout << "Brak poprawy \n";
+                    no_improve_count++;
+                }
             }
         }
         return s_best;
@@ -175,6 +183,7 @@
             for (int r = 0; r < s.size(); r++)
             {
                 //iteracja przez wszystkich klientow - intra route - nie wychodze poza dana trase, poza baza, ona nie moze byc przestawiona
+                //Zminaa c z 1 na 0
                 for (int c = 1; c < s[r].customers.size(); c++)
                 {
                     for (int i = 1; i < s[r].customers.size(); i++) // miejsce za ktore wstawic klienta c, czyli np i = 2 to c bedzie na pozycji 3 
@@ -185,15 +194,16 @@
 
                         s_prime[r].customers.erase(s_prime[r].customers.begin() + c);
                         s_prime[r].customers.insert(s_prime[r].customers.begin() + i, client); // wstawiam klienta na miejsce i
-
+                      
                         if (f_s > f(s_prime))
                         {
                             return s_prime; // zwracam pierwsze lepsze s_prime
                         }
                         else // nie ma poprawy to wrc do oryginalnego rozwiazania
                         {
-                            s_prime[r].customers.erase(s_prime[r].customers.begin() + i);
-                            s_prime[r].customers.insert(s_prime[r].customers.begin() + c, client);
+                            s_prime = s;
+                          //  s_prime[r].customers.erase(s_prime[r].customers.begin() + i);
+                          //  s_prime[r].customers.insert(s_prime[r].customers.begin() + c, client);
                         }
                     }
                 }
@@ -238,7 +248,7 @@
         case 2:
         {
             //iteracja przez wyszstkie pojazdy
-
+            std::vector<Route> s_tmp = s;
             for (int r = 0; r < s.size(); r++)
             {
                 //iteracja przez wszystkich klientow - intra route - nie wychodze poza dana trase, poza baza, ona nie moze byc przestawiona
@@ -247,13 +257,10 @@
                 {
 					block_size = s[r].customers.size() > 1 ? s[r].customers.size() - 1 : 0;
                 }
-
-                for (int c = 1; c <= s[r].customers.size() - block_size; c++)
+                
+                for (int c =1 ; c <= s[r].customers.size() - block_size; c++)
                 {
-                   
-
                     std::vector<Node> block(s_prime[r].customers.begin() + c, s_prime[r].customers.begin() + c + block_size);
-
                     for (int i = 1; i <= s[r].customers.size() - block_size; i++)
                     {
                         if (c == i) continue;
@@ -267,8 +274,10 @@
                         }
                         else // nie ma poprawy to wrc do oryginalnego rozwiazania
                         {
-                            s_prime[r].customers.erase(s_prime[r].customers.begin() + i, s_prime[r].customers.begin() + i + block_size);
-                            s_prime[r].customers.insert(s_prime[r].customers.begin() + c, block.begin(), block.end());
+                            //TUUU
+                           // s_prime[r].customers.erase(s_prime[r].customers.begin() + i, s_prime[r].customers.begin() + i + block_size);
+                           // s_prime[r].customers.insert(s_prime[r].customers.begin() + c, block.begin(), block.end());
+                            s_prime = s_tmp;
                         }
 
                     }
@@ -289,6 +298,7 @@
                         block_size = s[r].customers.size() > 1 ? s[r].customers.size() - 1 : 0;
                     }
                     //iteracja przez kolejnych klientow w trasie r
+					
                     for (int c = 1; c <= s[r].customers.size() - block_size; c++)
                     {
                         std::vector<Node> block(s_prime[r].customers.begin() + c, s_prime[r].customers.begin() + c + block_size);
@@ -308,11 +318,13 @@
                             }
                             else // nie ma poprawy to wrc do oryginalnego rozwiazania
                             {
-                                s_prime[rr].customers.erase(s_prime[rr].customers.begin() + i, s_prime[rr].customers.begin() + i + block_size);
-                                s_prime[rr].remaining_capacity += block_demand;
-
-                                s_prime[r].customers.insert(s_prime[r].customers.begin() + c, block.begin(), block.end());
-                                s_prime[r].remaining_capacity -= block_demand;
+                                //TUUU
+                                s_prime = s_tmp;
+                              //  s_prime[rr].customers.erase(s_prime[rr].customers.begin() + i, s_prime[rr].customers.begin() + i + block_size);
+                              //  s_prime[rr].remaining_capacity += block_demand;
+                              //
+                              //  s_prime[r].customers.insert(s_prime[r].customers.begin() + c, block.begin(), block.end());
+                              //  s_prime[r].remaining_capacity -= block_demand;
                             }
                         }
                     }
@@ -411,6 +423,7 @@
 
 
             //zapisujemy orginalny koszt trasy ktora bedziemy modyfikowac
+          
             double best_cost = g(route);
             int best_pos = -1;
 

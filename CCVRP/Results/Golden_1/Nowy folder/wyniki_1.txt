@@ -1,0 +1,581 @@
+f_alfa = 6 | Najlepszy koszt: 55719.5 | Sredni koszt: 65186.3  naruszenie pojemnosci
+f_alfa = 10 | Najlepszy koszt: 54722 | Sredni koszt: 59895.2  
+f_alfa = 25 | Najlepszy koszt: 56755.5 | Sredni koszt: 64101
+f_alfa = 50 | Najlepszy koszt: 55182 | Sredni koszt: 63485.4
+f_alfa = 100 | Najlepszy koszt: 57097.6 | Sredni koszt: 65123.8
+f_alfa = 200 | Najlepszy koszt: 56268 | Sredni koszt: 65808.1
+f_alfa = 500 | Najlepszy koszt: 54338.1 | Sredni koszt: 65596.8
+f_alfa = 1000 | Najlepszy koszt: 56102.6 | Sredni koszt: 63915.6
+											//==============================================\\
+                                         ||============Rozpoczecie Skewed_VNS============||
+                                         \\==============================================//
+
+============== TEST DLA f_alfa = 6 ==============
+[/] Czas dzialania: 85.15 s
+-------------------------------------------------------
+Run 1 | Czas: 85.4149 s | Koszt: 67166.3 | Przekroczenie pojemnosci: false
+[|] Czas dzialania: 86.28 s
+-------------------------------------------------------
+Run 2 | Czas: 86.5308 s | Koszt: 55719.5 | Przekroczenie pojemnosci: true
+[/] Czas dzialania: 90.76 s
+-------------------------------------------------------
+Run 3 | Czas: 91.0217 s | Koszt: 67720.5 | Przekroczenie pojemnosci: false
+[/] Czas dzialania: 92.80 s
+-------------------------------------------------------
+Run 4 | Czas: 93.0644 s | Koszt: 60411.5 | Przekroczenie pojemnosci: false
+[-] Czas dzialania: 66.99 s
+-------------------------------------------------------
+Run 5 | Czas: 67.2533 s | Koszt: 76941.6 | Przekroczenie pojemnosci: false
+[|] Czas dzialania: 66.74 s
+-------------------------------------------------------
+Run 6 | Czas: 66.9881 s | Koszt: 82954.6 | Przekroczenie pojemnosci: false
+[\] Czas dzialania: 68.65 s
+-------------------------------------------------------
+Run 7 | Czas: 68.9123 s | Koszt: 58032.5 | Przekroczenie pojemnosci: false
+[-] Czas dzialania: 95.87 s
+-------------------------------------------------------
+Run 8 | Czas: 96.136 s | Koszt: 69110.5 | Przekroczenie pojemnosci: false
+[\] Czas dzialania: 56.02 s
+-------------------------------------------------------
+Run 9 | Czas: 56.2841 s | Koszt: 59795 | Przekroczenie pojemnosci: false
+[\] Czas dzialania: 34.57 s
+-------------------------------------------------------
+Run 10 | Czas: 34.8339 s | Koszt: 56968.9 | Przekroczenie pojemnosci: false
+[|] Czas dzialania: 85.23 s
+-------------------------------------------------------
+Run 11 | Czas: 85.4774 s | Koszt: 60156.8 | Przekroczenie pojemnosci: false
+[\] Czas dzialania: 129.14 s
+-------------------------------------------------------
+Run 12 | Czas: 129.408 s | Koszt: 74289.2 | Przekroczenie pojemnosci: false
+[|] Czas dzialania: 87.90 s
+-------------------------------------------------------
+Run 13 | Czas: 88.1702 s | Koszt: 58862.7 | Przekroczenie pojemnosci: false
+[-] Czas dzialania: 35.91 s
+-------------------------------------------------------
+Run 14 | Czas: 36.1716 s | Koszt: 64274.4 | Przekroczenie pojemnosci: false
+[|] Czas dzialania: 47.47 s
+-------------------------------------------------------
+Run 15 | Czas: 47.7342 s | Koszt: 74172.3 | Przekroczenie pojemnosci: false
+[\] Czas dzialania: 88.05 s
+-------------------------------------------------------
+Run 16 | Czas: 88.3182 s | Koszt: 56404.4 | Przekroczenie pojemnosci: true
+>>> f_alfa = 6 | Najlepszy koszt: 55719.5 | Sredni koszt: 65186.3
+Route | Remaining capacity | Route cost | Number of clients
+------------------------------------------------------------
+0     | 30                 | 6432.73    | 29                |
+------------------------------------------------------------
+1     | 10                 | 6622.13    | 27                |
+------------------------------------------------------------
+2     | 70                 | 7288.68    | 29                |
+------------------------------------------------------------
+3     | 0                  | 5683.81    | 28                |
+------------------------------------------------------------
+4     | 20                 | 6912.57    | 28                |
+------------------------------------------------------------
+5     | 20                 | 5910.66    | 28                |
+------------------------------------------------------------
+6     | 0                  | 5921.53    | 26                |
+------------------------------------------------------------
+7     | -10                | 5865.66    | 29                |
+------------------------------------------------------------
+8     | 10                 | 5081.7     | 25                |
+------------------------------------------------------------
+
+============== TEST DLA f_alfa = 10 ==============
+[/] Czas dzialania: 56.09 s
+-------------------------------------------------------
+Run 1 | Czas: 56.3412 s | Koszt: 54722 | Przekroczenie pojemnosci: false
+[\] Czas dzialania: 59.02 s
+-------------------------------------------------------
+Run 2 | Czas: 59.2805 s | Koszt: 58297.2 | Przekroczenie pojemnosci: false
+[-] Czas dzialania: 61.66 s
+-------------------------------------------------------
+Run 3 | Czas: 61.9142 s | Koszt: 57377 | Przekroczenie pojemnosci: false
+[-] Czas dzialania: 72.63 s
+-------------------------------------------------------
+Run 4 | Czas: 72.8997 s | Koszt: 56259 | Przekroczenie pojemnosci: false
+[\] Czas dzialania: 90.51 s
+-------------------------------------------------------
+Run 5 | Czas: 90.7707 s | Koszt: 64933.9 | Przekroczenie pojemnosci: false
+[\] Czas dzialania: 92.36 s
+-------------------------------------------------------
+Run 6 | Czas: 92.6297 s | Koszt: 64645.5 | Przekroczenie pojemnosci: false
+[\] Czas dzialania: 26.43 s
+-------------------------------------------------------
+Run 7 | Czas: 26.6981 s | Koszt: 57399.5 | Przekroczenie pojemnosci: false
+[\] Czas dzialania: 37.82 s
+-------------------------------------------------------
+Run 8 | Czas: 38.0818 s | Koszt: 60839 | Przekroczenie pojemnosci: false
+[|] Czas dzialania: 55.65 s
+-------------------------------------------------------
+Run 9 | Czas: 55.9197 s | Koszt: 65351.7 | Przekroczenie pojemnosci: false
+[-] Czas dzialania: 59.19 s
+-------------------------------------------------------
+Run 10 | Czas: 59.4494 s | Koszt: 58109.2 | Przekroczenie pojemnosci: false
+[|] Czas dzialania: 106.03 s
+-------------------------------------------------------
+Run 11 | Czas: 106.291 s | Koszt: 55744.8 | Przekroczenie pojemnosci: false
+[/] Czas dzialania: 111.93 s
+-------------------------------------------------------
+Run 12 | Czas: 112.191 s | Koszt: 63443.6 | Przekroczenie pojemnosci: false
+[|] Czas dzialania: 64.37 s
+-------------------------------------------------------
+Run 13 | Czas: 64.6306 s | Koszt: 62192 | Przekroczenie pojemnosci: false
+[/] Czas dzialania: 55.24 s
+-------------------------------------------------------
+Run 14 | Czas: 55.5105 s | Koszt: 59036.1 | Przekroczenie pojemnosci: false
+[-] Czas dzialania: 57.90 s
+-------------------------------------------------------
+Run 15 | Czas: 58.1638 s | Koszt: 54744.4 | Przekroczenie pojemnosci: false
+[/] Czas dzialania: 30.92 s
+-------------------------------------------------------
+Run 16 | Czas: 31.1863 s | Koszt: 65228.5 | Przekroczenie pojemnosci: false
+>>> f_alfa = 10 | Najlepszy koszt: 54722 | Sredni koszt: 59895.2
+Route | Remaining capacity | Route cost | Number of clients
+------------------------------------------------------------
+0     | 30                 | 5380.84    | 27                |
+------------------------------------------------------------
+1     | 10                 | 5325.53    | 27                |
+------------------------------------------------------------
+2     | 10                 | 5161.06    | 27                |
+------------------------------------------------------------
+3     | 40                 | 6034.11    | 26                |
+------------------------------------------------------------
+4     | 10                 | 6416.53    | 27                |
+------------------------------------------------------------
+5     | 40                 | 7334.51    | 28                |
+------------------------------------------------------------
+6     | 0                  | 6161.7     | 30                |
+------------------------------------------------------------
+7     | 0                  | 5534.21    | 28                |
+------------------------------------------------------------
+8     | 10                 | 7373.5     | 29                |
+------------------------------------------------------------
+
+============== TEST DLA f_alfa = 25 ==============
+[\] Czas dzialania: 73.00 s
+-------------------------------------------------------
+Run 1 | Czas: 73.2691 s | Koszt: 69500.7 | Przekroczenie pojemnosci: false
+[|] Czas dzialania: 114.98 s
+-------------------------------------------------------
+Run 2 | Czas: 115.243 s | Koszt: 60197.3 | Przekroczenie pojemnosci: false
+[|] Czas dzialania: 69.10 s
+-------------------------------------------------------
+Run 3 | Czas: 69.3596 s | Koszt: 85189.9 | Przekroczenie pojemnosci: false
+[\] Czas dzialania: 47.76 s
+-------------------------------------------------------
+Run 4 | Czas: 48.0248 s | Koszt: 68254.3 | Przekroczenie pojemnosci: false
+[\] Czas dzialania: 134.55 s
+-------------------------------------------------------
+Run 5 | Czas: 134.818 s | Koszt: 71415.9 | Przekroczenie pojemnosci: false
+[|] Czas dzialania: 81.54 s
+-------------------------------------------------------
+Run 6 | Czas: 81.8097 s | Koszt: 64394.5 | Przekroczenie pojemnosci: false
+[/] Czas dzialania: 98.50 s
+-------------------------------------------------------
+Run 7 | Czas: 98.7597 s | Koszt: 62287.5 | Przekroczenie pojemnosci: false
+[|] Czas dzialania: 98.20 s
+-------------------------------------------------------
+Run 8 | Czas: 98.4658 s | Koszt: 61754.5 | Przekroczenie pojemnosci: false
+[-] Czas dzialania: 120.47 s
+-------------------------------------------------------
+Run 9 | Czas: 120.72 s | Koszt: 60006.1 | Przekroczenie pojemnosci: false
+[/] Czas dzialania: 36.05 s
+-------------------------------------------------------
+Run 10 | Czas: 36.315 s | Koszt: 59846 | Przekroczenie pojemnosci: false
+[-] Czas dzialania: 65.21 s
+-------------------------------------------------------
+Run 11 | Czas: 65.4613 s | Koszt: 61028.3 | Przekroczenie pojemnosci: false
+[\] Czas dzialania: 62.44 s
+-------------------------------------------------------
+Run 12 | Czas: 62.7032 s | Koszt: 57715.2 | Przekroczenie pojemnosci: false
+[/] Czas dzialania: 65.93 s
+-------------------------------------------------------
+Run 13 | Czas: 66.1959 s | Koszt: 56755.5 | Przekroczenie pojemnosci: false
+[/] Czas dzialania: 46.19 s
+-------------------------------------------------------
+Run 14 | Czas: 46.4556 s | Koszt: 58363.3 | Przekroczenie pojemnosci: false
+[/] Czas dzialania: 100.33 s
+-------------------------------------------------------
+Run 15 | Czas: 100.58 s | Koszt: 61877.2 | Przekroczenie pojemnosci: false
+[\] Czas dzialania: 74.81 s
+-------------------------------------------------------
+Run 16 | Czas: 75.0767 s | Koszt: 67029.7 | Przekroczenie pojemnosci: false
+>>> f_alfa = 25 | Najlepszy koszt: 56755.5 | Sredni koszt: 64101
+Route | Remaining capacity | Route cost | Number of clients
+------------------------------------------------------------
+0     | 40                 | 6097.55    | 30                |
+------------------------------------------------------------
+1     | 0                  | 5948.46    | 26                |
+------------------------------------------------------------
+2     | 0                  | 6671.32    | 28                |
+------------------------------------------------------------
+3     | 10                 | 6286.26    | 27                |
+------------------------------------------------------------
+4     | 20                 | 6219.41    | 26                |
+------------------------------------------------------------
+5     | 10                 | 6764.49    | 29                |
+------------------------------------------------------------
+6     | 20                 | 6178.33    | 28                |
+------------------------------------------------------------
+7     | 10                 | 4879.7     | 27                |
+------------------------------------------------------------
+8     | 40                 | 7709.97    | 28                |
+------------------------------------------------------------
+
+============== TEST DLA f_alfa = 50 ==============
+[|] Czas dzialania: 32.34 s
+-------------------------------------------------------
+Run 1 | Czas: 32.6055 s | Koszt: 62606.5 | Przekroczenie pojemnosci: false
+[|] Czas dzialania: 99.28 s
+-------------------------------------------------------
+Run 2 | Czas: 99.543 s | Koszt: 71843.7 | Przekroczenie pojemnosci: false
+[|] Czas dzialania: 28.13 s
+-------------------------------------------------------
+Run 3 | Czas: 28.3938 s | Koszt: 59976.4 | Przekroczenie pojemnosci: false
+[-] Czas dzialania: 71.62 s
+-------------------------------------------------------
+Run 4 | Czas: 71.8853 s | Koszt: 62629.4 | Przekroczenie pojemnosci: false
+[\] Czas dzialania: 29.71 s
+-------------------------------------------------------
+Run 5 | Czas: 29.9702 s | Koszt: 55182 | Przekroczenie pojemnosci: false
+[\] Czas dzialania: 48.12 s
+-------------------------------------------------------
+Run 6 | Czas: 48.382 s | Koszt: 58404.2 | Przekroczenie pojemnosci: false
+[|] Czas dzialania: 54.62 s
+-------------------------------------------------------
+Run 7 | Czas: 54.8827 s | Koszt: 69308.2 | Przekroczenie pojemnosci: false
+[\] Czas dzialania: 45.58 s
+-------------------------------------------------------
+Run 8 | Czas: 45.8466 s | Koszt: 70437.9 | Przekroczenie pojemnosci: false
+[-] Czas dzialania: 31.86 s
+-------------------------------------------------------
+Run 9 | Czas: 32.1103 s | Koszt: 60722.9 | Przekroczenie pojemnosci: false
+[|] Czas dzialania: 95.56 s
+-------------------------------------------------------
+Run 10 | Czas: 95.8299 s | Koszt: 60097.1 | Przekroczenie pojemnosci: false
+[\] Czas dzialania: 84.30 s
+-------------------------------------------------------
+Run 11 | Czas: 84.5645 s | Koszt: 60310.2 | Przekroczenie pojemnosci: false
+[/] Czas dzialania: 35.63 s
+-------------------------------------------------------
+Run 12 | Czas: 35.8965 s | Koszt: 67099.3 | Przekroczenie pojemnosci: false
+[/] Czas dzialania: 62.93 s
+-------------------------------------------------------
+Run 13 | Czas: 63.177 s | Koszt: 63796.5 | Przekroczenie pojemnosci: false
+[/] Czas dzialania: 34.88 s
+-------------------------------------------------------
+Run 14 | Czas: 35.1389 s | Koszt: 64720.7 | Przekroczenie pojemnosci: false
+[-] Czas dzialania: 36.17 s
+-------------------------------------------------------
+Run 15 | Czas: 36.4381 s | Koszt: 58402.9 | Przekroczenie pojemnosci: false
+[\] Czas dzialania: 44.66 s
+-------------------------------------------------------
+Run 16 | Czas: 44.9162 s | Koszt: 70228 | Przekroczenie pojemnosci: false
+>>> f_alfa = 50 | Najlepszy koszt: 55182 | Sredni koszt: 63485.4
+Route | Remaining capacity | Route cost | Number of clients
+------------------------------------------------------------
+0     | 20                 | 6403.56    | 28                |
+------------------------------------------------------------
+1     | 30                 | 5408.7     | 27                |
+------------------------------------------------------------
+2     | 20                 | 6245.95    | 26                |
+------------------------------------------------------------
+3     | 0                  | 6171.83    | 28                |
+------------------------------------------------------------
+4     | 30                 | 9140.14    | 29                |
+------------------------------------------------------------
+5     | 0                  | 5777.32    | 30                |
+------------------------------------------------------------
+6     | 30                 | 5501.85    | 27                |
+------------------------------------------------------------
+7     | 0                  | 4474.58    | 26                |
+------------------------------------------------------------
+8     | 20                 | 6058.1     | 28                |
+------------------------------------------------------------
+
+============== TEST DLA f_alfa = 100 ==============
+[-] Czas dzialania: 56.76 s
+-------------------------------------------------------
+Run 1 | Czas: 57.022 s | Koszt: 67037.9 | Przekroczenie pojemnosci: false
+[\] Czas dzialania: 42.56 s
+-------------------------------------------------------
+Run 2 | Czas: 42.8141 s | Koszt: 64526.5 | Przekroczenie pojemnosci: false
+[\] Czas dzialania: 50.05 s
+-------------------------------------------------------
+Run 3 | Czas: 50.3116 s | Koszt: 60915.3 | Przekroczenie pojemnosci: false
+[-] Czas dzialania: 74.09 s
+-------------------------------------------------------
+Run 4 | Czas: 74.3505 s | Koszt: 60828.8 | Przekroczenie pojemnosci: false
+[|] Czas dzialania: 30.81 s
+-------------------------------------------------------
+Run 5 | Czas: 31.0788 s | Koszt: 64552.2 | Przekroczenie pojemnosci: false
+[/] Czas dzialania: 59.73 s
+-------------------------------------------------------
+Run 6 | Czas: 59.9912 s | Koszt: 65768.7 | Przekroczenie pojemnosci: false
+[|] Czas dzialania: 27.18 s
+-------------------------------------------------------
+Run 7 | Czas: 27.4267 s | Koszt: 58905.8 | Przekroczenie pojemnosci: false
+[|] Czas dzialania: 79.51 s
+-------------------------------------------------------
+Run 8 | Czas: 79.7772 s | Koszt: 63734.4 | Przekroczenie pojemnosci: false
+[/] Czas dzialania: 30.57 s
+-------------------------------------------------------
+Run 9 | Czas: 30.8212 s | Koszt: 84086.7 | Przekroczenie pojemnosci: false
+[/] Czas dzialania: 65.02 s
+-------------------------------------------------------
+Run 10 | Czas: 65.2885 s | Koszt: 57097.6 | Przekroczenie pojemnosci: false
+[|] Czas dzialania: 33.45 s
+-------------------------------------------------------
+Run 11 | Czas: 33.7076 s | Koszt: 61757.2 | Przekroczenie pojemnosci: false
+[|] Czas dzialania: 54.30 s
+-------------------------------------------------------
+Run 12 | Czas: 54.5615 s | Koszt: 79997.1 | Przekroczenie pojemnosci: false
+[-] Czas dzialania: 48.52 s
+-------------------------------------------------------
+Run 13 | Czas: 48.7694 s | Koszt: 66789 | Przekroczenie pojemnosci: false
+[\] Czas dzialania: 46.56 s
+-------------------------------------------------------
+Run 14 | Czas: 46.8192 s | Koszt: 58815.6 | Przekroczenie pojemnosci: false
+[\] Czas dzialania: 69.69 s
+-------------------------------------------------------
+Run 15 | Czas: 69.951 s | Koszt: 69503.1 | Przekroczenie pojemnosci: false
+[\] Czas dzialania: 38.41 s
+-------------------------------------------------------
+Run 16 | Czas: 38.6621 s | Koszt: 57664.8 | Przekroczenie pojemnosci: false
+>>> f_alfa = 100 | Najlepszy koszt: 57097.6 | Sredni koszt: 65123.8
+Route | Remaining capacity | Route cost | Number of clients
+------------------------------------------------------------
+0     | 0                  | 6887.61    | 26                |
+------------------------------------------------------------
+1     | 0                  | 6413.19    | 30                |
+------------------------------------------------------------
+2     | 0                  | 5556.29    | 28                |
+------------------------------------------------------------
+3     | 10                 | 6656.22    | 29                |
+------------------------------------------------------------
+4     | 80                 | 7389.44    | 26                |
+------------------------------------------------------------
+5     | 20                 | 5552.22    | 26                |
+------------------------------------------------------------
+6     | 0                  | 5753.15    | 28                |
+------------------------------------------------------------
+7     | 40                 | 5530.3     | 26                |
+------------------------------------------------------------
+8     | 0                  | 7359.17    | 30                |
+------------------------------------------------------------
+
+============== TEST DLA f_alfa = 200 ==============
+[-] Czas dzialania: 36.91 s
+-------------------------------------------------------
+Run 1 | Czas: 37.1759 s | Koszt: 59588.1 | Przekroczenie pojemnosci: false
+[-] Czas dzialania: 22.49 s
+-------------------------------------------------------
+Run 2 | Czas: 22.7505 s | Koszt: 80916.9 | Przekroczenie pojemnosci: false
+[\] Czas dzialania: 30.13 s
+-------------------------------------------------------
+Run 3 | Czas: 30.3921 s | Koszt: 62463.1 | Przekroczenie pojemnosci: false
+[/] Czas dzialania: 31.60 s
+-------------------------------------------------------
+Run 4 | Czas: 31.8595 s | Koszt: 61808.6 | Przekroczenie pojemnosci: false
+[/] Czas dzialania: 47.06 s
+-------------------------------------------------------
+Run 5 | Czas: 47.3267 s | Koszt: 68588.1 | Przekroczenie pojemnosci: false
+[|] Czas dzialania: 74.05 s
+-------------------------------------------------------
+Run 6 | Czas: 74.3129 s | Koszt: 56268 | Przekroczenie pojemnosci: false
+[|] Czas dzialania: 26.10 s
+-------------------------------------------------------
+Run 7 | Czas: 26.3665 s | Koszt: 74787.2 | Przekroczenie pojemnosci: false
+[/] Czas dzialania: 52.70 s
+-------------------------------------------------------
+Run 8 | Czas: 52.9606 s | Koszt: 60884.3 | Przekroczenie pojemnosci: false
+[|] Czas dzialania: 76.18 s
+-------------------------------------------------------
+Run 9 | Czas: 76.4401 s | Koszt: 65831.5 | Przekroczenie pojemnosci: false
+[-] Czas dzialania: 43.26 s
+-------------------------------------------------------
+Run 10 | Czas: 43.529 s | Koszt: 66399.4 | Przekroczenie pojemnosci: false
+[|] Czas dzialania: 35.51 s
+-------------------------------------------------------
+Run 11 | Czas: 35.7753 s | Koszt: 66760.5 | Przekroczenie pojemnosci: false
+[/] Czas dzialania: 18.04 s
+-------------------------------------------------------
+Run 12 | Czas: 18.2878 s | Koszt: 75986.6 | Przekroczenie pojemnosci: false
+[/] Czas dzialania: 70.14 s
+-------------------------------------------------------
+Run 13 | Czas: 70.4015 s | Koszt: 67469.4 | Przekroczenie pojemnosci: false
+[-] Czas dzialania: 24.45 s
+-------------------------------------------------------
+Run 14 | Czas: 24.7113 s | Koszt: 69147.6 | Przekroczenie pojemnosci: false
+[/] Czas dzialania: 54.66 s
+-------------------------------------------------------
+Run 15 | Czas: 54.9275 s | Koszt: 59135.8 | Przekroczenie pojemnosci: false
+[|] Czas dzialania: 42.96 s
+-------------------------------------------------------
+Run 16 | Czas: 43.2216 s | Koszt: 56893.7 | Przekroczenie pojemnosci: false
+>>> f_alfa = 200 | Najlepszy koszt: 56268 | Sredni koszt: 65808.1
+Route | Remaining capacity | Route cost | Number of clients
+------------------------------------------------------------
+0     | 0                  | 5504.06    | 26                |
+------------------------------------------------------------
+1     | 20                 | 6161.72    | 28                |
+------------------------------------------------------------
+2     | 10                 | 6075.22    | 29                |
+------------------------------------------------------------
+3     | 60                 | 7500.72    | 28                |
+------------------------------------------------------------
+4     | 0                  | 5942.91    | 28                |
+------------------------------------------------------------
+5     | 40                 | 7174.35    | 26                |
+------------------------------------------------------------
+6     | 0                  | 6347.41    | 30                |
+------------------------------------------------------------
+7     | 0                  | 5113.68    | 26                |
+------------------------------------------------------------
+8     | 20                 | 6447.98    | 28                |
+------------------------------------------------------------
+
+============== TEST DLA f_alfa = 500 ==============
+[\] Czas dzialania: 77.12 s
+-------------------------------------------------------
+Run 1 | Czas: 77.3809 s | Koszt: 54347.4 | Przekroczenie pojemnosci: false
+[\] Czas dzialania: 64.44 s
+-------------------------------------------------------
+Run 2 | Czas: 64.6894 s | Koszt: 60993.5 | Przekroczenie pojemnosci: false
+[|] Czas dzialania: 18.80 s
+-------------------------------------------------------
+Run 3 | Czas: 19.0592 s | Koszt: 110951 | Przekroczenie pojemnosci: false
+[|] Czas dzialania: 48.02 s
+-------------------------------------------------------
+Run 4 | Czas: 48.2871 s | Koszt: 63662.5 | Przekroczenie pojemnosci: false
+[\] Czas dzialania: 38.35 s
+-------------------------------------------------------
+Run 5 | Czas: 38.6091 s | Koszt: 62583.6 | Przekroczenie pojemnosci: false
+[\] Czas dzialania: 91.45 s
+-------------------------------------------------------
+Run 6 | Czas: 91.7052 s | Koszt: 70044 | Przekroczenie pojemnosci: false
+[/] Czas dzialania: 52.66 s
+-------------------------------------------------------
+Run 7 | Czas: 52.9244 s | Koszt: 54338.1 | Przekroczenie pojemnosci: false
+[\] Czas dzialania: 35.57 s
+-------------------------------------------------------
+Run 8 | Czas: 35.8316 s | Koszt: 68768.8 | Przekroczenie pojemnosci: false
+[\] Czas dzialania: 76.46 s
+-------------------------------------------------------
+Run 9 | Czas: 76.7125 s | Koszt: 69123.5 | Przekroczenie pojemnosci: false
+[-] Czas dzialania: 32.29 s
+-------------------------------------------------------
+Run 10 | Czas: 32.5544 s | Koszt: 58214.1 | Przekroczenie pojemnosci: false
+[/] Czas dzialania: 33.85 s
+-------------------------------------------------------
+Run 11 | Czas: 34.1149 s | Koszt: 63001 | Przekroczenie pojemnosci: false
+[|] Czas dzialania: 24.46 s
+-------------------------------------------------------
+Run 12 | Czas: 24.7256 s | Koszt: 77255.2 | Przekroczenie pojemnosci: false
+[/] Czas dzialania: 51.58 s
+-------------------------------------------------------
+Run 13 | Czas: 51.8415 s | Koszt: 62690.9 | Przekroczenie pojemnosci: false
+[\] Czas dzialania: 62.38 s
+-------------------------------------------------------
+Run 14 | Czas: 62.6359 s | Koszt: 58175.6 | Przekroczenie pojemnosci: false
+[|] Czas dzialania: 44.03 s
+-------------------------------------------------------
+Run 15 | Czas: 44.2829 s | Koszt: 59649.3 | Przekroczenie pojemnosci: false
+[|] Czas dzialania: 49.19 s
+-------------------------------------------------------
+Run 16 | Czas: 49.4577 s | Koszt: 55750.4 | Przekroczenie pojemnosci: false
+>>> f_alfa = 500 | Najlepszy koszt: 54338.1 | Sredni koszt: 65596.8
+Route | Remaining capacity | Route cost | Number of clients
+------------------------------------------------------------
+0     | 20                 | 5564.03    | 28                |
+------------------------------------------------------------
+1     | 0                  | 6390.55    | 28                |
+------------------------------------------------------------
+2     | 30                 | 7020.81    | 25                |
+------------------------------------------------------------
+3     | 10                 | 5563.89    | 27                |
+------------------------------------------------------------
+4     | 10                 | 5778.76    | 27                |
+------------------------------------------------------------
+5     | 50                 | 6717.62    | 31                |
+------------------------------------------------------------
+6     | 20                 | 6028.63    | 28                |
+------------------------------------------------------------
+7     | 0                  | 4769.93    | 26                |
+------------------------------------------------------------
+8     | 10                 | 6503.93    | 29                |
+------------------------------------------------------------
+
+============== TEST DLA f_alfa = 1000 ==============
+[|] Czas dzialania: 25.50 s
+-------------------------------------------------------
+Run 1 | Czas: 25.7551 s | Koszt: 68453.6 | Przekroczenie pojemnosci: false
+[-] Czas dzialania: 32.34 s
+-------------------------------------------------------
+Run 2 | Czas: 32.5885 s | Koszt: 74124.4 | Przekroczenie pojemnosci: false
+[|] Czas dzialania: 42.90 s
+-------------------------------------------------------
+Run 3 | Czas: 43.1492 s | Koszt: 59658.1 | Przekroczenie pojemnosci: false
+[/] Czas dzialania: 44.26 s
+-------------------------------------------------------
+Run 4 | Czas: 44.5191 s | Koszt: 64207.2 | Przekroczenie pojemnosci: false
+[-] Czas dzialania: 51.85 s
+-------------------------------------------------------
+Run 5 | Czas: 52.1019 s | Koszt: 63471.4 | Przekroczenie pojemnosci: false
+[/] Czas dzialania: 27.76 s
+-------------------------------------------------------
+Run 6 | Czas: 28.0263 s | Koszt: 56938.7 | Przekroczenie pojemnosci: false
+[-] Czas dzialania: 60.85 s
+-------------------------------------------------------
+Run 7 | Czas: 61.101 s | Koszt: 70019.8 | Przekroczenie pojemnosci: false
+[|] Czas dzialania: 36.73 s
+-------------------------------------------------------
+Run 8 | Czas: 36.9968 s | Koszt: 59328.3 | Przekroczenie pojemnosci: false
+[-] Czas dzialania: 39.39 s
+-------------------------------------------------------
+Run 9 | Czas: 39.6507 s | Koszt: 71098.3 | Przekroczenie pojemnosci: false
+[/] Czas dzialania: 41.36 s
+-------------------------------------------------------
+Run 10 | Czas: 41.6143 s | Koszt: 56758.7 | Przekroczenie pojemnosci: false
+[-] Czas dzialania: 64.15 s
+-------------------------------------------------------
+Run 11 | Czas: 64.4037 s | Koszt: 63377.7 | Przekroczenie pojemnosci: false
+[/] Czas dzialania: 35.87 s
+-------------------------------------------------------
+Run 12 | Czas: 36.1402 s | Koszt: 61366.9 | Przekroczenie pojemnosci: false
+[\] Czas dzialania: 35.36 s
+-------------------------------------------------------
+Run 13 | Czas: 35.6108 s | Koszt: 62506 | Przekroczenie pojemnosci: false
+[/] Czas dzialania: 23.71 s
+-------------------------------------------------------
+Run 14 | Czas: 23.9626 s | Koszt: 56102.6 | Przekroczenie pojemnosci: false
+[/] Czas dzialania: 51.19 s
+-------------------------------------------------------
+Run 15 | Czas: 51.4416 s | Koszt: 78508.1 | Przekroczenie pojemnosci: false
+[\] Czas dzialania: 70.10 s
+-------------------------------------------------------
+Run 16 | Czas: 70.3472 s | Koszt: 56729.4 | Przekroczenie pojemnosci: false
+>>> f_alfa = 1000 | Najlepszy koszt: 56102.6 | Sredni koszt: 63915.6
+Route | Remaining capacity | Route cost | Number of clients
+------------------------------------------------------------
+0     | 0                  | 5594.95    | 26                |
+------------------------------------------------------------
+1     | 40                 | 7824.75    | 28                |
+------------------------------------------------------------
+2     | 10                 | 5789.41    | 27                |
+------------------------------------------------------------
+3     | 10                 | 5010.26    | 29                |
+------------------------------------------------------------
+4     | 10                 | 7437.38    | 29                |
+------------------------------------------------------------
+5     | 0                  | 4850.64    | 28                |
+------------------------------------------------------------
+6     | 0                  | 5987.93    | 28                |
+------------------------------------------------------------
+7     | 60                 | 5529.77    | 26                |
+------------------------------------------------------------
+8     | 20                 | 8077.5     | 28                |
+------------------------------------------------------------
+
+
