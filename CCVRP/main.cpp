@@ -39,13 +39,15 @@ void loading_animation(std::chrono::high_resolution_clock::time_point start_time
 int main()
 {
     
-    const int num_vehicles = 9;
-	IO_handler io_handlers("Golden_1.vrp");
+    //const int num_vehicles = 9;
+   // IO_handler io_handlers("Golden_1.vrp");
+    const int num_vehicles = 5;
+    IO_handler io_handlers("test_data.vrp");
     CVRPInstance input = io_handlers.get_instance();
    
    
-    std::vector<int> alfa_values = {9,11,12,13 };
-    const int runs_per_alfa = 16;
+    std::vector<int> alfa_values = {25,35,40,50};
+    const int runs_per_alfa = 12;
     std::cout << std::boolalpha;
 
 
@@ -95,13 +97,13 @@ int main()
         {
             auto start = std::chrono::high_resolution_clock::now();
             loading_done = false;
-            std::thread anim_thread(loading_animation, start);
+           // std::thread anim_thread(loading_animation, start);
             Skewed_VNS skewed_vnss(input, num_vehicles);
             skewed_vnss.config.f_alfa = f_alfa;
             skewed_vnss.run();
             Result result = skewed_vnss.get_result();
             loading_done = true;
-            anim_thread.join();
+            //anim_thread.join();
             auto end = std::chrono::high_resolution_clock::now();
             std::chrono::duration<double, std::milli> duration = end - start;
 
@@ -125,7 +127,7 @@ int main()
             << " | Sredni koszt: " << avg_cost
             << "\n";
        
-        io_handlers.save_solution(best_result);
+     //   io_handlers.save_solution(best_result);
     }
 
 

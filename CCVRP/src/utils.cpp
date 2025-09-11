@@ -2,10 +2,12 @@
 
 double euclidean_distance(double x1, double y1, double x2, double y2)
 {
+    
     return sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
 }
 double euclidean_distance(Node n1, Node n2)
 {
+
     double res = sqrt((n1.x - n2.x) * (n1.x - n2.x) + (n1.y - n2.y) * (n1.y - n2.y));
     return res;
 }
@@ -49,17 +51,19 @@ InsertionResult find_best_insertion(Route& route, Node& i)
         }
 
         b = euclidean_distance(route.customers[j], i);
+        //ZASTAPIENIE TEGO CO JEST POD AKTUALNYM TMP, I DODANIE MNOZENIE 2*a - W WYZNACZANIU CURRENTCOST
         int tmp = p - j;
-        if (tmp <= 0)
-        {
-            c = 0;
-        }
-        else if (tmp > 0)
-        {
+        //int tmp = p - j;
+       // if (tmp <= 0)
+        //{
+        //    c = 0;
+       // }
+      //  else if (tmp > 0)
+      // {
             c = tmp * (euclidean_distance(route.customers[j], i) + euclidean_distance(route.customers[j + 1], i));
-        }
+       // }
 
-        currentCost = a + b + c;
+        currentCost = 2*a + b + c;
         if (currentCost < cost)
         {
             cost = currentCost;

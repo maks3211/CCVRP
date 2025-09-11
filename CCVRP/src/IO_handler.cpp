@@ -315,7 +315,7 @@ Result IO_handler::load_solution(int number,std::string name, std::string custom
             if (route_num > 0 && route_num <= (int)routes.size()) {
                 routes[route_num - 1].remaining_capacity = rem_capacity;
                 routes[route_num - 1].route_cost = route_cost;
-                // Możesz też opcjonalnie weryfikować num_clients z routes[route_num - 1].customers.size()
+              
             }
         }
     }

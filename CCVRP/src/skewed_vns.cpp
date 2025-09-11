@@ -5,10 +5,10 @@
     Skewed_VNS::Skewed_VNS(CVRPInstance instance, int num_vehicles, SkewedVNSConfig config): instance(instance), num_vehicles(num_vehicles), config(config)
 {}
 
-    //raczej nazwa run
     void Skewed_VNS::run()
     {
         std::vector<Route> routes = constructive_heurestic();
+        std::cout << "ETAP 1";
         for (int i = 0; i < routes.size(); i++)
         {
             routes[i].route_cost = g(routes[i]); // oblicz koszt trasy
@@ -55,18 +55,20 @@
         }
         //zwolnie pamiêci
         std::vector<int>().swap(indexes_to_remove);
-
+        std::cout << "DODANIE PIERWSZYCH";
         //wstawienie pozostalych klientow
         //usuniecie magazynu z listy klientów
         instance.nodes.erase(instance.nodes.begin());
         for (int i = instance.nodes.size() - 1; i >= 0; i--)
         {
+            //sprawdzanie kosztu wstawienia wszsytkich klientow i
             InsertionResult best_feasible_insertion;
             InsertionResult best_any_insertion;
             best_feasible_insertion.cost = std::numeric_limits<double>::infinity();
             best_any_insertion.cost = std::numeric_limits<double>::infinity();
             for (int r = 0; r < routes.size(); r++)
             {
+                //przekazanie trasy r oraz kliena i - sprawdzenie kosztu wstawienie we wszystkich trasach
                 InsertionResult insertion = find_best_insertion(routes[r], instance.nodes[i]);
                 // Zapisz najlepsz¹ wstawkê tylko jeœli trasa ma wolne miejsce
                 if (instance.nodes[i].demand <= routes[r].remaining_capacity)

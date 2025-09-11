@@ -1,6 +1,6 @@
 #pragma once
 #include "cvrp_types.h"
-
+#include <iostream>
 //Zawiera vector klientow, id pojazdu, pozostala pojemnosc oraz koszt trasy
 struct Route {
     std::vector<Node> customers;  // Lista ID klientów w trasie (w tym depozyt)
@@ -27,6 +27,7 @@ struct Route {
         {
             push = true;
         }
+        std::cout << "COntorl";
         if (force || remaining_capacity >= customer.demand) {
             // Zaktualizuj trasê i pozosta³¹ pojemnoœæ
            // customers.push_back(Node(customer.id, customer.x, customer.y, customer.demand));
