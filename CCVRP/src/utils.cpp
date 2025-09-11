@@ -36,6 +36,7 @@ std::vector<std::pair<double, int>> get_all_distances(const int from_node, const
 
 InsertionResult find_best_insertion(Route& route, Node& i)
 {
+    //new brach checkpoint
     int place = 1;
     double cost = std::numeric_limits<double>::infinity();
     int p = route.customers.size() - 1;
