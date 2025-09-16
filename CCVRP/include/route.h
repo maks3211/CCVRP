@@ -47,12 +47,44 @@ struct Route {
         return false;  
     }
 
-
+    /// <summary>
+    /// Adds a customer to the route at a specific index 
+    /// </summary>
+    /// <param name="customer"></param>
+    /// <param name="index">Index at which new customer will be placed - to add at the end pass customer.size</param>
+    /// <param name="addded_cost"></param>
+    /// <returns></returns>
+    /// 
+    ///  ????????????czy robic nowego customera tak jak w add_customer czy skorzystac z przekazanego  ??
+    bool add_customer_at_index(const Node& customer, int index, const double addded_cost)
+    {
+		//za duzy, nie dodatni
+       
+        if (index > customers.size()  || index <= 0)
+        {
+            return false;
+        }
+        //wstawianie na koniec
+        if (index == customers.size())
+        {
+            customers.push_back(customer);
+        }
+        else
+        {
+            customers.insert(customers.begin() + index, customer);
+        }
+        route_cost += addded_cost;
+        remaining_capacity -= customer.demand;
+        return true;
+    }
 };
+
+
+
 
 //zawiera cale rozwiazanie, czyli wszystkie trasy, calkowity koszt rozwiazania 
 struct Result
 {
     std::vector<Route> routes;
-	double total_cost;  
+	double total_cost = 0.0;  
 };

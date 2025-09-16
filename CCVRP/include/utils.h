@@ -25,12 +25,25 @@ double euclidean_distance(double x1, double y1, double x2, double y2);
 double euclidean_distance(Node n1, Node n2);
 
 /// <summary>
+/// Simple struct to hold distance and node id - node id is the id from input file - not index
+/// </summary>
+struct DistanceInfo {
+    double distance;
+    int node_id;
+    bool operator<(const DistanceInfo& other) const {
+        return distance < other.distance;
+	}
+};
+
+
+
+/// <summary>
 /// Computes distances from a given node to all other nodes in the CVRP instance
 /// </summary>
 /// <param name="from_node">- The index of the node from which distances are calculated</param>
 /// <param name="instance">- The CVRPInstance containing all nodes</param>
 /// <returns>A vector of pairs representing distances and node indices</returns>
-std::vector<std::pair<double, int>> get_all_distances(const int from_node, const CVRPInstance& instance);
+std::vector<DistanceInfo> get_all_distances(const int from_node, const CVRPInstance& instance);
 
 
 InsertionResult find_best_insertion(Route& route, Node& i);

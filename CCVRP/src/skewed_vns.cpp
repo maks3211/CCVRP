@@ -29,7 +29,7 @@
 
     std::vector<Route> Skewed_VNS::constructive_heurestic()
     {
-        std::vector<std::pair<double, int>> distances_from_depot = get_all_distances(instance.depot_id - 1, instance);
+        std::vector<DistanceInfo> distances_from_depot = get_all_distances(instance.depot_id - 1, instance);
         std::sort(distances_from_depot.begin(), distances_from_depot.end());
         std::vector<Route> routes;
         for (int i = 0; i < num_vehicles; ++i) {
@@ -43,22 +43,35 @@
             auto best = distances_from_depot.front();
             distances_from_depot.erase(distances_from_depot.begin());
             //best second to indeks w oryginalnej tablicy instances z wejœciowymi danymi
-            c.add_customer(instance.nodes[best.second], best.first, 1);
-            indexes_to_remove.push_back(best.second);
+            //c.add_customer(instance.nodes[best.second], best.first, 1);
+            
+            //szukanie indeksu klienta na podstawie node_id
+            auto it = std::find_if(instance.nodes.begin(), instance.nodes.end(),
+                [&](const Node& n) { return n.id == best.node_id; });
+            if (it != instance.nodes.end()) {
+                c.add_customer_at_index(*it, 1, best.distance);           
+                instance.nodes.erase(it);
+            }
+            else {
+                std::cerr << "Nie znaleziono klienta o ID " << best.node_id << "!\n";
+            } 
+            //indexes_to_remove.push_back(best.node_id);
+           
         }
         //usuwanie dodanych klientow z listy wszstkich klientów
-        std::sort(indexes_to_remove.begin(), indexes_to_remove.end(), std::greater<int>());
-        for (int index : indexes_to_remove) {
-            if (index >= 0 && index < instance.nodes.size()) {
-                instance.nodes.erase(instance.nodes.begin() + index);
-            }
-        }
+        //std::sort(indexes_to_remove.begin(), indexes_to_remove.end(), std::greater<int>());
+        //for (int index : indexes_to_remove) {
+        //    if (index >= 0 && index < instance.nodes.size()) {
+        //        instance.nodes.erase(instance.nodes.begin() + index);
+        //    }
+        //}
         //zwolnie pamiêci
-        std::vector<int>().swap(indexes_to_remove);
+        //std::vector<int>().swap(indexes_to_remove);
         std::cout << "DODANIE PIERWSZYCH";
         //wstawienie pozostalych klientow
         //usuniecie magazynu z listy klientów
         instance.nodes.erase(instance.nodes.begin());
+        //Przejœcie przez wszystkich klientow
         for (int i = instance.nodes.size() - 1; i >= 0; i--)
         {
             //sprawdzanie kosztu wstawienia wszsytkich klientow i
@@ -66,6 +79,8 @@
             InsertionResult best_any_insertion;
             best_feasible_insertion.cost = std::numeric_limits<double>::infinity();
             best_any_insertion.cost = std::numeric_limits<double>::infinity();
+
+			//przejscie przez wszysktie pojazdy - szukanie najlepszej trasy dla klienta i
             for (int r = 0; r < routes.size(); r++)
             {
                 //przekazanie trasy r oraz kliena i - sprawdzenie kosztu wstawienie we wszystkich trasach
@@ -88,7 +103,8 @@
                 ? best_feasible_insertion
                 : best_any_insertion;
 
-            routes[chosen_insertion.route_id].add_customer(instance.nodes[i], chosen_insertion.cost, chosen_insertion.place, false);
+            //routes[chosen_insertion.route_id].add_customer(instance.nodes[i], chosen_insertion.cost, chosen_insertion.place, false);
+            routes[chosen_insertion.route_id].add_customer_at_index(instance.nodes[i], chosen_insertion.place + 1,chosen_insertion.cost);
             instance.nodes.erase(instance.nodes.begin() + i);
         }
         return routes;

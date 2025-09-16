@@ -12,13 +12,13 @@ double euclidean_distance(Node n1, Node n2)
     return res;
 }
 
-std::vector<std::pair<double, int>> get_all_distances(const int from_node, const CVRPInstance& instance) // zwraca wektor odległości węzła from_node do pozstałych punktów
+std::vector<DistanceInfo> get_all_distances(const int from_node, const CVRPInstance& instance) // zwraca wektor odległości węzła from_node do pozstałych punktów
 {
     if (from_node >= instance.dimension)
     {
         return{};
     }
-    std::vector<std::pair<double, int>> distances;
+    std::vector<DistanceInfo> distances;
     for (int i = 0; i < instance.dimension; i++)
     {
         if (i == from_node)
@@ -27,7 +27,8 @@ std::vector<std::pair<double, int>> get_all_distances(const int from_node, const
         }
         else
         {
-            distances.push_back({ euclidean_distance(instance.nodes[from_node], instance.nodes[i]), i });
+          //  distances.push_back({ euclidean_distance(instance.nodes[from_node], instance.nodes[i]), i });
+           distances.push_back({ euclidean_distance(instance.nodes[from_node], instance.nodes[i]), instance.nodes[i].id});
         }
     }
     return distances;
@@ -36,11 +37,11 @@ std::vector<std::pair<double, int>> get_all_distances(const int from_node, const
 
 InsertionResult find_best_insertion(Route& route, Node& i)
 {
-    //new brach checkpoint
+  
     int place = 1;
     double cost = std::numeric_limits<double>::infinity();
     int p = route.customers.size() - 1;
-    for (int j = 0; j < route.customers.size(); j++)
+    for (int j = 0; j < route.customers.size() - 1; j++)
     {
         double currentCost = 0.0;
         double a = 0.0;
@@ -53,7 +54,7 @@ InsertionResult find_best_insertion(Route& route, Node& i)
 
         b = euclidean_distance(route.customers[j], i);
         //ZASTAPIENIE TEGO CO JEST POD AKTUALNYM TMP, I DODANIE MNOZENIE 2*a - W WYZNACZANIU CURRENTCOST
-        int tmp = p - j;
+        int tmp = p - j + 1;
         //int tmp = p - j;
        // if (tmp <= 0)
         //{

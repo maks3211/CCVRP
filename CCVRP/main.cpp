@@ -39,15 +39,15 @@ void loading_animation(std::chrono::high_resolution_clock::time_point start_time
 int main()
 {
     
-    //const int num_vehicles = 9;
-   // IO_handler io_handlers("Golden_1.vrp");
-    const int num_vehicles = 5;
-    IO_handler io_handlers("test_data.vrp");
+    const int num_vehicles = 9;
+    IO_handler io_handlers("Golden_1.vrp");
+    
+   // IO_handler io_handlers("test_data.vrp");
     CVRPInstance input = io_handlers.get_instance();
    
    
-    std::vector<int> alfa_values = {25,35,40,50};
-    const int runs_per_alfa = 12;
+    std::vector<int> alfa_values = {6};
+    const int runs_per_alfa = 10;
     std::cout << std::boolalpha;
 
 
