@@ -7,12 +7,14 @@
 
     void Skewed_VNS::run()
     {
+
         std::vector<Route> routes = constructive_heurestic();
-        std::cout << "ETAP 1";
+        
         for (int i = 0; i < routes.size(); i++)
         {
             routes[i].route_cost = g(routes[i]); // oblicz koszt trasy
         }
+        
         result.routes = SVNS(routes);
         double result_cost = 0.0;
         for (int i = 0; i < result.routes.size(); i++)
@@ -67,13 +69,14 @@
         //}
         //zwolnie pamiêci
         //std::vector<int>().swap(indexes_to_remove);
-        std::cout << "DODANIE PIERWSZYCH";
+       
         //wstawienie pozostalych klientow
         //usuniecie magazynu z listy klientów
         instance.nodes.erase(instance.nodes.begin());
         //Przejœcie przez wszystkich klientow
         for (int i = instance.nodes.size() - 1; i >= 0; i--)
         {
+         
             //sprawdzanie kosztu wstawienia wszsytkich klientow i
             InsertionResult best_feasible_insertion;
             InsertionResult best_any_insertion;
@@ -98,13 +101,16 @@
                 {
                     best_any_insertion = insertion;
                 }
+               // std::cout << "Najlepszy wynik dla trasy: " << r <<" -  " << insertion.cost << std::endl;
             }
             InsertionResult chosen_insertion = (best_feasible_insertion.cost < std::numeric_limits<double>::infinity())
                 ? best_feasible_insertion
                 : best_any_insertion;
-
+          //std::cout << "  Najlepszy koszt:  " << best_any_insertion.cost <<"  Bez przekraczania: " << best_feasible_insertion.cost << std::endl;
             //routes[chosen_insertion.route_id].add_customer(instance.nodes[i], chosen_insertion.cost, chosen_insertion.place, false);
-            routes[chosen_insertion.route_id].add_customer_at_index(instance.nodes[i], chosen_insertion.place + 1,chosen_insertion.cost);
+            
+			//std::cout <<"  Klient: " << i << " trafia na pozycje: " << chosen_insertion.place << " do pojazdu: " << chosen_insertion.route_id << std::endl;
+            routes[chosen_insertion.route_id].add_customer_at_index(instance.nodes[i], chosen_insertion.place + 1 ,chosen_insertion.cost);
             instance.nodes.erase(instance.nodes.begin() + i);
         }
         return routes;

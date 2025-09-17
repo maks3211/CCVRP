@@ -46,7 +46,7 @@ int main()
     CVRPInstance input = io_handlers.get_instance();
    
    
-    std::vector<int> alfa_values = {6};
+    std::vector<int> alfa_values = {4,6,8,10,20,50};
     const int runs_per_alfa = 10;
     std::cout << std::boolalpha;
 
@@ -56,9 +56,7 @@ int main()
     //calculate_cost(github);
 	//calculate_remaining_capacity(github);
     //io_handlers.save_solution(github);
-    std::cout << "\t\t\t\t\t //==============================================\\\\" << std::endl;
-    std::cout << "\t\t\t\t\t ||============Rozpoczecie Skewed_VNS============||" << std::endl;
-    std::cout << "\t\t\t\t\t \\\\==============================================//" << std::endl;
+
     //notepadd ++ \b(\d+)\b(?=.*\b\1\b)
     // 
     // 
@@ -84,7 +82,9 @@ int main()
 
     //1000 101212 avg=112278
     //2000 102749 avg=116204
-  
+    std::cout << "\t\t\t\t\t //==============================================\\\\" << std::endl;
+    std::cout << "\t\t\t\t\t ||============Rozpoczecie Skewed_VNS============||" << std::endl;
+    std::cout << "\t\t\t\t\t \\\\==============================================//" << std::endl;
     for (int f_alfa : alfa_values)
     {
         double total_cost = 0.0;
@@ -97,13 +97,23 @@ int main()
         {
             auto start = std::chrono::high_resolution_clock::now();
             loading_done = false;
-           // std::thread anim_thread(loading_animation, start);
+
+#ifndef _DEBUG
+            std::thread anim_thread(loading_animation, start);
+#endif // !_DEBUG
+
+          
+
             Skewed_VNS skewed_vnss(input, num_vehicles);
             skewed_vnss.config.f_alfa = f_alfa;
             skewed_vnss.run();
             Result result = skewed_vnss.get_result();
             loading_done = true;
-            //anim_thread.join();
+#ifndef _DEBUG
+            anim_thread.join();
+#endif
+         
+
             auto end = std::chrono::high_resolution_clock::now();
             std::chrono::duration<double, std::milli> duration = end - start;
 

@@ -41,7 +41,7 @@ InsertionResult find_best_insertion(Route& route, Node& i)
     int place = 1;
     double cost = std::numeric_limits<double>::infinity();
     int p = route.customers.size() - 1;
-    for (int j = 0; j < route.customers.size() - 1; j++)
+    for (int j = 0; j < route.customers.size(); j++)
     {
         double currentCost = 0.0;
         double a = 0.0;
@@ -55,6 +55,10 @@ InsertionResult find_best_insertion(Route& route, Node& i)
         b = euclidean_distance(route.customers[j], i);
         //ZASTAPIENIE TEGO CO JEST POD AKTUALNYM TMP, I DODANIE MNOZENIE 2*a - W WYZNACZANIU CURRENTCOST
         int tmp = p - j + 1;
+        if (p - j + 1 < 1)
+        {
+            std::cout << "UWAGA JEST PONIZEJ JEDEN";
+        }
         //int tmp = p - j;
        // if (tmp <= 0)
         //{
@@ -62,7 +66,15 @@ InsertionResult find_best_insertion(Route& route, Node& i)
        // }
       //  else if (tmp > 0)
       // {
-            c = tmp * (euclidean_distance(route.customers[j], i) + euclidean_distance(route.customers[j + 1], i));
+            //przypadek dodania nowego klinta na koniec trasy 
+            if (j != p)
+            {
+                c += euclidean_distance(route.customers[j + 1], i);
+            }
+            c += euclidean_distance(route.customers[j], i);
+            c *= tmp;
+
+
        // }
 
         currentCost = 2*a + b + c;
