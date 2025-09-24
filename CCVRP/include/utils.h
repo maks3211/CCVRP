@@ -55,6 +55,9 @@ InsertionResult find_best_insertion(Route& route, Node& i);
 /// <returns></returns>
 double g(Route& pi);
 
+
+void calculate_distance(Result& result);
+
 void calculate_cost(Result &result);
 void calculate_remaining_capacity(Result& result);
 

@@ -11,6 +11,7 @@ struct SkewedVNSConfig {
 	int block_size = 3;
 	int delta_alfa = 5;
 	int f_alfa = 10;
+	int SVNS_max_no_improve = 36;
 };
 
 
@@ -87,8 +88,9 @@ public:
 	/// Solution evaluation function, taking into account the penalty for exceeding the load capacity
 	/// </summary>
 	/// <param name="s">- Soloution to check</param>
-	/// <param name="alfa">- Importance of exceeding the load capacity</param>
+	/// <param name="alfa">- Importance of exceeding the load capacity - passed by config.f_alfa</param>
+	/// <param name= "changed_routes">- If only some routes changed, pass their indices to avoid recalculating the cost of unchanged routes</param>
 	/// <returns>Solution evaluation</returns>
-	double f(std::vector<Route>& s);
+	double f(std::vector<Route>& s, const std::vector<int>& changed_routes = {}, bool test = false);
 };
 

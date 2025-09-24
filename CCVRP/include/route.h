@@ -87,4 +87,5 @@ struct Result
 {
     std::vector<Route> routes;
 	double total_cost = 0.0;  
+	double duration_seconds = 0.0;
 };

@@ -96,7 +96,29 @@ double g(Route& pi)
     {
         result += (p - i + 1) * euclidean_distance(pi.customers[i - 1], pi.customers[i]);
     }
+    //to dodalem!!!
+	pi.route_cost = result;
     return result;
+}
+//liczy poknany dystans pojazdow 
+void calculate_distance(Result& result)
+{
+    double total_cost = 0.0;
+
+    for (auto& route : result.routes)
+    {
+        double route_cost = 0.0;
+
+        for (size_t i = 0; i < route.customers.size() - 1; ++i)
+        {
+            route_cost += euclidean_distance(route.customers[i], route.customers[i + 1]);
+        }
+
+        route.route_cost = route_cost; // zapis kosztu trasy
+        total_cost += route_cost;      // sumowanie do kosztu całego rozwiązania
+    }
+
+    result.total_cost = total_cost;
 }
 
 void calculate_cost(Result& result)
