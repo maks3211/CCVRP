@@ -49,23 +49,24 @@ int main()
     const int num_vehicles = 9;
     IO_handler io_handlers("Golden_1.vrp");
     
-   // IO_handler io_handlers("test_data.vrp");
+ 
     CVRPInstance input = io_handlers.get_instance();
    
    
-    std::vector<int> alfa_values = {6,7,8,9,10,20,50,100,200,1000,2000};
-    const int runs_per_alfa = 20;
+    std::vector<int> alfa_values = {0,10000};
+    const int runs_per_alfa = 8;
     std::cout << std::boolalpha;
 
-    //Result github = io_handlers.load_solution(0, "test.vrp");
+    Result github = io_handlers.load_solution(0, "Golden_1.vrp");
 
     //for (int i = 0; i < github.routes.size(); i++)
     //{
     //  //  github.routes[i].customers.erase(github.routes[i].customers.begin());
     //    github.routes[i].customers.push_back(github.routes[i].customers[0]);
     //}
-    // calculate_distance(github);
-    // std::cout << github.total_cost;
+    calculate_cost(github);
+   calculate_remaining_capacity(github);
+     
 	//Result github = io_handlers.load_solution(0,"Golden_1_240.vrp");
     //calculate_cost(github);
 	//calculate_remaining_capacity(github);
@@ -98,7 +99,7 @@ int main()
 
             Skewed_VNS skewed_vnss(input, num_vehicles);
             skewed_vnss.config.f_alfa = f_alfa;
-			skewed_vnss.config.SVNS_max_no_improve = 100;
+			skewed_vnss.config.SVNS_max_no_improve = 1000;
             skewed_vnss.run();
             Result result = skewed_vnss.get_result();
 
@@ -123,7 +124,9 @@ int main()
                 << (exceeded ? "TAK" : "NIE")
                 << "\033[0m\n";  // reset na końcu
 
-            std::cout <<"czy sie powtarza: " << any_global_duplicates(result.routes) << '\n';
+            std::cout << "czy sie powtarza: " << any_global_duplicates(result.routes) <<"ile wolnego: " << get_total_remaining_capacity(result) << " ile po " << calculate_remaining_capacity(result);
+		
+          
             if (result.total_cost < best_cost)
             {
                 best_cost = result.total_cost;
@@ -132,6 +135,8 @@ int main()
 
             total_cost += result.total_cost;
 			total_duration_seconds += result.duration_seconds;
+
+              
         }
 
         double avg_cost = total_cost / runs_per_alfa;
@@ -144,7 +149,7 @@ int main()
             << "\033[0m"   // reset koloru (wraca do domyślnego)
             << "\n";
        
-     //   io_handlers.save_solution(best_result);
+        //io_handlers.save_solution(best_result);
     }
 
 

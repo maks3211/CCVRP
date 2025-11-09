@@ -59,7 +59,13 @@ double g(Route& pi);
 void calculate_distance(Result& result);
 
 void calculate_cost(Result &result);
-void calculate_remaining_capacity(Result& result);
+int calculate_remaining_capacity(Result& result);
+int calculate_remaining_capacity(Route& route);
+int calculate_remaining_capacity(std::vector<Route>& routes);
+
+int get_remaining_capacity(const Route& route);
+int get_total_remaining_capacity(const std::vector<Route>& routes);
+int get_total_remaining_capacity(const Result& result);
 
 int dif(std::vector<Route>& s1, std::vector<Route>& s2);
 

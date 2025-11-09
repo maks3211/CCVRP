@@ -134,9 +134,9 @@ void calculate_cost(Result& result)
 	result.total_cost = total_cost;
 }
 
-void calculate_remaining_capacity(Result& result)
+int calculate_remaining_capacity(Result& result)
 {
-	
+    int total_remaining = 0;
     for (auto& route : result.routes)
     {
         int total_demand = 0;
@@ -145,7 +145,78 @@ void calculate_remaining_capacity(Result& result)
             total_demand += node.demand;
         }
         route.remaining_capacity = route.initial_capacity - total_demand;
+        total_remaining += route.remaining_capacity;
     }
+    return total_remaining;
+}
+
+int calculate_remaining_capacity(Route& route)
+{
+    int total_demand = 0;
+    for (auto& node : route.customers)
+    {
+        total_demand += node.demand;
+    }
+    route.remaining_capacity = route.initial_capacity - total_demand;
+    return route.remaining_capacity;
+}
+
+int calculate_remaining_capacity(std::vector<Route>& routes)
+{
+    int total_remaining = 0;
+    for (auto& route : routes)
+    {
+        int total_demand = 0;
+        for (auto& node : route.customers)
+        {
+            total_demand += node.demand;
+        }
+        route.remaining_capacity = route.initial_capacity - total_demand;
+        total_remaining += route.remaining_capacity;
+    }
+    return total_remaining;
+}
+
+int get_total_remaining_capacity(const Result& result)
+{
+    int total_remaining = 0;
+    for (const auto& route : result.routes)
+    {
+        int total_demand = 0;
+        for (const auto& node : route.customers)
+        {
+            total_demand += node.demand;
+        }
+        total_remaining += (route.initial_capacity - total_demand);
+    }
+    return total_remaining;
+}
+
+// Dla pojedynczej trasy
+int get_remaining_capacity(const Route& route)
+{
+    int total_demand = 0;
+    for (const auto& node : route.customers)
+    {
+        total_demand += node.demand;
+    }
+    return route.initial_capacity - total_demand;
+}
+
+// Dla wektora tras
+int get_total_remaining_capacity(const std::vector<Route>& routes)
+{
+    int total_remaining = 0;
+    for (const auto& route : routes)
+    {
+        int total_demand = 0;
+        for (const auto& node : route.customers)
+        {
+            total_demand += node.demand;
+        }
+        total_remaining += (route.initial_capacity - total_demand);
+    }
+    return total_remaining;
 }
 
 int dif(std::vector<Route>& s1, std::vector<Route>& s2)

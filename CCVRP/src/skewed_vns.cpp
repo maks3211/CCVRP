@@ -26,8 +26,7 @@
         }
 
         result.total_cost = result_cost;
-        calculate_cost(result);
-        std::cout << "Koszt: " << result.total_cost << "  ";
+
 		
     }
 
@@ -175,12 +174,14 @@
             }
 
         }
+        
         capacity_penalty *= config.f_alfa;
         result += capacity_penalty; // penelty for capacity violations
 
     
         return result;
     }
+
     //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     ///Pierwotne obliczanie delty - na podstawie liczby tras
@@ -197,15 +198,22 @@
         // liczba wszystkich klientów (bez depot)
         int n = 0;
         for (const auto& route : s1)
+        {
             n += route.customers.size() - 1;
-
-        if (n == 0) return 1.0; 
+        }
+		
+        if (n == 0) {
+           
+            return 1.0;
+        }
 
         return 1.0 + (config.delta_alfa * static_cast<double>(dif(s1, s2)) / n);
     }
 
     std::vector<Route> Skewed_VNS::SVNS(std::vector<Route>& solution, int k_max)
     {
+		calculate_remaining_capacity(solution);
+
         float beta = 1.02;
        
         int k;
@@ -214,6 +222,7 @@
 
         std::vector<Route> s_prim;
         std::vector<Route> s_bis;
+        std::vector<Route> s_test;
 
         //Main loop end condition 
         int no_improve_count = 0;
@@ -226,35 +235,22 @@
             while (k <= k_max)
             {
                 s_prim = s;
-
+ 
                 //?????
+                calculate_remaining_capacity(s);
+               // std::cout << "K: " << k << std::endl;
                 for (int i = 1; i <= k; i++)
                 {
                     s_prim = P(s_prim, k); //perturbation
                 }
-
-				//przeliczanie kosztow i sprawdzanie czy sa ok
-                double cost_test = 0.0;
-                for (int i = 0; i < s_prim.size(); i++)
-                {
-                    cost_test += s_prim[i].route_cost;
-                }
-				//std::cout << "Koszt po perturbacji: " << cost_test << std::endl;
-                
-
+                calculate_remaining_capacity(s_prim);
 
                 s_bis = VND(s_prim);        //local search 
-                cost_test = 0.0;
-                for (int i = 0; i < s_prim.size(); i++)
-                {
-                    cost_test += (s_bis[i]).route_cost;
-                }
-               // std::cout << "Koszt po vnd:         " << cost_test << "\n----\n";
-
 
                 double f_s = f(s);
                 double f_s_bis = f(s_bis);
                 double delta_s_s_bis = delta(s, s_bis);
+            
                 double f_s_best = f(s_best);
                 if (f_s_bis < std::min(f_s * delta_s_s_bis, beta * f_s_best))  //skewed move 
                 {
@@ -265,15 +261,14 @@
                 {             
                     k = k + 1;
                 }
+
                 if (f_s_bis < f_s_best)
                 {
-                  //  std::cout << "Jest poprawa \n";
                     s_best = s_bis;
                     no_improve_count = 0;
                 }
                 else
                 {
-                    //std::cout << "Brak poprawy \n";
                     no_improve_count++;
                 }
             }
@@ -285,7 +280,9 @@
     {
         double f_s = f(s);
         std::vector<Route> s_prime = s;
-       
+   
+		
+
 
         switch (neighborhood) {
         case 1:
@@ -354,6 +351,8 @@
                         s_prime[r].customers.insert(s_prime[r].customers.begin() + i, client);
                         s_prime[r].remaining_capacity -= client.demand;
                         
+					
+
                         g(s_prime[rr]);
                     }
                     g(s_prime[r]);
@@ -549,111 +548,125 @@
             //P1 - przestawianie w obrebie jednej trasy klienta na wszystkie mozliwe miejsca w tej trasie i wybranie najelpeszego
         case 1:
         {
-            std::pair<int, int> random_client = get_random_client(s);
-
-            auto& route = s_prime[random_client.first];
-            auto client = route.customers[random_client.second];
-
-
-            //zapisujemy orginalny koszt trasy ktora bedziemy modyfikowac
-          
-            double best_cost = g(route);
-            int best_pos = -1;
-
-            route.customers.erase(route.customers.begin() + random_client.second);
-            for (int p = 1; p <= route.customers.size(); p++)
+            for (int max_attempts = 0; max_attempts < 400; max_attempts++)
             {
-               /* if (p == random_client.second)
+                std::pair<int, int> random_client = get_random_client(s);
+                auto& route = s_prime[random_client.first];
+                auto client = route.customers[random_client.second];
+
+
+                //zapisujemy orginalny koszt trasy ktora bedziemy modyfikowac
+
+               // double best_cost = g(route);
+                double best_cost = std::numeric_limits<double>::max();
+                int best_pos = -1;
+
+                route.customers.erase(route.customers.begin() + random_client.second);
+                for (int p = 1; p <= route.customers.size(); p++)
                 {
-                    continue;
-                }*/
+                     if (p == random_client.second)
+                     {
+                         continue;
+                     }
 
-                auto temp_customers = route.customers;
-                temp_customers.insert(temp_customers.begin() + p, client);
+                    auto temp_customers = route.customers;
+                    temp_customers.insert(temp_customers.begin() + p, client);
 
-                Route temp_route = route;
-                temp_route.customers = temp_customers;
-                //obliczamy nowy koszt trasy
-                double current_cost = g(temp_route);
-                if (current_cost < best_cost) {
-                    best_cost = current_cost;
-                    best_pos = p; // zapisujemy najlepsza pozycje
+                    Route temp_route = route;
+                    temp_route.customers = temp_customers;
+                    //obliczamy nowy koszt trasy
+                    double current_cost = g(temp_route);
+                    if (current_cost < best_cost) {
+                        best_cost = current_cost;
+                        best_pos = p; // zapisujemy najlepsza pozycje
 
+                    }
                 }
+                if (best_pos != -1) {
+                    route.customers.insert(route.customers.begin() + best_pos, client);
+                    route.route_cost = best_cost; // aktualizujemy koszt trasy
+                   
+                    return s_prime;
+                } 
+                //std::cout <<"\n ile p1: " << max_attempts << "\n";
+                s_prime = s;
+                s_best = s;
             }
-            if (best_pos != -1) {
-                route.customers.insert(route.customers.begin() + best_pos, client);
-                route.route_cost = best_cost; // aktualizujemy koszt trasy
-            }
-            else
-            {
-                return s;
-            }
-            return s_prime;
+            return s;
+          
         }
         case 2:
         {
-            //Szukamy najlepszej pozycja poza aktualna trasa
-            std::pair<int, int> random_client = get_random_client(s);
-
-            auto client = s_prime[random_client.first].customers[random_client.second]; // losowy klient ktorego przestawiam
-
-
-            auto& first_route = s_prime[random_client.first];
-            first_route.remaining_capacity += client.demand;
-            first_route.customers.erase(first_route.customers.begin() + random_client.second);
-
-
-            double first_route_init_cost = s[random_client.first].route_cost;
-            double first_route_removed_cost = g(first_route); //nowy koszt trasy z ktorej usuwamy klienta
-
-            double best_delta = 0.0;
-
-
-            for (int r = 0; r < s.size(); r++)//przechodzimy przez kolejne trasy
+          
+            for (int max_attempts = 0; max_attempts < 400; max_attempts++)
             {
 
-                if (r == random_client.first)
+                //Szukamy najlepszej pozycja poza aktualna trasa
+                std::pair<int, int> random_client = get_random_client(s);
+
+                auto client = s_prime[random_client.first].customers[random_client.second]; // losowy klient ktorego przestawiam
+
+
+                auto& first_route = s_prime[random_client.first];
+                first_route.remaining_capacity += client.demand;
+                first_route.customers.erase(first_route.customers.begin() + random_client.second);
+
+
+                double first_route_init_cost = s[random_client.first].route_cost;
+                double first_route_removed_cost = g(first_route); //nowy koszt trasy z ktorej usuwamy klienta
+
+             //   double best_delta = 0.0;
+                double best_delta = -std::numeric_limits<double>::max();
+
+                for (int r = 0; r < s.size(); r++)//przechodzimy przez kolejne trasy
                 {
-                    continue; // nie przestawiamy klienta w tej samej trasie
-                }
-                auto& second_route = s_prime[r];
-                // Sprawdzenie pojemnoœci raz dla ca³ej trasy
-                if (client.demand > second_route.remaining_capacity)
-                    continue;
 
-                double second_route_init_cost = s[r].route_cost;
-
-                for (int c = 1; c <= s[r].customers.size(); c++)
-                {
-                    auto temp_customers = second_route.customers;
-                    temp_customers.insert(temp_customers.begin() + c, client);
-
-                    // trasa z nowym uk³adem klientów i zaktualizowan¹ pojemnoœci¹
-                    Route temp_route = second_route;
-                    temp_route.customers = temp_customers;
-                    temp_route.remaining_capacity -= client.demand;
-
-                    double second_route_removed_cost = g(temp_route);
-
-                    double cost_delta = (first_route_init_cost + second_route_init_cost) - (first_route_removed_cost + second_route_removed_cost);
-                    if (cost_delta > best_delta) // oznacza ze poprawa
+                    if (r == random_client.first)
                     {
-                        //  std::cout << "P2 POPRAWA \n";
-                        best_delta = cost_delta;
-                        s_best = s_prime;
-                        s_best[r] = temp_route;
-                        s_best[random_client.first] = first_route;
+                        continue; // nie przestawiamy klienta w tej samej trasie
+                    }
+                    auto& second_route = s_prime[r];
+                    // Sprawdzenie pojemnoœci raz dla ca³ej trasy
+                    if (client.demand > second_route.remaining_capacity)
+                        continue;
 
-                        s_best[random_client.first].route_cost = first_route_removed_cost;
-                        s_best[r].route_cost = second_route_removed_cost;
+                    double second_route_init_cost = s[r].route_cost;
+
+                    for (int c = 1; c <= s[r].customers.size(); c++)
+                    {
+                        auto temp_customers = second_route.customers;
+                        temp_customers.insert(temp_customers.begin() + c, client);
+
+                        // trasa z nowym uk³adem klientów i zaktualizowan¹ pojemnoœci¹
+                        Route temp_route = second_route;
+                        temp_route.customers = temp_customers;
+                        temp_route.remaining_capacity -= client.demand;
+
+                        double second_route_removed_cost = g(temp_route);
+
+                        double cost_delta = (first_route_init_cost + second_route_init_cost) - (first_route_removed_cost + second_route_removed_cost);
+                        if (cost_delta > best_delta) // oznacza ze poprawa
+                        {
+                            //  std::cout << "P2 POPRAWA \n";
+                            best_delta = cost_delta;
+                            s_best = s_prime;
+                            s_best[r] = temp_route;
+                            s_best[random_client.first] = first_route;
+
+                            s_best[random_client.first].route_cost = first_route_removed_cost;
+                            s_best[r].route_cost = second_route_removed_cost;
+                        }
                     }
                 }
-            }
 
-            if (best_delta > 0.0)
-            {
-                return s_best;
+               // if (best_delta > 0.0)
+                //{
+                    return s_best;
+               // }
+               // To jezli nie ma poprawy i losowanie innego klienta- teraz jest zmiana ze moze zwrocic gorszego od wejscia
+					//ale i tak zwraca najleposzego (oprocz gdy jest taki sam jak wejscie)  
+                s_prime = s;
+                s_best = s;
             }
             return s;
 
@@ -698,6 +711,7 @@
 			//jezelie nie znaleziono zamiany nie naruszajacej pojemnosci to koniec p3
             if (no_space)
             {
+                std::cout << "NIE ma poprawy w P3 - brak miejsca \n";
 				return s;
             }
 
@@ -727,7 +741,7 @@
             //oryginalny koszt trasy A - czyli tej ktorej bedzimy przestawiac klienta z kazdym innym
             
             //przechodzenie przez kolejne pojazdy
-            double best_delta = 0.0;
+            double best_delta = -std::numeric_limits<double>::max();
             for (int p = 0; p < s_prime.size(); p++)
             {
                 if (p == random_clientA.first || p == random_clientB.first)
