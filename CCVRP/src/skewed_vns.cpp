@@ -3,7 +3,9 @@
 
 
     Skewed_VNS::Skewed_VNS(CVRPInstance instance, int num_vehicles, SkewedVNSConfig config): instance(instance), num_vehicles(num_vehicles), config(config)
-{}
+{
+        io_handlers_v2.set_result_path("Results/test");
+    }
 
     void Skewed_VNS::run()
     {
@@ -26,6 +28,8 @@
         }
 
         result.total_cost = result_cost;
+
+      
 
 		
     }
@@ -266,6 +270,15 @@
                 {
                     s_best = s_bis;
                     no_improve_count = 0;
+                    //tymczasowe !!!
+                    Result s_best_result;
+					s_best_result.routes = s_best;                                
+                    for (int i = 0; i < s_best_result.routes.size(); i++)
+                    {
+                        s_best_result.total_cost += s_best_result.routes[i].route_cost;
+                    }
+					io_handlers_v2.save_progress(s_best_result);
+
                 }
                 else
                 {

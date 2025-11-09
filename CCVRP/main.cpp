@@ -15,6 +15,7 @@
 #include "include/cvrp_types.h"
 #include "include/skewed_vns.h"
 #include "include/IO_handler.h"
+#include "include/IO_handlerV2.h"
 
 std::atomic<bool> loading_done(false);
 
@@ -40,21 +41,15 @@ int main()
 {
 
     
-
-
-
-
-
-    
     const int num_vehicles = 9;
-    IO_handler io_handlers("Golden_1.vrp");
-    
- 
+    IO_handlerV1::IO_handler io_handlers("Golden_1.vrp");
+	IO_handlerV2::IO_handler io_handlers_v2;
+	io_handlers_v2.set_result_path("Results/test");
     CVRPInstance input = io_handlers.get_instance();
    
    
-    std::vector<int> alfa_values = {0,10000};
-    const int runs_per_alfa = 8;
+    std::vector<int> alfa_values = {5};
+    const int runs_per_alfa = 1;
     std::cout << std::boolalpha;
 
     Result github = io_handlers.load_solution(0, "Golden_1.vrp");
@@ -150,6 +145,8 @@ int main()
             << "\n";
        
         //io_handlers.save_solution(best_result);
+		io_handlers_v2.save_solution(best_result);
+		//io_handlers_v2.save_progress(best_result);
     }
 
 

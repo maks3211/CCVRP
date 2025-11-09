@@ -5,7 +5,7 @@
 #include "cvrp_types.h"
 #include "random_utils.h"
 #include "utils.h"
-
+#include "IO_handlerV2.h"
 
 struct SkewedVNSConfig {
 	int block_size = 3;
@@ -19,6 +19,8 @@ class Skewed_VNS
 {
 	//std::vector<Route> result;
 	Result result; // Result of the algorithm
+	IO_handlerV2::IO_handler io_handlers_v2;
+	
 public:
 	CVRPInstance instance; // Instance of the CVRP problem
 	SkewedVNSConfig config;

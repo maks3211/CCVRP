@@ -1,4 +1,7 @@
 ﻿#include "IO_handler.h"
+namespace IO_handlerV1
+{
+
 
 IO_handler::IO_handler(const std::string& base_name): base_name(base_name) {
 	set_base_name(base_name);
@@ -384,4 +387,5 @@ void IO_handler::draw_horizontal_lines(std::ostringstream& oss, int width)
     {
 		oss << "-"; 
     }
+}
 }

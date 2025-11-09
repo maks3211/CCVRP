@@ -10,7 +10,7 @@
 #include "cvrp_types.h"
 #include "route.h"
 
-
+namespace IO_handlerV1 {
 class IO_handler {
 	std::string base_name;
 	std::string input_path = "inputData/";
@@ -32,3 +32,4 @@ public:
 	Result load_solution(int number = 0,std::string name = "", std::string custom_folder = "");
 	void set_base_name(const std::string& new_base_name);
 };
+}
