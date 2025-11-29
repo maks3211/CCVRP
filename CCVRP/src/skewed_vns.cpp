@@ -2,9 +2,9 @@
 
 
 
-    Skewed_VNS::Skewed_VNS(CVRPInstance instance, int num_vehicles, SkewedVNSConfig config): instance(instance), num_vehicles(num_vehicles), config(config)
-{
-        io_handlers_v2.set_result_path("Results/test");
+    Skewed_VNS::Skewed_VNS(CVRPInstance instance, int num_vehicles, IO_handlerV2::IO_handler io_handlers_v2, SkewedVNSConfig config): instance(instance),io_handlers_v2(io_handlers_v2), num_vehicles(num_vehicles), config(config)
+    {
+      
     }
 
     void Skewed_VNS::run()

@@ -27,7 +27,7 @@ public:
 	int num_vehicles; // Number of vehicles in the instance
 	
 
-	Skewed_VNS(CVRPInstance instance, int num_vehicles ,SkewedVNSConfig config = {});
+	Skewed_VNS(CVRPInstance instance, int num_vehicles,IO_handlerV2::IO_handler io_handlers_v2 ,SkewedVNSConfig config = {});
 	
 	void run();
 	const Result& get_result() const;

@@ -43,9 +43,14 @@ int main()
     
     const int num_vehicles = 9;
     IO_handlerV1::IO_handler io_handlers("Golden_1.vrp");
+
+
 	IO_handlerV2::IO_handler io_handlers_v2;
-	io_handlers_v2.set_result_path("Results/test");
-    CVRPInstance input = io_handlers.get_instance();
+	io_handlers_v2.set_result_path("Results/test2");
+	io_handlers_v2.set_input_path("InputData/Golden_1.vrp");
+    
+    CVRPInstance input = io_handlers_v2.get_instance();
+    //CVRPInstance input = io_handlers.get_instance();
    
    
     std::vector<int> alfa_values = {5};
@@ -92,7 +97,7 @@ int main()
 
           
 
-            Skewed_VNS skewed_vnss(input, num_vehicles);
+            Skewed_VNS skewed_vnss(input ,num_vehicles, io_handlers_v2);
             skewed_vnss.config.f_alfa = f_alfa;
 			skewed_vnss.config.SVNS_max_no_improve = 1000;
             skewed_vnss.run();
