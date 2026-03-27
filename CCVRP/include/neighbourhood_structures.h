@@ -7,7 +7,7 @@
 #include "random_utils.h"
 #include "utils.h"
 
-//Neighbourhood structures z artykulu hybrydu pkt 3.2
+//Neighbourhood structures z artykulu hybrydu pkt 3.6
 //donor - trasa z ktorej bierzemy klientow (losowo wybierani)
 // receiver - trasa do ktorej wstawiamy
 // sprawdzamy pozycje do poki nie napotamy pierwszego dobrego wstawienia (czyli takiego ktorego nie narusza pojemnosci
@@ -33,12 +33,13 @@ std::vector<Route> segment_reshuffle(std::vector<Route>& current_solution, int n
 
 //wymianiamy fragment m1 z trasy j z framgentem m2 z trasy k 
 //wartosci losowo wybierane z  m1 = 0.2nj do 0.4nj , m2 = 0.2nk do 0.4nk
+//nj, nk jako parametr raczej nie ma sensu bo i tak sa to losowe trasy
 std::vector<Route> cross_exchange(std::vector<Route>& current_solution, int nj = -1, int nk = -1);
 
 
 //bierzemy pioerwsze polowy dwoch losowych tras i zamieniamy je miejscami
 //te polowy moga miec rozna dlugosc, no ale zawsze jest to polowa trasy
-std::vector<Route> head_swap();
+std::vector<Route> head_swap(std::vector<Route>& current_solution);
 
 
 
