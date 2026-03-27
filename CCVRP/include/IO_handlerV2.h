@@ -20,11 +20,13 @@ namespace IO_handlerV2
 		std::string result_path = "";
 		void load_instance();
 		CVRPInstance loaded_instance;
+
 	public:
 		CVRPInstance get_instance();
-		void save_solution(Result& solution);
+		void save_solution(Result& solution, std::string add_to_name = "");
 		void save_progress(Result& solution);
 		bool set_input_path(const std::string& path);
 		bool set_result_path(const std::string& path);
+		bool save_progress_enabled = true;
 	};
 }

@@ -41,20 +41,38 @@ int main()
 {
 
     
-    const int num_vehicles = 9;
+    
     IO_handlerV1::IO_handler io_handlers("Golden_1.vrp");
 
 
 	IO_handlerV2::IO_handler io_handlers_v2;
-	io_handlers_v2.set_result_path("Results/test2");
-	io_handlers_v2.set_input_path("InputData/Golden_1.vrp");
+    io_handlers_v2.save_progress_enabled = false;
+
+	//io_handlers_v2.set_result_path("Results/test2");
+	bool res_path = io_handlers_v2.set_result_path("C:/Users/maks0/Desktop/Test");
+	//io_handlers_v2.set_input_path("InputData/Golden_1.vrp");
+	bool input_path = io_handlers_v2.set_input_path("D:/Nauka/SEM1/NTWI/CCVRP/CCVRP/InputData/Golden_1.vrp");
     
+	std::cout << "Input path set: " << std::boolalpha << input_path << std::endl;
+	std::cout << "Result path set: " << std::boolalpha << res_path << std::endl;
+
     CVRPInstance input = io_handlers_v2.get_instance();
     //CVRPInstance input = io_handlers.get_instance();
    
-   
-    std::vector<int> alfa_values = {5};
+
+	//CONFIGURATION
+    const int num_vehicles = 9;
+    std::vector<int> alfa_values = {500};
     const int runs_per_alfa = 1;
+    int max_no_improve = 1300;
+	std::cout << "Number of vehicles: " << num_vehicles << std::endl;
+	std::cout << "Runs per alfa: " << runs_per_alfa << std::endl;
+	std::cout << "Max no improve cout: " << max_no_improve << std::endl;
+
+	bool loading_animation_enabled = true;
+	//END CONFIGURATION
+
+
     std::cout << std::boolalpha;
 
     Result github = io_handlers.load_solution(0, "Golden_1.vrp");
@@ -77,12 +95,16 @@ int main()
     std::cout << "\t\t\t\t\t //==============================================\\\\" << std::endl;
     std::cout << "\t\t\t\t\t ||============Rozpoczecie Skewed_VNS============||" << std::endl;
     std::cout << "\t\t\t\t\t \\\\==============================================//" << std::endl;
+
+	
+
     for (int f_alfa : alfa_values)
     {
 		double total_duration_seconds = 0.0;
         double total_cost = 0.0;
         double best_cost = std::numeric_limits<double>::max();
         Result best_result;
+       
 
         std::cout << "\n============== TEST DLA f_alfa = " << f_alfa << " ==============\n";
 
@@ -91,22 +113,28 @@ int main()
             auto start = std::chrono::high_resolution_clock::now();
             loading_done = false;
 
-#ifndef _DEBUG
-            std::thread anim_thread(loading_animation, start);
-#endif // !_DEBUG
+
+//#ifndef _DEBUG
+            std::thread anim_thread;
+            if (loading_animation_enabled) {
+                anim_thread = std::thread(loading_animation, start);
+            }
+//#endif  // !_DEBUG
 
           
 
             Skewed_VNS skewed_vnss(input ,num_vehicles, io_handlers_v2);
             skewed_vnss.config.f_alfa = f_alfa;
-			skewed_vnss.config.SVNS_max_no_improve = 1000;
+			skewed_vnss.config.SVNS_max_no_improve = max_no_improve;
             skewed_vnss.run();
             Result result = skewed_vnss.get_result();
 
             loading_done = true;
-#ifndef _DEBUG
-            anim_thread.join();
-#endif
+//#ifndef _DEBUG
+            if (loading_animation_enabled && anim_thread.joinable()) {
+                anim_thread.join();
+            }
+//#endif
          
 
             auto end = std::chrono::high_resolution_clock::now();
@@ -150,7 +178,8 @@ int main()
             << "\n";
        
         //io_handlers.save_solution(best_result);
-		io_handlers_v2.save_solution(best_result);
+		std::string file_info = "fAlfa" + std::to_string(f_alfa);
+		io_handlers_v2.save_solution(best_result, file_info);
 		//io_handlers_v2.save_progress(best_result);
     }
 

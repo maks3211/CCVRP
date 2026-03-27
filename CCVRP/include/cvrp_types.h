@@ -23,8 +23,12 @@ struct InsertionResult
     int place;
     int route_id;
     double cost;
+    int client_index = -1; 
+	bool feasible = false; //true if insertion is feasible (does not violate capacity constraint)
     InsertionResult() = default;
     InsertionResult(int p, int id, double c) : place(p), route_id(id), cost(c) {}
+    InsertionResult(int p, int id, double c, int ci) : place(p), route_id(id), cost(c), client_index(ci) {}
+    InsertionResult(int p, int id, double c, int ci, bool fes) : place(p), route_id(id), cost(c), client_index(ci), feasible(fes) {}
 };
 
 

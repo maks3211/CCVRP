@@ -59,6 +59,7 @@ double g(Route& pi);
 void calculate_distance(Result& result);
 
 void calculate_cost(Result &result);
+double calculate_cost(std::vector<Route>& routes);
 int calculate_remaining_capacity(Result& result);
 int calculate_remaining_capacity(Route& route);
 int calculate_remaining_capacity(std::vector<Route>& routes);
@@ -94,3 +95,11 @@ bool any_global_duplicates(const std::vector<Route>& routes);
 
 
 bool has_negtive_capacity(const Result& result);
+
+/// <summary>
+/// Returns the index of the route with the smallest violation of capacity constraints.
+/// 
+/// </summary>
+/// <param name="routes"></param>
+/// <returns>Index of best route</returns>
+int find_route_with_smallest_violation(const std::vector<Route>& routes);

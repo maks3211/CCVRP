@@ -131,7 +131,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="hybridAvnsLns.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="neighbourhood_structures.cpp" />
+    <ClCompile Include="src\algorithms_runner.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="src\bindings.cpp" />
     <ClCompile Include="src\cvrp_parser.cpp" />
     <ClCompile Include="src\IO_handler.cpp" />
     <ClCompile Include="src\IO_handlerV2.cpp" />
@@ -142,6 +151,8 @@
     <ClCompile Include="src\utils.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="hybridAvnsLns.h" />
+    <ClInclude Include="include\algorithms_runner.h" />
     <ClInclude Include="include\cvrp_parser.h" />
     <ClInclude Include="include\cvrp_types.h" />
     <ClInclude Include="include\IO_handler.h" />
@@ -152,6 +163,7 @@
     <ClInclude Include="include\route.h" />
     <ClInclude Include="include\skewed_vns.h" />
     <ClInclude Include="include\utils.h" />
+    <ClInclude Include="neighbourhood_structures.h" />
     <ClInclude Include="src\json.hpp" />
   </ItemGroup>
   <ItemGroup>

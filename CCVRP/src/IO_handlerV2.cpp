@@ -95,10 +95,13 @@ namespace IO_handlerV2
     }
 
     //zapisuje rozwiazanie do wybranego folderu - nie tworzy samemu folderu
-    void IO_handler::save_solution(Result& solution)
+    void IO_handler::save_solution(Result& solution, std::string add_to_name)
     {
         std::filesystem::path folder(result_path);
-        std::filesystem::path file = folder / "final_result.vrp";
+
+        std::string filename = add_to_name + "final_result.vrp";
+        std::filesystem::path file = folder / filename;
+
         std::filesystem::create_directories(folder);
 
         std::ofstream out(file);  
@@ -124,6 +127,10 @@ namespace IO_handlerV2
 
     void IO_handler::save_progress(Result& solution)
     {
+        if (!save_progress_enabled)
+        {
+            return;
+        }
 		namespace fs = std::filesystem;
 		fs::create_directories(result_path);
         int file_number = 1;

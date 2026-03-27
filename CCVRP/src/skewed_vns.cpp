@@ -216,6 +216,9 @@
 
     std::vector<Route> Skewed_VNS::SVNS(std::vector<Route>& solution, int k_max)
     {
+		//tylko do wypisywania postepow
+        double last_best_total_cost = 0;
+        
 		calculate_remaining_capacity(solution);
 
         float beta = 1.02;
@@ -242,14 +245,21 @@
  
                 //?????
                 calculate_remaining_capacity(s);
-               // std::cout << "K: " << k << std::endl;
-                for (int i = 1; i <= k; i++)
+				//TAK BYLO NA POCZATKU
+               /* for (int i = 1; i <= k; i++)
                 {
                     s_prim = P(s_prim, k); //perturbation
                 }
-                calculate_remaining_capacity(s_prim);
+                */
+           
+                double przed_P = calculate_cost(s_prim);
+				s_test = P(s_prim, k); //perturbation
+				s_prim = s_test;
+				double po_P = calculate_cost(s_prim);
 
+                calculate_remaining_capacity(s_prim);
                 s_bis = VND(s_prim);        //local search 
+				double po_VND = calculate_cost(s_bis);
 
                 double f_s = f(s);
                 double f_s_bis = f(s_bis);
@@ -266,12 +276,13 @@
                     k = k + 1;
                 }
 
+                Result s_best_result;
                 if (f_s_bis < f_s_best)
                 {
                     s_best = s_bis;
                     no_improve_count = 0;
                     //tymczasowe !!!
-                    Result s_best_result;
+                    //TU BYLO RESULT_S_BEST_TESULT - TO KTORE JEST WYCIAGNIECTE POZA TEGO IFA
 					s_best_result.routes = s_best;                                
                     for (int i = 0; i < s_best_result.routes.size(); i++)
                     {
@@ -284,6 +295,19 @@
                 {
                     no_improve_count++;
                 }
+
+				//wypisywanie postepow
+                if (s_best_result.total_cost != 0)
+                {
+                    last_best_total_cost = s_best_result.total_cost;
+                }
+                //std::cout << "\r" << std::string(200, ' ') << "\r"
+                //    << "No improve iterations: " << no_improve_count
+                //    << "          Current best total cost: "
+				//	<< last_best_total_cost << "    k = " << k
+				//	<< " Przed P: " << przed_P << " Po P: " << po_P << " Po VND: " << po_VND
+                //    << std::flush;
+              
             }
         }
         return s_best;
@@ -832,7 +856,7 @@
             else
             {
                 k = k + 1;
-            }
+            }        
         }
         return s;
     }

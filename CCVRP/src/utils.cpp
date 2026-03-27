@@ -41,6 +41,7 @@ InsertionResult find_best_insertion(Route& route, Node& i)
     int place = 1;
     double cost = std::numeric_limits<double>::infinity();
     int p = route.customers.size() - 1;
+	bool feasible = false;  
     for (int j = 0; j < route.customers.size(); j++)
     {
         double currentCost = 0.0;
@@ -78,14 +79,74 @@ InsertionResult find_best_insertion(Route& route, Node& i)
        // }
 
         currentCost = 2*a + b + c;
+      
+       // double currentCost = calculate_insertion_cost(route,i,j).cost;
+        
         if (currentCost < cost)
         {
             cost = currentCost;
             place = j;
+            if (route.remaining_capacity - i.demand >= 0)
+            {
+                feasible = true;
+            }
+            else
+            {
+				feasible = false;
+            }
         }
     }
-    return InsertionResult(place, route.vehicle_id, cost);  // place - po ktorym wstawic nowego klienta if place == 0 to nowy bedzie na idx 1 
+    return InsertionResult(place, route.vehicle_id, cost,i.id, feasible);  // place - po ktorym wstawic nowego klienta if place == 0 to nowy bedzie na idx 1 
 }
+
+
+
+InsertionResult calculate_insertion_cost(Route& route, Node& i, int insertion_index)
+{
+    InsertionResult res;
+    res.place = insertion_index;
+    res.route_id = route.vehicle_id;
+    double currentCost = 0.0;
+    double a = 0.0;
+    double b = 0.0;
+    double c = 0.0;
+    int p = route.customers.size() - 1;
+
+    for (int h = 0; h < insertion_index; h++)
+    {
+        a += euclidean_distance(route.customers[h], route.customers[h + 1]);
+    }
+
+    b = euclidean_distance(route.customers[insertion_index], i);
+    //ZASTAPIENIE TEGO CO JEST POD AKTUALNYM TMP, I DODANIE MNOZENIE 2*a - W WYZNACZANIU CURRENTCOST
+    int tmp = p - insertion_index + 1;
+    if (p - insertion_index + 1 < 1)
+    {
+        std::cout << "UWAGA JEST PONIZEJ JEDEN";
+    }
+    //int tmp = p - j;
+   // if (tmp <= 0)
+    //{
+    //    c = 0;
+   // }
+  //  else if (tmp > 0)
+  // {
+        //przypadek dodania nowego klinta na koniec trasy 
+    if (insertion_index != p)
+    {
+        c += euclidean_distance(route.customers[insertion_index + 1], i);
+    }
+    c += euclidean_distance(route.customers[insertion_index], i);
+    c *= tmp;
+
+
+    // }
+    res.feasible = (i.demand <= route.remaining_capacity);
+	res.cost = currentCost = 2 * a + b + c;
+    return res;
+}
+
+
 
 
 double g(Route& pi)
@@ -132,6 +193,20 @@ void calculate_cost(Result& result)
         total_cost += cost;
     }
 	result.total_cost = total_cost;
+}
+
+
+double calculate_cost(std::vector<Route>& routes)
+{
+    double total_cost = 0.0;
+    double cost;
+    for (auto& route : routes)
+    {
+        cost = g(route);
+        route.route_cost = cost;
+        total_cost += cost;
+    }
+	return total_cost;
 }
 
 int calculate_remaining_capacity(Result& result)
@@ -317,4 +392,23 @@ bool has_negtive_capacity(const Result& result)
         }
     }
 	return false;
+}
+
+
+
+int find_route_with_smallest_violation(const std::vector<Route>& routes)
+{
+    int best_route = 0;
+    double min_violation = std::numeric_limits<double>::infinity();
+
+    for (size_t r = 0; r < routes.size(); ++r)
+    {
+        int violation = get_remaining_capacity(routes[r]);
+        if (violation < min_violation)
+        {
+            min_violation = violation;
+            best_route = static_cast<int>(r);
+        }
+    }
+    return best_route;
 }
