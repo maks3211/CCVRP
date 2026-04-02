@@ -142,7 +142,7 @@ InsertionResult calculate_insertion_cost(Route& route, Node& i, int insertion_in
 
     // }
     res.feasible = (i.demand <= route.remaining_capacity);
-	res.cost = currentCost = 2 * a + b + c;
+	res.cost = 2 * a + b + c;
     return res;
 }
 
@@ -251,6 +251,34 @@ int calculate_remaining_capacity(std::vector<Route>& routes)
     }
     return total_remaining;
 }
+
+
+
+
+int calculate_used_capacity(std::vector<Node>& route)
+{
+	int total_demand = 0;
+    for (int i = 0; i < route.size(); i++)
+    {
+		total_demand += route[i].demand;
+    }
+	return total_demand;
+}
+
+
+
+bool add_customer_at_index_with_penalty(Route& route, Node& client)
+{
+    InsertionResult insert = find_best_insertion(route, client);
+    route.customers.insert(route.customers.begin() + insert.place, client);
+    route.route_cost += insert.cost;
+    route.remaining_capacity -= client.demand;
+    route.is_penalized = true;
+    //CZY MA BYC 50?? OD CZEGO TO ZALEZY
+    route.penatly_eta += 50.0;
+    return true;
+}
+
 
 int get_total_remaining_capacity(const Result& result)
 {
@@ -372,7 +400,7 @@ bool any_global_duplicates(const std::vector<Route>& routes) {
 
         if (routes_with_client.size() > 1) {
             any_duplicates = true;
-            std::cout << "❗ Client ID " << id << " appears in routes: ";
+            std::cout << "Client ID " << id << " appears in routes : ";
             for (int route_idx : routes_with_client) {
                 std::cout << route_idx << " ";
             }

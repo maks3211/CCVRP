@@ -131,9 +131,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="hybridAvnsLns.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="neighbourhood_structures.cpp" />
     <ClCompile Include="src\algorithms_runner.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -142,28 +140,37 @@
     </ClCompile>
     <ClCompile Include="src\bindings.cpp" />
     <ClCompile Include="src\cvrp_parser.cpp" />
+    <ClCompile Include="src\gainFunctions.cpp" />
+    <ClCompile Include="src\hybridAvnsLns.cpp" />
     <ClCompile Include="src\IO_handler.cpp" />
     <ClCompile Include="src\IO_handlerV2.cpp" />
     <ClCompile Include="src\IO_handler_utils.cpp" />
+    <ClCompile Include="src\neighbourhood_structures.cpp" />
+    <ClCompile Include="src\penalty_functions.cpp" />
     <ClCompile Include="src\random_utils.cpp" />
     <ClCompile Include="src\ResultsParser.cpp" />
+    <ClCompile Include="src\route.cpp" />
     <ClCompile Include="src\skewed_vns.cpp" />
     <ClCompile Include="src\utils.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="hybridAvnsLns.h" />
     <ClInclude Include="include\algorithms_runner.h" />
     <ClInclude Include="include\cvrp_parser.h" />
     <ClInclude Include="include\cvrp_types.h" />
+    <ClInclude Include="include\gainFunctions.h" />
+    <ClInclude Include="include\hybridAvnsLns.h" />
     <ClInclude Include="include\IO_handler.h" />
     <ClInclude Include="include\IO_handlerV2.h" />
     <ClInclude Include="include\IO_handler_utils.h" />
+    <ClInclude Include="include\local_search_engine_moves.h" />
+    <ClInclude Include="include\move.h" />
+    <ClInclude Include="include\neighbourhood_structures.h" />
+    <ClInclude Include="include\penalty_functions.h" />
     <ClInclude Include="include\random_utils.h" />
     <ClInclude Include="include\ResultsParser.h" />
     <ClInclude Include="include\route.h" />
     <ClInclude Include="include\skewed_vns.h" />
     <ClInclude Include="include\utils.h" />
-    <ClInclude Include="neighbourhood_structures.h" />
     <ClInclude Include="src\json.hpp" />
   </ItemGroup>
   <ItemGroup>

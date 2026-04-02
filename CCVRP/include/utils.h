@@ -64,6 +64,11 @@ int calculate_remaining_capacity(Result& result);
 int calculate_remaining_capacity(Route& route);
 int calculate_remaining_capacity(std::vector<Route>& routes);
 
+int calculate_used_capacity(std::vector<Node>& route);
+
+bool add_customer_at_index_with_penalty(Route& route,Node& client);
+InsertionResult calculate_insertion_cost(Route& route, Node& i, int insertion_index);
+
 int get_remaining_capacity(const Route& route);
 int get_total_remaining_capacity(const std::vector<Route>& routes);
 int get_total_remaining_capacity(const Result& result);
@@ -103,3 +108,7 @@ bool has_negtive_capacity(const Result& result);
 /// <param name="routes"></param>
 /// <returns>Index of best route</returns>
 int find_route_with_smallest_violation(const std::vector<Route>& routes);
+
+
+//Funkcje utworzone na potrzeby metody hybrid - 198 - wykorzystywane do obliczania gain - umieszczone w tym miejcu ze wzgledu na to ze moze w przyszlosci beda wykorzystane tez do brain storm opt
+

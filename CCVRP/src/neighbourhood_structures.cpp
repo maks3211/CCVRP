@@ -210,6 +210,7 @@ std::vector<Route> two_one_interchange(std::vector<Route>& current_solution)
 	{
 		return current_solution;
 	}
+	//Czy w tym miejscu aktualizowac kosz trasy, czy lepiej zrobic to poza funkcja, bo moze nie zawsze chce to aktualizowac??
 	g(receiver1); 
 	g(receiver2); // aktualizacja kosztu trasy
 	g(donor); // aktualizacja kosztu trasy
@@ -362,13 +363,86 @@ std::vector<Route> cross_exchange(std::vector<Route>& current_solution, int nj, 
 }
 
 
+//tutaj nie uwzgledniam ladownosci pojazdow - w opisie nie ma nic o donor i receiver oraz jest
+//intends to shake
 std::vector<Route> head_swap(std::vector<Route>& current_solution)
 {
 	if (current_solution.size() < 2)
 		return current_solution;
 
 
+	std::vector<int> random_order_routes = get_random_route_indexes(current_solution);
+	int random_index = 0;
+	int donor_route_index = random_order_routes[random_index];
+	Route route_a = current_solution[donor_route_index];
+
+	int route_a_index = donor_route_index;
+	
+
+	random_index++;
+
+	//czyli jezeli nie ma co najmniej dwoch klientow
+	while (route_a.customers.size() < 3)
+	{
+		
+		if (random_index > random_order_routes.size())
+		{
+			return current_solution; // brak odpowiedniej trasy, zwracamy bez zmian
+		}
+		donor_route_index = random_order_routes[random_index];
+		route_a = current_solution[donor_route_index];	
+		route_a_index = donor_route_index;
+		random_index++;
+	}
+
+	if (route_a.customers.size() < 3)
+		return current_solution;
+
+	Route route_b = current_solution[donor_route_index];
+	int route_b_index = donor_route_index;
+	while (route_b.customers.size() < 3)
+	{		
+		if (random_index > random_order_routes.size())
+		{
+			return current_solution; // brak odpowiedniej trasy, zwracamy bez zmian
+		}
+		donor_route_index = random_order_routes[random_index];
+		route_b = current_solution[donor_route_index];
+		route_b_index = donor_route_index;
+		random_index++;
+	}
+
+	if (route_b.customers.size() < 3)
+		return current_solution;
+
+	int head_a_size = route_a.customers.size() / 2; // zaokraglenie w dol
+	int head_b_size = route_b.customers.size() / 2; 
 
 
+	if (head_a_size == 0) head_a_size = 1;
+	if (head_b_size == 0) head_b_size = 1;
+
+
+	std::vector<Node> head_a(route_a.customers.begin(), route_a.customers.begin() + head_a_size);
+	std::vector<Node> head_b(route_b.customers.begin(), route_b.customers.begin() + head_b_size);
+
+
+	int head_a_capacity = calculate_used_capacity(head_a);
+	int head_b_capacity = calculate_used_capacity(head_b);
+
+	route_a.customers.erase(route_a.customers.begin(), route_a.customers.begin() + head_a_size);
+	route_b.customers.erase(route_b.customers.begin(), route_b.customers.begin() + head_b_size);
+
+	route_a.customers.insert(route_a.customers.begin(), head_b.begin(), head_b.end());
+	route_b.customers.insert(route_b.customers.begin(), head_a.begin(), head_a.end());
+
+	route_a.remaining_capacity = route_a.remaining_capacity + head_a_capacity - head_b_capacity;
+	route_b.remaining_capacity = route_b.remaining_capacity + head_b_capacity - head_a_capacity;
+
+
+	std::vector<Route> new_solution = current_solution;
+	new_solution[route_a_index] = route_a;
+	new_solution[route_b_index] = route_b;
+	return new_solution;
 
 }

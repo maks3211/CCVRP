@@ -138,7 +138,10 @@ void HybridAvnsLns::perform_perturbation(std::vector<Route>& routes, Node client
 				
                 // Próbujemy wstawić A (forced)
                 InsertionResult insA = find_best_insertion(routes[r], clientA);
+
                 double added_cost = calculate_insertion_cost(routes[r], clientA, insA.place).cost;
+
+
                 routes[r].add_customer_at_index(clientA, insA.place + 1, added_cost);
                 tabu_until[clientA.id] = iter + ts;
 
@@ -162,7 +165,7 @@ void HybridAvnsLns::perform_perturbation(std::vector<Route>& routes, Node client
                     if (!b_inserted)
                     {
                         int worst_r = find_route_with_smallest_violation(routes);
-                        routes[worst_r].add_customer_at_index_with_penalty(clientB);
+                        add_customer_at_index_with_penalty(routes[worst_r],clientB);
                         success = true;
                     }
                 
@@ -182,6 +185,7 @@ void HybridAvnsLns::perform_perturbation(std::vector<Route>& routes, Node client
     {
         std::cout << "[PERTURBATION] Nie udało się znaleźć miejsca → ostateczny fallback\n";
         int r = find_route_with_smallest_violation(routes);
-        routes[r].add_customer_at_index_with_penalty(clientA);
+        add_customer_at_index_with_penalty(routes[r],clientA);
     }
 }
+
