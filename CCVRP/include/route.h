@@ -24,6 +24,9 @@ struct Route {
     std::vector<double> arrival_times; // czas przyjazdu do danego klienta - czyli np [3] czas dotarca do klienta [3] - nie czas skumulowany poprstu czas przejazdu od 0->1->2->3
     double get_arrival_time(int pos) const { return (pos < arrival_times.size()) ? arrival_times[pos] : 0.0; }
 
+
+    std::vector<double> cumulative_costs; // koszt skumulowany do danego klienta - czyli np [3] koszt dotarca do klienta [3] - czyli czas przejazdu od 0->1->2->3
+
     Route(int vehicle_id, int capacity);
 
     /// <summary>

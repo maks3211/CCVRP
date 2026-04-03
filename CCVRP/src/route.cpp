@@ -56,7 +56,7 @@
     ///  ????????????czy robic nowego customera tak jak w add_customer czy skorzystac z przekazanego  ??
     bool Route::add_customer_at_index(const Node& customer, int index, const double addded_cost, bool calculate_precompute)
     {
-        //za duzy, nie dodatni
+        //za duzy lub nie dodatni
         if (index > customers.size() || index <= 0)
         {
             return false;

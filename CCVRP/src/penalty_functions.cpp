@@ -5,12 +5,12 @@
 
 double calculate_penalty_hybrid(double capacity, double new_demand, double average_route_cost, double beta, double gamma)
 {
-	double max_capacity_violation = (1 + beta) * capacity;
+	
 	if (new_demand <= capacity)
 	{
 		return 0; // nie naruszamy pojemnosci
 	}
-
+	double max_capacity_violation = (1 + beta) * capacity;
 	double zeta = gamma / beta * average_route_cost; // maksymalna dopuszczalna kara za przekroczenie czasu trasy
 	double max_component = ((new_demand - capacity) / capacity ) * zeta;
 

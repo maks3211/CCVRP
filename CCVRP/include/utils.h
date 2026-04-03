@@ -54,6 +54,7 @@ InsertionResult find_best_insertion(Route& route, Node& i);
 /// <param name="pi"></param>
 /// <returns></returns>
 double g(Route& pi);
+double g(std::vector<Node>& pi);
 
 
 void calculate_distance(Result& result);
