@@ -44,3 +44,32 @@ std::vector<int> get_random_route_indexes(std::vector<Route>& s)
     std::shuffle(indices.begin(), indices.end(), rng);
 	return indices;
 }
+
+
+std::vector<std::pair<int, int>> get_n_random_clients(std::vector<Route>& s, int n) {
+    std::vector<std::pair<int, int>> all_clients;
+
+    
+    for (int r = 0; r < s.size(); ++r) {
+        for (int c = 1; c < s[r].customers.size(); ++c) {
+            all_clients.emplace_back(r, c);
+        }
+    }
+
+    if (all_clients.size() < static_cast<size_t>(n)) {
+        return {};  // Za ma³o klientów
+    }
+
+   
+    std::shuffle(all_clients.begin(), all_clients.end(), rng);
+    all_clients.resize(n);
+
+    return all_clients;
+}
+
+
+
+double random_01() {
+    static std::uniform_real_distribution<double> dist(0.0, 1.0);
+    return dist(rng);  
+}

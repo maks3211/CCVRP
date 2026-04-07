@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -145,6 +145,7 @@
     <ClCompile Include="src\IO_handler.cpp" />
     <ClCompile Include="src\IO_handlerV2.cpp" />
     <ClCompile Include="src\IO_handler_utils.cpp" />
+    <ClCompile Include="src\lns_diversification_strategy.cpp" />
     <ClCompile Include="src\neighbourhood_structures.cpp" />
     <ClCompile Include="src\penalty_functions.cpp" />
     <ClCompile Include="src\random_utils.cpp" />
@@ -162,6 +163,7 @@
     <ClInclude Include="include\IO_handler.h" />
     <ClInclude Include="include\IO_handlerV2.h" />
     <ClInclude Include="include\IO_handler_utils.h" />
+    <ClInclude Include="include\lns_diversification_strategy.h" />
     <ClInclude Include="include\local_search_engine_moves.h" />
     <ClInclude Include="include\move.h" />
     <ClInclude Include="include\neighbourhood_structures.h" />

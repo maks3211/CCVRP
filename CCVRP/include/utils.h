@@ -2,9 +2,10 @@
 #include <iostream>
 #include <unordered_set>
 #include <unordered_map>
+
 #include "cvrp_types.h"
 #include "route.h"
-
+#define M_PI       3.14159265358979323846
 /// <summary>
 /// Calculates the Euclidean distance between two 2D points
 /// </summary>
@@ -112,4 +113,8 @@ int find_route_with_smallest_violation(const std::vector<Route>& routes);
 
 
 //Funkcje utworzone na potrzeby metody hybrid - 198 - wykorzystywane do obliczania gain - umieszczone w tym miejcu ze wzgledu na to ze moze w przyszlosci beda wykorzystane tez do brain storm opt
+
+//wyznacza kat miedzy dwoma punktami w stopniach
+double get_angle_deg(const Node& depot, const Node& client);
+
 

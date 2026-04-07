@@ -1,0 +1,375 @@
+#include "lns_diversification_strategy.h"
+
+//zwracamy lambda losowych klientow - ktorych bedziemy usuwac
+std::vector<clientInfo> random_removal(std::vector<Route>& solution, int lambda)
+{
+	clientInfo move;
+	std::vector<clientInfo> to_remove;
+	auto selected = get_n_random_clients(solution, lambda); // pobiranie lambda losowych klientow
+
+
+	for (auto [route_idx, client_idx] : selected) 
+	{
+		int demand = solution[route_idx].customers[client_idx].demand;
+		move = {route_idx, client_idx, demand };
+	}
+	return to_remove;
+}
+
+
+//liczymy gain dla kazdego klienta, sortujemy malejaco a nasepnie wybieramy lambda klientow 
+std::vector<clientRatioInfo> worst_removal(std::vector<Route>& solution,double avg_solution_cost, int lambda, double theta)
+{
+	
+	
+	double gain, ratio = 0.0;
+	//n - ile jesz wszystkich klientow
+	int demand,n, selected_index = 0;
+	double penalty_eta = 0.0;
+	std::vector<clientRatioInfo> ratio_i;
+	std::vector<clientRatioInfo> result;
+	
+
+
+	for (int route = 0; route < solution.size(); ++route) // przejscie przez kazda trase
+	{
+		Route current_route = solution[route];
+		int capacity = current_route.initial_capacity;
+		int used_capacity = capacity - current_route.remaining_capacity;
+		for (int client = 1; client < current_route.customers.size(); ++client) // client od 1 bo nie usuwam magazynu
+		{
+			gain = current_route.Z1[client] + calculate_penalty_hybrid(capacity, used_capacity - current_route.customers[client].demand, avg_solution_cost);
+			ratio = current_route.customers[client].demand / gain;
+			ratio_i.push_back({ route, client, ratio }); // czyli mam info o tym jaki to jest klient, oraz jaki ma wynik
+		}
+	}
+
+
+	//sortowanie malejaco:
+	std::sort(ratio_i.begin(), ratio_i.end(),
+		[](const clientRatioInfo& a, const clientRatioInfo& b) {
+			return a.ratio > b.ratio;
+		});
+
+	//wybor indeksu
+	n = ratio_i.size();
+	if (lambda > n) lambda = n;
+	std::vector<bool> used(n, false);
+	for (int i = 0; i < lambda; ++i) {
+		int selected_index;
+		do {
+			double z = random_01();
+			selected_index = static_cast<int>(ceil(pow(z, theta) * n)) - 1;  //-1 bo ceil zwraca od 1 do n, a indeks jest od 0 do n-1
+			selected_index = std::clamp(selected_index, 0, n - 1);  
+		} while (used[selected_index]);  
+
+		used[selected_index] = true;
+		result.push_back(ratio_i[selected_index]);
+	}
+	return result;
+
+}
+
+//obliczamy dystas pomiedzy kazdymi punktami w trasie d[i] d[i+1]
+//sortujemy wszystkie dystnase rosnoco 
+//wybor klintow analogicznie jak w worst_removal
+//usuwamy dwoch klientow na raz 
+std::vector<clientRatioInfo> worst_distance_removal(std::vector<Route>& solution, int lambda, double theta)
+{
+	std::vector<clientRatioInfo> distances;
+	std::vector<clientRatioInfo> result;
+	double distnace = 0.0;
+
+	//1. obliczenie dystansow pomiedzy kazdymi sasiadami
+	for (int route = 0; route < solution.size(); ++route) // przejscie przez kazda trase
+	{
+		Route current_route = solution[route];
+		for (int i = 0; i < current_route.customers.size() - 1; ++i)
+		{
+			distnace = euclidean_distance(current_route.customers[i], current_route.customers[i + 1]);
+			distances.push_back({ route, i, distnace }); // zapisanie infomracji od ktorego liczymy dystans
+		}
+	}
+
+	if (distances.empty()) return {};
+
+	//2. sortowanie rosnaco wszystkich odleglosci 
+	std::sort(distances.begin(), distances.end(),
+		[](const clientRatioInfo& a, const clientRatioInfo& b) {
+			return a.ratio < b.ratio;
+		});
+
+	int n, selected_index = 0;
+
+	n = distances.size();
+	if (lambda > n) lambda = n;
+
+	std::vector<bool> used(n, false);
+
+	// klienci, uniklani, ktorzy zostali wybrani do usuniecia
+	std::unordered_set<std::pair<int, int>, PairHash>   removed_clients;
+
+
+	const int MAX_ATTEMPTS = lambda * 200;   // bezpieczna granica
+	int attempts = 0;
+
+	//wyszukiwanie klientow do usuniecia
+	while (result.size() < lambda && attempts < MAX_ATTEMPTS) {
+		attempts++;
+		double z = random_01();                    // losowa liczba z [0,1)
+		selected_index = static_cast<int>(ceil(pow(z, theta) * n)) - 1;  //-1 bo ceil zwraca od 1 do n, a indeks jest od 0 do n-1
+		selected_index = std::clamp(selected_index, 0, n - 1);
+
+		
+
+		int random_selected_route_index1 = distances[selected_index].route_index;
+		int random_selected_client_index1 = distances[selected_index].client_index;
+		if (random_selected_client_index1 == 0)// nie usuwamy magazynu
+		{
+			continue;
+		}
+
+		int random_selected_route_index2 = distances[selected_index].route_index;
+		int random_selected_client_index2 = distances[selected_index].client_index + 1;
+		// jezli ktorykolwiek z klientow zostal wczesniej wybrany to pomijamy
+		if (removed_clients.count({ random_selected_route_index1, random_selected_client_index1 }) || removed_clients.count({ random_selected_route_index2, random_selected_client_index2 }))
+			continue;
+
+		// Usuwamy obu klientów
+		removed_clients.insert({ random_selected_route_index1, random_selected_client_index1 });
+		removed_clients.insert({ random_selected_route_index2, random_selected_client_index2 });
+
+		// Zapisujemy informacjê do wyniku (usuwamy obu)
+		double distnace = distances[selected_index].ratio;
+		result.push_back({ random_selected_route_index1, random_selected_client_index1, distnace });   // klient1
+		result.push_back({ random_selected_route_index2, random_selected_client_index2, distnace });   // klient2
+	}
+
+
+	if (result.size() < lambda)
+	{
+		std::cout << "[WARNING] worst_distance_removal: udalo sie zebrac tylko: "
+			<< result.size() << " z " << lambda << " klientow (po: "
+			<< attempts << " probach)\n";
+	}
+	return result;
+}
+
+//Dzielimy cale rozwiaznie na sektory o zadnym kacie i nastepnie liczymy ile tras jest w danym sektorze
+//czyli np od kata o do 15 stopni sa klienci kotrzy obslugiwani sa przez trasy A, B,B,C,A C to wynik to 3
+std::vector<clientInfo> confilcting_sector_removal(std::vector<Route>& solution, int lambda, double sector_size_deg)
+{
+	//dla kazdej trasy wyznaczyc sektor
+	
+	if (lambda <= 0)
+	{
+		return{};
+	}
+
+
+	//na ile czesci dzielmy trase
+	const int num_sectors = static_cast<int>(360.0 / sector_size_deg);
+
+	struct ClientPos {
+		int route_idx;
+		int client_idx;      // indeks w route.customers
+		double angle_deg;
+	};
+
+	std::vector<ClientPos> all_clients;
+
+	const Node& depot = {0,0.0,0.0,0};
+
+	for (int r = 0; r < solution.size(); ++r) // przejscie przez wszystkie trasy
+	{
+		const Route& route = solution[r];
+		for (int i = 1; i < route.customers.size(); ++i) // przejscie przez klientow
+		{
+			double angle = get_angle_deg(depot, route.customers[i]);
+			all_clients.push_back({r,i, angle}); // zapisujemy klienta oraz jego kat
+		}
+	}
+
+	if (all_clients.empty()) return {};
+	if (all_clients.empty() || lambda > all_clients.size()) {
+		lambda = all_clients.size();
+	}
+
+	//Losowanie punktu startowego - kata 0
+	int start_client_idx = rand() % all_clients.size();
+	double start_angle = all_clients[start_client_idx].angle_deg;
+	//losowy kirunek
+	int direction = (rand() % 2 == 0) ? 1 : -1;
+
+	std::vector<ClientPos> clients_with_normalized;
+	clients_with_normalized.reserve(all_clients.size());
+
+	for (const auto& c : all_clients) {
+	
+		double diff = c.angle_deg - start_angle;
+
+	
+		double normalized = diff * direction;
+		normalized = std::fmod(normalized, 360.0);
+		if (normalized < 0) {
+			normalized += 360.0;
+		}
+
+		clients_with_normalized.push_back({ c.route_idx, c.client_idx, normalized });
+	}
+
+	//przydzielenie klientow do sektorow
+	std::vector<std::unordered_set<int>> sector_routes(num_sectors);
+
+	for (const auto& c : clients_with_normalized) {
+		int sector = static_cast<int>(c.angle_deg / sector_size_deg);
+		sector_routes[sector].insert(c.route_idx);
+	}
+
+	//wyszukanie sektora z najwieksza iloscia roznych tras
+	int best_sector = 0;
+	size_t max_routes = 0;
+	int count = 0; // licznik sektorow o takiej samej liczbie tras
+
+	for (int s = 0; s < num_sectors; ++s) {
+		size_t current_size = sector_routes[s].size();
+
+		if (current_size > max_routes) {
+			max_routes = current_size;
+			best_sector = s;
+			count = 1; // reset licznika dla nowej rekordowej wartosci
+		}
+		else if (current_size == max_routes && max_routes > 0) {
+			count++;
+			if ((std::rand() % count) == 0) {
+				best_sector = s;
+			}
+		}
+	}
+
+
+
+	//Klienci z sketora w ktorym jest najwiecej roznych tras
+	std::vector<ClientPos> sector_clients;
+	for (const auto& c : clients_with_normalized) {
+		int sector = static_cast<int>(c.angle_deg / sector_size_deg);
+		if (sector == best_sector) {
+			sector_clients.push_back(c);
+		}
+	}
+	if (sector_clients.empty()) return {};
+
+	//Losowe wybranie lambda klientow
+	std::vector<clientInfo> result;
+	std::shuffle(sector_clients.begin(), sector_clients.end(),rng);
+
+	int to_remove = std::min(lambda, static_cast<int>(sector_clients.size()));
+
+	for (int i = 0; i < to_remove; ++i) {
+		const auto& c = sector_clients[i];
+		result.push_back({ c.route_idx, c.client_idx, 0});   
+	}
+
+	return result;
+
+}
+
+
+//zwraca infomracje na jaka pozcje wstawic new_customer
+clientRatioInfo basic_greedy_insertion(std::vector<Route>& solution, Node& new_customer, double avg_cost)
+{
+	//wynieramy to przeniesienie ktore zwraca najmniejszy delta f
+	double minimal_detla_f = std::numeric_limits<double>::max();
+	double added_cost = 0.0;
+	double delta_eta = 0.0;
+	clientRatioInfo result{-1,-1,-1};
+
+	for (int r = 0; r < solution.size(); ++r) // przjescie przez kazda trase
+	{
+		Route& route = solution[r];
+		double route_capacity = route.initial_capacity - route.remaining_capacity;
+		for (int i = 1; i <= route.customers.size(); i++)
+		{
+			if (route_capacity < new_customer.demand) // nie ma miejsca na klienta
+			{
+				continue;
+			}
+			delta_eta = calculate_penalty_hybrid(route.initial_capacity, route_capacity + new_customer.demand, avg_cost) - route.penatly_eta ;
+			added_cost = route.calculate_cost_variation_of_inserting_customer(1, i, new_customer) + delta_eta;
+
+			if (added_cost < minimal_detla_f)
+			{
+				minimal_detla_f = added_cost;
+				result = {r,i,added_cost};
+			}
+		}
+	}
+
+	//jezeli nie znalziono miejsca to 3.2
+	//wywolac perform_perturabtioan - patrz hybridavns - ale to juz poza ta funkjca
+}
+
+
+clientInfo regret_cost_insertion(std::vector<Route>& solution, std::vector<Node>& new_customers, double avg_cost)
+{
+	clientInfo result{ -1, -1, -1 };
+	double max_regret = -1.0;
+
+	for (int c = 0; c < (int)new_customers.size(); ++c)
+	{
+		Node& customer = new_customers[c];
+		double best_gain = -std::numeric_limits<double>::max();
+		double second_best_gain = -std::numeric_limits<double>::max();
+
+		int best_route_idx = -1;
+		int best_pos = -1;
+
+		std::vector<Node> wrapper = { customer };
+
+		for (int r = 0; r < (int)solution.size(); ++r)
+		{
+			Route& route = solution[r];
+			double route_load = route.initial_capacity - route.remaining_capacity;
+
+			if (route_load + customer.demand > route.initial_capacity * 2.0) continue;
+
+			for (int i = 1; i <= (int)route.customers.size(); ++i)
+			{
+				double psi_plus = route.calculate_cost_variation_of_inserting_customer(1, i, wrapper);
+		
+				double delta_eta = route.penatly_eta - calculate_penalty_hybrid(route.initial_capacity, route_load + customer.demand, avg_cost);
+
+	
+				double current_gain = -psi_plus + delta_eta;
+
+		
+				if (current_gain > best_gain) {
+					second_best_gain = best_gain;
+					best_gain = current_gain;
+					best_route_idx = r;
+					best_pos = i;
+				}
+				else if (current_gain > second_best_gain) {
+					second_best_gain = current_gain;
+				}
+			}
+		}
+
+		if (best_route_idx != -1) {
+			
+			double current_client_regret = best_gain - second_best_gain;
+
+			//tylko jedna dostepna trasa 
+			if (second_best_gain == -std::numeric_limits<double>::max()) {
+				current_client_regret = std::numeric_limits<double>::max();
+			}
+
+			if (current_client_regret > max_regret)
+			{
+				max_regret = current_client_regret;
+				result = { best_route_idx, best_pos, c };
+			}
+		}
+	}
+	return result;
+}

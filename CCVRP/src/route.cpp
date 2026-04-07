@@ -302,12 +302,11 @@
     }
 
     //u ile klientow wstawiam
-    //j od ktorego klienta wstawiam == pierwszy niowy klient trafia na i index
+    //j od ktorego klienta wstawiam == pierwszy niowy klient trafia na j index
 	//customers - klienci ktorych wstawiam - musze znac ich dane, zeby obliczyc dystanse
     // //PSI+
     double Route::calculate_cost_variation_of_inserting_customer(int u, int j, std::vector<Node>& new_customers)
     {
-        //DO IT FIRSTLY
         //Suma czasow dojazdu do wstawionych klientow
         //t prim od l
        

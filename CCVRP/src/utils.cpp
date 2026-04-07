@@ -457,3 +457,15 @@ int find_route_with_smallest_violation(const std::vector<Route>& routes)
     }
     return best_route;
 }
+
+
+
+double get_angle_deg(const Node& depot, const Node& client)
+{
+    double dx = client.x - depot.x;
+    double dy = client.y - depot.y;
+
+    double angle_rad = std::atan2(dy, dx);
+    double angle_deg = angle_rad * 180.0 / M_PI;
+    return std::fmod(angle_deg + 360.0, 360.0);
+}

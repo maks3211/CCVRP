@@ -18,8 +18,8 @@ double calculate_gain_1_insertion_hybrid(std::vector<Route>& solution, Move& mov
     //{
 	//	return -std::numeric_limits<double>::infinity(); 
     //}
-    double delta_eta_l = r_to.penatly_eta - calculate_penalty_hybrid(r_to.initial_capacity, new_used_capacity, avg_cost, beta, gamma);;
-    double delta_C_l = 0 - r_to.calculate_cost_variation_of_inserting_customer(1,move.to_pos, client_to_move) + delta_eta_l;
+    double delta_eta_l = r_to.penatly_eta - calculate_penalty_hybrid(r_to.initial_capacity, new_used_capacity, avg_cost, beta, gamma);
+    double delta_C_l = 0 - r_to.    calculate_cost_variation_of_inserting_customer(1,move.to_pos, client_to_move) + delta_eta_l;
 	double gain = delta_C_k + delta_C_l;
     return gain;
 }
@@ -122,8 +122,7 @@ double calculate_gain_2_insertion_hybrid(std::vector<Route>& solution, Move& mov
     return gain;
 }
 
-//w obrebie jednej trasy - gain = old_cost - new_cost  
-//czyli musze przeliczyc normalnie ten nowy koszt trasy
+//w obrebie jednej trasy 
 double calculate_gain_2_opt_hybrid(std::vector<Route>& solution, Move& move, double avg_cost) {
     Route& r = solution[move.from_route];
     int i = move.from_pos;              // pocz¹tek odwracania

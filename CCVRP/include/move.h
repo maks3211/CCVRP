@@ -18,3 +18,17 @@ struct Move {
 	//3 - tylko czesc B odwrocona
 	int number_of_moved_clients_b = 0; // dla 2_opt* oraz cross-tail
 };
+
+
+struct clientInfo {
+	int route_index; // indeks trasy klienta
+	int client_index; // indeks klienta w trasie
+	int demand;
+};
+
+
+struct clientRatioInfo {
+	int route_index; // indeks trasy klienta
+	int client_index; // indeks klienta w trasie
+	double ratio;
+};
