@@ -26,3 +26,5 @@ int get_random_clients_from_route(Route& route, int num_clients);
 std::vector<std::pair<int, int>> get_n_random_clients(std::vector<Route>& s, int n);
 
 double random_01();
+
+int random_int_from_to(int from, int to);

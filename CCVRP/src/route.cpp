@@ -189,7 +189,7 @@
     bool Route::remove_customer_at_index(int pos)
     {
         if (pos == 0 || pos >= customers.size()) {
-            std::cerr << "Błąd: remove_customer_at - nieprawidłowa pozycja " << pos << "\n";
+            std::cerr << "Błąd: remove_customer_at - nieprawidlowa pozycja " << pos << "\n";
             return false;
         }
         Node removed = customers[pos];
@@ -216,14 +216,16 @@
     {
         arrival_times.clear();
         arrival_times.push_back(0.0); // Depot
-
+        cumulative_costs.clear();
+        cumulative_costs.push_back(0.0);
         double current_time = 0.0;
         double total_cumulative = 0.0;
 
         for (size_t i = 1; i < customers.size(); ++i) {
             current_time += euclidean_distance(customers[i - 1], customers[i]);
-            arrival_times.push_back(current_time);
+            arrival_times.push_back(current_time);            
             total_cumulative += current_time;
+            cumulative_costs.push_back(total_cumulative);
         }
         route_cost = total_cumulative;
     }
@@ -379,10 +381,14 @@
     }
     //AND THENIMPLENT GAIN FUNCTIONS IN GAINFUNCTIONS.CPP FILE - so psi minus and psi plus will be used, and after that implent delta penalty function
 
+
+
+ 
+
     void Route::recalculate_all()
     {
         calculate_arrival_times();
-        update_precompute(); // Teraz Z1 i Z2 będą liczone błyskawicznie
+        update_precompute(); 
 
     }
 

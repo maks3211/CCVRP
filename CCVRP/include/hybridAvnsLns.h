@@ -7,6 +7,9 @@
 #include "random_utils.h"
 #include "utils.h"
 #include "IO_handlerV2.h"
+#include "neighbourhood_structures.h"
+#include "local_search_engine_moves.h"
+#include "lns_diversification_strategy.h"
 
 
 struct hybridAvnsLnsConfig {
@@ -21,6 +24,17 @@ class HybridAvnsLns
 	IO_handlerV2::IO_handler io_handlers_v2;
 
 
+	//parmaetry alogorytmu stage 1 
+	int p_max = 5; // 3.6 neighbourhood stuctures  jest piec metod 
+	int h_max = 6; // Local serach engine - jest 6 operatorow pkt 3.7
+	double lambda_min = 0.0; // patrz linia 337 (strona 16)
+
+	//tablica z wynikami dla opertow local
+	double scoreLh[6] = { 0.0 };
+	double probLh[6] = { 0.0 }; //  the probability -  P rob(Lh)
+	double fLh[6] = { 0.0 }; // cumulative pprobability F(Lh)
+	int maxDiv = 200; //USTAWIC NA ODPOWIEDNIA WARTOSC  - nie ma nigdzie podanej ile to ma byc - wiec raczej na zasadzie prob i bledow!!!!
+
 public:
 	CVRPInstance instance; // Instance of the CVRP problem
 	hybridAvnsLnsConfig config;
@@ -31,8 +45,9 @@ public:
 	//Algorytm punkt 3.2
 	std::vector<Route> construct_intial_solution();
 
-	void perform_perturbation(std::vector<Route>& routes, Node clientA, CVRPInstance& instance, int total_customers);
+	static void perform_perturbation(std::vector<Route>& routes, Node clientA,int total_customers);
 
+	std::vector<Route> AVNS_stage_one(std::vector<Route> &solution, int total_customers);
 
 };
 

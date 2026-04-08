@@ -226,6 +226,9 @@ double calculate_cost(std::vector<Route>& routes)
 	return total_cost;
 }
 
+
+
+
 int calculate_remaining_capacity(Result& result)
 {
     int total_remaining = 0;
@@ -282,7 +285,15 @@ int calculate_used_capacity(std::vector<Node>& route)
 	return total_demand;
 }
 
-
+double get_sum_of_route_cost(std::vector<Route>& routes)
+{
+    double cost = 0.0;
+    for (int i = 0; i < routes.size(); ++i)
+    {
+        cost += routes[i].route_cost;
+    }
+    return cost;
+}
 
 bool add_customer_at_index_with_penalty(Route& route, Node& client)
 {
@@ -468,4 +479,17 @@ double get_angle_deg(const Node& depot, const Node& client)
     double angle_rad = std::atan2(dy, dx);
     double angle_deg = angle_rad * 180.0 / M_PI;
     return std::fmod(angle_deg + 360.0, 360.0);
+}
+
+void sort_descending(std::vector<clientRatioInfo>&to_sort)
+{
+   
+    std::sort(to_sort.rbegin(), to_sort.rend(),
+        [](const clientRatioInfo& a, const clientRatioInfo& b) {
+            if (a.route_index != b.route_index) {
+                return a.route_index > b.route_index;
+            }
+            return a.client_index > b.client_index;
+        });
+
 }

@@ -7,8 +7,8 @@ struct Route {
     std::vector<Node> customers;  // Lista ID klientów w trasie (w tym depozyt)
     int vehicle_id;  // Numer pojazdu
     int remaining_capacity;  // Pozostala pojemnosc pojazdu
-    int initial_capacity;  // Pozosta³a pojemnosc pojazdu
-    double route_cost;  // Calkowity koszt trasy (odleglosc)
+    int initial_capacity;  // Poczatkowa pojemnosc pojazdu 
+    double route_cost;  // Calkowity koszt trasy (odleglosc) -koszt skumulowany
     
     double penatly_eta = 0.0; // kara za przekroczenie pojemnosci (dla hybrid)
     bool is_penalized = false; // czy trasa jest penalizowana (dla hybrid)

@@ -6,6 +6,7 @@
 #include "gainFunctions.h"
 #include "random_utils.h"
 #include "penalty_functions.h"
+#include "hybridAvnsLns.h"
 
 //implentacja punktu 3.8  A LNS diversification strategy with a VNS structure - artykul hybrid 198 
 
@@ -18,10 +19,13 @@
 //po wstawieniu danego klienta przeliczyc trase
 
 
+
+std::vector<Route> lns_diversification(std::vector<Route>& solution, int lambda, double avg_route_cost, int total_customers);
+
 //wybieramy lambda klientow (lambda parametr wyliczny na podstawie ilosci wszystkich klientow w rozwiazaniu
 //losujemy lambda klientow
 //usuwamy lambda klinetow
-std::vector<clientInfo> random_removal(std::vector<Route>& solution, int lambda);
+std::vector<clientRatioInfo> random_removal(std::vector<Route>& solution, int lambda);
 
 //theta parametr 'θ is a user-defined parameter'  = 0.2 z atrykulu
 std::vector<clientRatioInfo> worst_removal(std::vector<Route>& solution, double avg_solution_cost, int lambda, double theta = 0.2);
@@ -30,7 +34,7 @@ std::vector<clientRatioInfo> worst_distance_removal(std::vector<Route>& solution
 //w artukule jest  'conflicting sector removal is π/12'  == 15 stopni
 //wyznaczamy sektory o zadanym kacie - sektor to gragment wyznaczany wzgledem calego rozwiazania, a nastepnie liczymy ile roznych pojazdow miesci sie w sektorze, 
 //a nastepnie uswamy lambda losowych klientow z sektora ktory ma najwiecej troznych tras
-std::vector<clientInfo> confilcting_sector_removal(std::vector<Route>& solution, int lambda, double sector_size_deg  = 15);
+std::vector<clientRatioInfo> confilcting_sector_removal(std::vector<Route>& solution, int lambda, double sector_size_deg  = 15);
 
 
 

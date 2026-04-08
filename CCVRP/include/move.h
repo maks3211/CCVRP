@@ -23,7 +23,8 @@ struct Move {
 struct clientInfo {
 	int route_index; // indeks trasy klienta
 	int client_index; // indeks klienta w trasie
-	int demand;
+	int new_customer_index; // indeks klienta ktorego wstawic z przekazanej tablicy
+	double penalty;
 };
 
 
@@ -32,3 +33,11 @@ struct clientRatioInfo {
 	int client_index; // indeks klienta w trasie
 	double ratio;
 };
+
+
+//1 -insertion - przeniesienie jednego klienta na inna pozycje (ta sama lub inna trasa)
+//1-1exchange - wymiana mijescami dwoch klientow
+//2-inseriton przeniesienie dwoch sasiadow z jedej trasy do innej (moze byc tez ta sama) w takiej samej lub odwroconej kolejnsci
+//2-opt - wybieram dwa punkty na trasie i odwracam caly framgen miedzy od from_route
+//2-opt-prim - zamiana ogonow dwuch tras
+//-||- plus mozliwosc odwrocenia kolejnosci ogoow

@@ -146,6 +146,7 @@
     <ClCompile Include="src\IO_handlerV2.cpp" />
     <ClCompile Include="src\IO_handler_utils.cpp" />
     <ClCompile Include="src\lns_diversification_strategy.cpp" />
+    <ClCompile Include="src\local_search_engine_moves.cpp" />
     <ClCompile Include="src\neighbourhood_structures.cpp" />
     <ClCompile Include="src\penalty_functions.cpp" />
     <ClCompile Include="src\random_utils.cpp" />

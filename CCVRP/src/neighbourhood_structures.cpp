@@ -1,5 +1,19 @@
 #include "neighbourhood_structures.h"
 
+
+std::vector<Route> S_p_neighbourhood(int op_id, std::vector<Route>& solution) {
+	switch (op_id) {
+	case 1: return two_insertion(solution);
+	case 2: return two_one_interchange(solution);
+	case 3: return segment_reshuffle(solution);
+	case 4: return cross_exchange(solution);
+	case 5: return head_swap(solution);
+	default: return solution;  
+	}
+}
+
+
+
 //Wstawiamy dwoch losowych sasiadow na pierwsze pozycje do dwoch losowych tras jezlei jest miejsce, jezlien nie uda sie wstawic do ktorejs z 
 //tras to zwracamy bez zmian
 
@@ -88,9 +102,12 @@ std::vector<Route> two_insertion(std::vector<Route>& current_solution)
 		return current_solution;
 	}
 
-	g(donor); // aktualizacja kosztu trasy
-	g(receiver1); 
-	g(receiver2); 
+	//g(donor); // aktualizacja kosztu trasy
+	//g(receiver1); 
+	//g(receiver2); 
+	donor.recalculate_all();
+	receiver1.recalculate_all();
+	receiver2.recalculate_all();
 	std::vector<Route> new_solution = current_solution;
 	new_solution[donor_route_index] = donor;	
 	new_solution[receiver1_index] = receiver1;
@@ -211,9 +228,13 @@ std::vector<Route> two_one_interchange(std::vector<Route>& current_solution)
 		return current_solution;
 	}
 	//Czy w tym miejscu aktualizowac kosz trasy, czy lepiej zrobic to poza funkcja, bo moze nie zawsze chce to aktualizowac??
-	g(receiver1); 
-	g(receiver2); // aktualizacja kosztu trasy
-	g(donor); // aktualizacja kosztu trasy
+	//g(receiver1); 
+	//g(receiver2); // aktualizacja kosztu trasy
+	//g(donor); // aktualizacja kosztu trasy
+
+	donor.recalculate_all();
+	receiver1.recalculate_all();
+	receiver2.recalculate_all();
 	std::vector<Route> new_solution = current_solution;
 	new_solution[donor_route_index] = donor;
 	new_solution[receiver1_index] = receiver1;
@@ -255,7 +276,8 @@ std::vector<Route> segment_reshuffle(std::vector<Route>& current_solution, int n
 	if (shuffle_first_pos == -1)
 		return current_solution;
 	std::shuffle(donor.customers.begin() + shuffle_first_pos, donor.customers.begin() + shuffle_first_pos + number_of_clients_to_shuffle, rng);
-	g(donor);
+//	g(donor);
+	donor.recalculate_all();
 	std::vector<Route> new_solution = current_solution;
 	new_solution[donor_route_index] = donor;
 	return new_solution;
@@ -347,6 +369,8 @@ std::vector<Route> cross_exchange(std::vector<Route>& current_solution, int nj, 
 
 		
 			std::vector<Route> new_solution = current_solution;
+			route_j.recalculate_all();
+			route_k.recalculate_all();
 			new_solution[donor_route_index] = route_j;
 			new_solution[receiver_route_index] = route_k;
 			return new_solution;
@@ -441,6 +465,9 @@ std::vector<Route> head_swap(std::vector<Route>& current_solution)
 
 
 	std::vector<Route> new_solution = current_solution;
+	route_a.recalculate_all();
+	route_b.recalculate_all();
+
 	new_solution[route_a_index] = route_a;
 	new_solution[route_b_index] = route_b;
 	return new_solution;

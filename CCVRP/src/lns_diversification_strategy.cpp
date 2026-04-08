@@ -1,17 +1,164 @@
 #include "lns_diversification_strategy.h"
 
-//zwracamy lambda losowych klientow - ktorych bedziemy usuwac
-std::vector<clientInfo> random_removal(std::vector<Route>& solution, int lambda)
+
+
+std::vector<Route> lns_diversification(std::vector<Route>& solution, int lambda, double avg_route_cost, int total_customers)
 {
-	clientInfo move;
-	std::vector<clientInfo> to_remove;
+	std::vector<Route> modified_solution = solution; 
+	std::vector<clientRatioInfo> to_remove;
+	std::unordered_set<int> unique_routes_remove; //zaweira infomracje z ktorych tras cos usunieto
+	//1. wybor losowego operatora usuwania
+	int method = random_int_from_to(1, 4);
+	switch (method) {
+	case 1:
+		unique_routes_remove.clear();
+		to_remove = random_removal(modified_solution, lambda); //to_ remove zawiera infomracje o tym jakich klienow usunac
+		sort_descending(to_remove); // po sortowaniu jest  {B,2}, {B,0}, {A,9}, {A,3}, {A,1}  
+		//sortowanie malajeco - moge usuwac od konca bez ryzuka prolbmeow z indeksami
+		//usuwanie klientow
+		for (int i = 0; i < to_remove.size(); ++i)
+		{
+			//sortowanie malejaco- moge usuwac od tylu 	
+			modified_solution[to_remove[i].route_index].remove_customer_at_index(to_remove[i].client_index);
+			unique_routes_remove.insert(to_remove[i].route_index);
+		}
+		break;
+
+	case 2:
+		unique_routes_remove.clear();
+		to_remove = worst_removal(modified_solution, avg_route_cost, lambda); 
+		sort_descending(to_remove);
+		//usuwanie klientow
+		for (int i = 0; i < to_remove.size(); ++i)
+		{
+			modified_solution[to_remove[i].route_index].remove_customer_at_index(to_remove[i].client_index);
+			unique_routes_remove.insert(to_remove[i].route_index);
+		}
+		break;
+	case 3:
+		unique_routes_remove.clear();
+		to_remove = worst_distance_removal(modified_solution, lambda);
+		sort_descending(to_remove); 
+		for (int i = 0; i < to_remove.size(); ++i)
+		{
+			modified_solution[to_remove[i].route_index].remove_customer_at_index(to_remove[i].client_index);
+			unique_routes_remove.insert(to_remove[i].route_index);
+		}
+		break;
+	case 4:
+		unique_routes_remove.clear();
+		to_remove = confilcting_sector_removal(modified_solution, lambda);
+		sort_descending(to_remove);
+		for (int i = 0; i < to_remove.size(); ++i)
+		{
+			modified_solution[to_remove[i].route_index].remove_customer_at_index(to_remove[i].client_index);
+			unique_routes_remove.insert(to_remove[i].route_index);
+		}
+		break;
+	}
+	
+	double new_penalty_eta = 0.0;
+	//przeliczenie tras z kotrych cos usunieto
+	for (int route_idx : unique_routes_remove)
+	{
+	
+		int new_demand = modified_solution[route_idx].initial_capacity - modified_solution[route_idx].remaining_capacity;
+		new_penalty_eta = calculate_penalty_hybrid(modified_solution[route_idx].initial_capacity, new_demand, avg_route_cost);
+		modified_solution[route_idx].penatly_eta = new_penalty_eta;
+		modified_solution[route_idx].recalculate_all();
+	}
+
+	//4. wybor losowego operatora dodawania
+	method = random_int_from_to(1, 2);
+	
+
+	Node new_customer;
+	switch (method) 
+	{
+	case 1:
+		clientRatioInfo to_add;
+		for (int i = 0; i < to_remove.size(); ++i) //przejscie przez kazdego usunietego klienta aby go wstawic na nowa pozycje
+		{
+			int route_index = to_remove[i].route_index;
+			int client_index = to_remove[i].client_index;
+			new_customer = solution[route_index].customers[client_index];
+			to_add = basic_greedy_insertion(modified_solution, new_customer, avg_route_cost);
+		
+			if (to_add.client_index == -1) // nie udalo sie nalezc miejsca - przeprowac perturbacje i odrazu aktualzacja calego rozwiazania
+			{
+				HybridAvnsLns::perform_perturbation(modified_solution, solution[route_index].customers[client_index], total_customers); 
+				for (auto r : modified_solution) //przeliczam wszystkie trasy bo nie mam informacji o tym ktore zostaly zmienione
+				{
+					r.recalculate_all();	
+				}
+			
+			}
+			else // udalo sie znalezc pozycje dla klienta za pomoca basic_greed_insertion - mozna wstawic 
+			{
+				int insertion_route_index = to_add.route_index; //wstaw do tej trasy
+				int insertion_client_index = to_add.client_index; //wstaw na ten indeks
+				
+				modified_solution[insertion_route_index].add_customer_at_index(new_customer,insertion_client_index,0.0,true);
+				modified_solution[insertion_route_index].calculate_arrival_times();
+				modified_solution[insertion_route_index].penatly_eta = to_add.ratio; // w ratio zapisuje delta_eta = calculate_penalty_hybrid(..)
+			}	
+		}
+		break;
+	case 2:
+		clientInfo to_adds;
+		//wektor wszystkich klientow ktorych musze wstawic 
+		std::vector<Node> new_customers;
+		for (int i = 0; i < to_remove.size(); ++i)
+		{ //umieszczenie wszystkich usunietych klientow
+			int route_index = to_remove[i].route_index;
+			int client_index = to_remove[i].client_index;
+			new_customers.push_back(solution[route_index].customers[client_index]);
+		}
+
+		for (int i = 0; i < to_remove.size(); ++i) //przejscie aby wstawic wszystkich usunietych klientow
+		{
+	
+			to_adds = regret_cost_insertion(modified_solution,new_customers, avg_route_cost);
+			//to_adds zawiera infomracje 
+			//do jakiej trasy wstawic na jaka pozycje
+			//oraz ktorego klienta z new_customers wstawic
+
+		
+	
+			int insertion_route_index = to_adds.route_index;			 //wstaw do tej trasy
+			int insertion_client_index = to_adds.client_index;			 //wstaw na ten indeks
+			Node selected_cusomter = new_customers[to_adds.client_index];// tego klienta
+
+			//wstawienie klienta i przeliczenie tras
+			modified_solution[insertion_route_index].add_customer_at_index(selected_cusomter, insertion_client_index, 0.0, true);
+			modified_solution[insertion_route_index].calculate_arrival_times();
+			modified_solution[insertion_route_index].penatly_eta = to_adds.penalty; 	
+
+			//usun wstawionego klienta z listy nie wstawionych
+			new_customers.erase(new_customers.begin() + to_adds.client_index);
+		}
+		break;
+	}
+
+	return modified_solution;
+}
+
+
+
+
+
+//zwracamy lambda losowych klientow - ktorych bedziemy usuwac
+std::vector<clientRatioInfo> random_removal(std::vector<Route>& solution, int lambda)
+{
+	clientRatioInfo move;
+	std::vector<clientRatioInfo> to_remove;
 	auto selected = get_n_random_clients(solution, lambda); // pobiranie lambda losowych klientow
 
 
 	for (auto [route_idx, client_idx] : selected) 
 	{
 		int demand = solution[route_idx].customers[client_idx].demand;
-		move = {route_idx, client_idx, demand };
+		move = {route_idx, client_idx, double(demand) };
 	}
 	return to_remove;
 }
@@ -157,7 +304,7 @@ std::vector<clientRatioInfo> worst_distance_removal(std::vector<Route>& solution
 
 //Dzielimy cale rozwiaznie na sektory o zadnym kacie i nastepnie liczymy ile tras jest w danym sektorze
 //czyli np od kata o do 15 stopni sa klienci kotrzy obslugiwani sa przez trasy A, B,B,C,A C to wynik to 3
-std::vector<clientInfo> confilcting_sector_removal(std::vector<Route>& solution, int lambda, double sector_size_deg)
+std::vector<clientRatioInfo> confilcting_sector_removal(std::vector<Route>& solution, int lambda, double sector_size_deg)
 {
 	//dla kazdej trasy wyznaczyc sektor
 	
@@ -260,14 +407,14 @@ std::vector<clientInfo> confilcting_sector_removal(std::vector<Route>& solution,
 	if (sector_clients.empty()) return {};
 
 	//Losowe wybranie lambda klientow
-	std::vector<clientInfo> result;
+	std::vector<clientRatioInfo> result;
 	std::shuffle(sector_clients.begin(), sector_clients.end(),rng);
 
 	int to_remove = std::min(lambda, static_cast<int>(sector_clients.size()));
 
 	for (int i = 0; i < to_remove; ++i) {
 		const auto& c = sector_clients[i];
-		result.push_back({ c.route_idx, c.client_idx, 0});   
+		result.push_back({ c.route_idx, c.client_idx, 0.0});   
 	}
 
 	return result;
@@ -278,7 +425,7 @@ std::vector<clientInfo> confilcting_sector_removal(std::vector<Route>& solution,
 //zwraca infomracje na jaka pozcje wstawic new_customer
 clientRatioInfo basic_greedy_insertion(std::vector<Route>& solution, Node& new_customer, double avg_cost)
 {
-	//wynieramy to przeniesienie ktore zwraca najmniejszy delta f
+	//wybieramy to przeniesienie ktore zwraca najmniejszy delta f
 	double minimal_detla_f = std::numeric_limits<double>::max();
 	double added_cost = 0.0;
 	double delta_eta = 0.0;
@@ -300,7 +447,7 @@ clientRatioInfo basic_greedy_insertion(std::vector<Route>& solution, Node& new_c
 			if (added_cost < minimal_detla_f)
 			{
 				minimal_detla_f = added_cost;
-				result = {r,i,added_cost};
+				result = {r,i,delta_eta };
 			}
 		}
 	}
@@ -312,13 +459,14 @@ clientRatioInfo basic_greedy_insertion(std::vector<Route>& solution, Node& new_c
 
 clientInfo regret_cost_insertion(std::vector<Route>& solution, std::vector<Node>& new_customers, double avg_cost)
 {
-	clientInfo result{ -1, -1, -1 };
+	clientInfo result{0,0,0,0 };
 	double max_regret = -1.0;
 
 	for (int c = 0; c < (int)new_customers.size(); ++c)
 	{
 		Node& customer = new_customers[c];
 		double best_gain = -std::numeric_limits<double>::max();
+		double best_delta_eta = 0.0;
 		double second_best_gain = -std::numeric_limits<double>::max();
 
 		int best_route_idx = -1;
@@ -348,6 +496,7 @@ clientInfo regret_cost_insertion(std::vector<Route>& solution, std::vector<Node>
 					best_gain = current_gain;
 					best_route_idx = r;
 					best_pos = i;
+					best_delta_eta = delta_eta;
 				}
 				else if (current_gain > second_best_gain) {
 					second_best_gain = current_gain;
@@ -367,7 +516,7 @@ clientInfo regret_cost_insertion(std::vector<Route>& solution, std::vector<Node>
 			if (current_client_regret > max_regret)
 			{
 				max_regret = current_client_regret;
-				result = { best_route_idx, best_pos, c };
+				result = { best_route_idx, best_pos, c,best_delta_eta };
 			}
 		}
 	}

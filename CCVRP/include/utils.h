@@ -2,9 +2,10 @@
 #include <iostream>
 #include <unordered_set>
 #include <unordered_map>
-
+#include <algorithm>
 #include "cvrp_types.h"
 #include "route.h"
+#include "move.h"
 #define M_PI       3.14159265358979323846
 /// <summary>
 /// Calculates the Euclidean distance between two 2D points
@@ -65,8 +66,10 @@ double calculate_cost(std::vector<Route>& routes);
 int calculate_remaining_capacity(Result& result);
 int calculate_remaining_capacity(Route& route);
 int calculate_remaining_capacity(std::vector<Route>& routes);
-
 int calculate_used_capacity(std::vector<Node>& route);
+
+
+double get_sum_of_route_cost(std::vector<Route>& routes);
 
 bool add_customer_at_index_with_penalty(Route& route,Node& client);
 InsertionResult calculate_insertion_cost(Route& route, Node& i, int insertion_index);
@@ -118,3 +121,4 @@ int find_route_with_smallest_violation(const std::vector<Route>& routes);
 double get_angle_deg(const Node& depot, const Node& client);
 
 
+void sort_descending(std::vector<clientRatioInfo>& to_sort);

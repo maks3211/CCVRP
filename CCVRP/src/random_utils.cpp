@@ -73,3 +73,10 @@ double random_01() {
     static std::uniform_real_distribution<double> dist(0.0, 1.0);
     return dist(rng);  
 }
+
+
+int random_int_from_to(int from, int to)
+{
+    std::uniform_int_distribution<int> dist(from, to);  
+    int liczba = dist(rng);
+}

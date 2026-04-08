@@ -34,8 +34,8 @@ double calculate_gain_1_1_exchange_hybrid(std::vector<Route>& solution, Move& mo
     Node& client_X = r_k.customers[move.from_pos];
     Node& client_Y = r_l.customers[move.to_pos];
 
-    int demand_from = move.moved_capacity_from; // pojemnosc klienta przenosznego z trasy 'from' do trasy 'to'
-	int demand_to = move.moved_capacity_to; // pojemnosc klienta przenoszonego z trasy 'to' do trasy 'from'
+     move.moved_capacity_from = client_X.demand; // pojemnosc klienta przenosznego z trasy 'from' do trasy 'to'
+	 move.moved_capacity_to = client_Y.demand; // pojemnosc klienta przenoszonego z trasy 'to' do trasy 'from'
 
     //to continue - jest w gemini - szukac pod 2. Implementacja funkcji Gain dla 1-1 Exchange
 
@@ -119,11 +119,12 @@ double calculate_gain_2_insertion_hybrid(std::vector<Route>& solution, Move& mov
 	double delta_C_from = psi_minus_from - 0 + delata_eta_from; // usuwamy 2 klientow wiec psi plus to 0
 	double delta_C_to = 0 - psi_plus_to + delata_eta_to; // wstawiamy 2 klientow wiec psi minus to 0
 	double gain = delta_C_from + delta_C_to;
+    move.moved_capacity_from = c1.demand + c2.demand;
     return gain;
 }
 
 //w obrebie jednej trasy 
-double calculate_gain_2_opt_hybrid(std::vector<Route>& solution, Move& move, double avg_cost) {
+double calculate_gain_2_opt_hybrid(std::vector<Route>& solution, Move& move, double avg_cost, double beta, double gamma ) {
     Route& r = solution[move.from_route];
     int i = move.from_pos;              // pocz¹tek odwracania
     int j = i + move.number_of_moved_clients - 1; // koniec odwracania (indeks ostatniego elementu w bloku)
@@ -139,7 +140,7 @@ double calculate_gain_2_opt_hybrid(std::vector<Route>& solution, Move& move, dou
     return psi_minus - psi_plus;        //pojemnosc sie nie zmienia
 
 }
-double calculate_gain_2_opt_prim_hybrid(std::vector<Route>& solution, Move& move, double avg_cost, double beta = 0.05, double gamma = 0.6)
+double calculate_gain_2_opt_prim_hybrid(std::vector<Route>& solution, Move& move, double avg_cost, double beta, double gamma)
 {
     Route& k_route = solution[move.from_route];
     Route& l_route = solution[move.to_route];
@@ -180,7 +181,7 @@ double calculate_gain_2_opt_prim_hybrid(std::vector<Route>& solution, Move& move
 }
 
 
-std::vector<Move> calculate_gain_cross_tail_hybrid(std::vector<Route>& solution, Move& move, double avg_cost, double beta = 0.05, double gamma = 0.6)
+std::vector<Move> calculate_gain_cross_tail_hybrid(std::vector<Route>& solution, Move& move, double avg_cost, double beta, double gamma)
 {
     Route& k_route = solution[move.from_route];
     Route& l_route = solution[move.to_route];

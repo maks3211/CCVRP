@@ -42,4 +42,5 @@ std::vector<Route> cross_exchange(std::vector<Route>& current_solution, int nj =
 std::vector<Route> head_swap(std::vector<Route>& current_solution);
 
 
-
+//wywoluje sasiedztwo na podstawie jego numeru, nuermacja zgodnie z kolejnoscia w punkcie 3.6  artukul 198
+std::vector<Route> S_p_neighbourhood(int op_id, std::vector<Route>& solution);
