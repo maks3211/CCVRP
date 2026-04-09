@@ -188,8 +188,8 @@
 
     bool Route::remove_customer_at_index(int pos)
     {
-        if (pos == 0 || pos >= customers.size()) {
-            std::cerr << "Błąd: remove_customer_at - nieprawidlowa pozycja " << pos << "\n";
+        if (pos < 1 || pos >= customers.size()) {
+            std::cerr << "Blad: remove_customer_at_index - nieprawidlowa pozycja " << pos << "\n";
             return false;
         }
         Node removed = customers[pos];
@@ -234,6 +234,7 @@
    
     void Route::update_precompute()
     {
+        calculate_arrival_times();
         int n = customers.size();
         Z1.assign(n, 0.0);
         Z2.assign(n, 0.0);
@@ -282,7 +283,8 @@
             return 0.0;
 
         double delta_G = 0.0;
-        for (int a = i-1; a <= i+u-1; a++)
+        int max_index = std::min( (int)customers.size() -2, i + u - 1);
+        for (int a = i-1; a <= max_index; a++)
         {
 			delta_G += euclidean_distance(customers[a], customers[a + 1]);
         }
@@ -387,7 +389,7 @@
 
     void Route::recalculate_all()
     {
-        calculate_arrival_times();
+       // calculate_arrival_times();
         update_precompute(); 
 
     }

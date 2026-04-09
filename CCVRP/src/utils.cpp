@@ -481,15 +481,13 @@ double get_angle_deg(const Node& depot, const Node& client)
     return std::fmod(angle_deg + 360.0, 360.0);
 }
 
-void sort_descending(std::vector<clientRatioInfo>&to_sort)
+void sort_descending(std::vector<clientRatioInfo>& to_sort)
 {
-   
-    std::sort(to_sort.rbegin(), to_sort.rend(),
+    std::sort(to_sort.begin(), to_sort.end(),
         [](const clientRatioInfo& a, const clientRatioInfo& b) {
             if (a.route_index != b.route_index) {
-                return a.route_index > b.route_index;
+                return a.route_index < b.route_index;  // rosnaco
             }
-            return a.client_index > b.client_index;
+            return a.client_index > b.client_index;    // malejaco
         });
-
 }

@@ -9,6 +9,7 @@ std::vector<Route> lns_diversification(std::vector<Route>& solution, int lambda,
 	std::unordered_set<int> unique_routes_remove; //zaweira infomracje z ktorych tras cos usunieto
 	//1. wybor losowego operatora usuwania
 	int method = random_int_from_to(1, 4);
+	std::cout << "LAMBDA: " << lambda << std::endl;
 	switch (method) {
 	case 1:
 		unique_routes_remove.clear();
@@ -16,10 +17,21 @@ std::vector<Route> lns_diversification(std::vector<Route>& solution, int lambda,
 		sort_descending(to_remove); // po sortowaniu jest  {B,2}, {B,0}, {A,9}, {A,3}, {A,1}  
 		//sortowanie malajeco - moge usuwac od konca bez ryzuka prolbmeow z indeksami
 		//usuwanie klientow
+		//DO DEBUGOWANIA WYPISYWANIE LISTY KLIENTOW DO USUNIECIA
+		/*std::cout << "Rozmiar: " << to_remove.size();
+		for (int zdih = 0; zdih < to_remove.size(); ++zdih)
+		{
+			std::cout << " route idx = " << to_remove[zdih].route_index << " to_remove[" << zdih << "].client_index = " << to_remove[zdih].client_index << "\n";
+		}*/
 		for (int i = 0; i < to_remove.size(); ++i)
 		{
+			
 			//sortowanie malejaco- moge usuwac od tylu 	
-			modified_solution[to_remove[i].route_index].remove_customer_at_index(to_remove[i].client_index);
+			bool correct = modified_solution[to_remove[i].route_index].remove_customer_at_index(to_remove[i].client_index);
+			if (!correct) // warunek w celach debugowania - nie wplywa na logike
+			{
+				std::cout << "ZLY INDEKS CASE 1 rozmiar: " << to_remove.size() << "to_remove[i].client_index = " << to_remove[i].client_index << "\n";
+			}
 			unique_routes_remove.insert(to_remove[i].route_index);
 		}
 		break;
@@ -31,27 +43,47 @@ std::vector<Route> lns_diversification(std::vector<Route>& solution, int lambda,
 		//usuwanie klientow
 		for (int i = 0; i < to_remove.size(); ++i)
 		{
-			modified_solution[to_remove[i].route_index].remove_customer_at_index(to_remove[i].client_index);
+
+			
+			bool correct = modified_solution[to_remove[i].route_index].remove_customer_at_index(to_remove[i].client_index);
+			if (!correct)
+			{
+				std::cout << "ZLY INDEKS CASE 2 rozmiar:  " << to_remove.size() << "to_remove[i].client_index = " << to_remove[i].client_index << "\n";
+			}
 			unique_routes_remove.insert(to_remove[i].route_index);
 		}
 		break;
+
 	case 3:
 		unique_routes_remove.clear();
 		to_remove = worst_distance_removal(modified_solution, lambda);
+
 		sort_descending(to_remove); 
+		
+
 		for (int i = 0; i < to_remove.size(); ++i)
-		{
-			modified_solution[to_remove[i].route_index].remove_customer_at_index(to_remove[i].client_index);
+		{	
+			bool correct = modified_solution[to_remove[i].route_index].remove_customer_at_index(to_remove[i].client_index);
+			if (!correct)
+			{
+				std::cout << "ZLY INDEKS CASE 3 rozmiar: " << to_remove.size() << " to_remove[i].client_index = " << to_remove[i].client_index << "\n";
+			}
 			unique_routes_remove.insert(to_remove[i].route_index);
 		}
 		break;
+
 	case 4:
 		unique_routes_remove.clear();
 		to_remove = confilcting_sector_removal(modified_solution, lambda);
 		sort_descending(to_remove);
+	
 		for (int i = 0; i < to_remove.size(); ++i)
 		{
-			modified_solution[to_remove[i].route_index].remove_customer_at_index(to_remove[i].client_index);
+			bool correct = modified_solution[to_remove[i].route_index].remove_customer_at_index(to_remove[i].client_index);
+			if (!correct)
+			{
+				std::cout << "ZLY INDEKS CASE 4 rozmiar:\n" << to_remove.size() << "to_remove[i].client_index = " << to_remove[i].client_index << "\n";
+			}
 			unique_routes_remove.insert(to_remove[i].route_index);
 		}
 		break;
@@ -86,7 +118,9 @@ std::vector<Route> lns_diversification(std::vector<Route>& solution, int lambda,
 		
 			if (to_add.client_index == -1) // nie udalo sie nalezc miejsca - przeprowac perturbacje i odrazu aktualzacja calego rozwiazania
 			{
+				std::cout << "rozpoczecie perform_perturbation w lns_diversification \n";
 				HybridAvnsLns::perform_perturbation(modified_solution, solution[route_index].customers[client_index], total_customers); 
+				std::cout << "zakonczenie perform_perturbation w lns_diversification \n";
 				for (auto r : modified_solution) //przeliczam wszystkie trasy bo nie mam informacji o tym ktore zostaly zmienione
 				{
 					r.recalculate_all();	
@@ -108,6 +142,7 @@ std::vector<Route> lns_diversification(std::vector<Route>& solution, int lambda,
 		clientInfo to_adds;
 		//wektor wszystkich klientow ktorych musze wstawic 
 		std::vector<Node> new_customers;
+		
 		for (int i = 0; i < to_remove.size(); ++i)
 		{ //umieszczenie wszystkich usunietych klientow
 			int route_index = to_remove[i].route_index;
@@ -127,15 +162,24 @@ std::vector<Route> lns_diversification(std::vector<Route>& solution, int lambda,
 	
 			int insertion_route_index = to_adds.route_index;			 //wstaw do tej trasy
 			int insertion_client_index = to_adds.client_index;			 //wstaw na ten indeks
-			Node selected_cusomter = new_customers[to_adds.client_index];// tego klienta
+			//Node selected_cusomter = new_customers[to_adds.client_index];// tego klienta TAK BYLO
+			Node selected_cusomter = new_customers[to_adds.new_customer_index];// tego klienta TAK BYLO
+
 
 			//wstawienie klienta i przeliczenie tras
+		
 			modified_solution[insertion_route_index].add_customer_at_index(selected_cusomter, insertion_client_index, 0.0, true);
 			modified_solution[insertion_route_index].calculate_arrival_times();
 			modified_solution[insertion_route_index].penatly_eta = to_adds.penalty; 	
 
 			//usun wstawionego klienta z listy nie wstawionych
-			new_customers.erase(new_customers.begin() + to_adds.client_index);
+			//TUTAJ JEST BLAD
+			
+			int numer = to_adds.client_index;
+			int rozmiar = new_customers.size();
+			
+			new_customers.erase(new_customers.begin() + to_adds.new_customer_index);
+			
 		}
 		break;
 	}
@@ -451,7 +495,7 @@ clientRatioInfo basic_greedy_insertion(std::vector<Route>& solution, Node& new_c
 			}
 		}
 	}
-
+	return result;
 	//jezeli nie znalziono miejsca to 3.2
 	//wywolac perform_perturabtioan - patrz hybridavns - ale to juz poza ta funkjca
 }
@@ -462,7 +506,7 @@ clientInfo regret_cost_insertion(std::vector<Route>& solution, std::vector<Node>
 	clientInfo result{0,0,0,0 };
 	double max_regret = -1.0;
 
-	for (int c = 0; c < (int)new_customers.size(); ++c)
+	for (int c = 0; c < new_customers.size(); ++c)
 	{
 		Node& customer = new_customers[c];
 		double best_gain = -std::numeric_limits<double>::max();
@@ -474,7 +518,7 @@ clientInfo regret_cost_insertion(std::vector<Route>& solution, std::vector<Node>
 
 		std::vector<Node> wrapper = { customer };
 
-		for (int r = 0; r < (int)solution.size(); ++r)
+		for (int r = 0; r < solution.size(); ++r)
 		{
 			Route& route = solution[r];
 			double route_load = route.initial_capacity - route.remaining_capacity;
@@ -483,7 +527,7 @@ clientInfo regret_cost_insertion(std::vector<Route>& solution, std::vector<Node>
 
 			for (int i = 1; i <= (int)route.customers.size(); ++i)
 			{
-				double psi_plus = route.calculate_cost_variation_of_inserting_customer(1, i, wrapper);
+				double psi_plus = route.calculate_cost_variation_of_inserting_customer(1, i, customer);
 		
 				double delta_eta = route.penatly_eta - calculate_penalty_hybrid(route.initial_capacity, route_load + customer.demand, avg_cost);
 
@@ -520,5 +564,9 @@ clientInfo regret_cost_insertion(std::vector<Route>& solution, std::vector<Node>
 			}
 		}
 	}
+
+	
+
+
 	return result;
 }

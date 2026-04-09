@@ -2,11 +2,36 @@
 
 HybridAvnsLns::HybridAvnsLns(CVRPInstance instance, int num_vehicles, IO_handlerV2::IO_handler io_handlers_v2, hybridAvnsLnsConfig config) : instance(instance), io_handlers_v2(io_handlers_v2), num_vehicles(num_vehicles), config(config)
 {
+    int number_of_customers = instance.nodes.size() - 1;
+    lambda_min = std::max(10.0,0.1 * number_of_customers);
+    lambda_max = std::min(300.0, 0.3 * number_of_customers);
+}
+
+void HybridAvnsLns::run()
+{
+    std::cout << "Rozpoczenie hybrd lns\n";
+    int number_of_customers = instance.nodes.size() - 1;
+    std::vector<Route> routes = construct_intial_solution();
+    std::cout << "Jest rozwiazanie poczatkowe\n";
+    for (int i = 0; i < routes.size(); ++i)
+    {
+        routes[i].recalculate_all();
+    }
+
+    routes = AVNS_stage_one(routes, number_of_customers);
+    std::cout << "Zakopnczono etap 1\n";
+    routes = AVNS_stage_two(routes, number_of_customers);
+    std::cout << "Zakopnczono etap 2\n";
+    double cost = get_sum_of_route_cost(routes);
+    result.routes = routes;
+    result.total_cost = cost;
+    result.duration_seconds = 0.0;
 
 }
 
-
-
+const Result& HybridAvnsLns::get_result() const {
+    return result;
+}
 
 std::vector<Route> HybridAvnsLns::construct_intial_solution()
 {
@@ -137,8 +162,9 @@ void HybridAvnsLns::perform_perturbation(std::vector<Route>& routes, Node client
                 if (tabu_until[clientB.id] > iter) continue;
 
                 // Usuwamy B
+                std::cout << "Jest blad w tym miejscu";
                 routes[r].remove_customer_at_index(pos);
-				
+                std::cout << "KONIEC tego miejsca";
                 // Próbujemy wstawić A (forced)
                 InsertionResult insA = find_best_insertion(routes[r], clientA);
 
@@ -203,6 +229,7 @@ std::vector<Route> HybridAvnsLns::AVNS_stage_one(std::vector<Route>& solution, i
     }
     double lambda = lambda_min;
     
+    std::cout << "Lambda init = " << lambda << "\n";
     double x_cost = 0.0;
     double x_best_cost = 0.0;
     x_cost = get_sum_of_route_cost(x);
@@ -214,9 +241,9 @@ std::vector<Route> HybridAvnsLns::AVNS_stage_one(std::vector<Route>& solution, i
         int p = 1;
         while (p <= p_max)
         {
+            std::cout << "ROZPOCZETO S_p_neighbourhood JEDEN\n";
             std::vector<Route> x_prim = S_p_neighbourhood(p, x);  //linia 5 algorytmu
-
-
+            std::cout << "ZAKONCZONO S_p_neighbourhood JEDEN\n";
             double gain[6] = { 0.0 }; //kolejne wartosci gain 
             BestMoves best_improvement_local_search;
             Move best_move; //najlepszy ruch
@@ -226,9 +253,12 @@ std::vector<Route> HybridAvnsLns::AVNS_stage_one(std::vector<Route>& solution, i
             //Linia 6 
             for (int h = 1; h <= h_max; ++h) //przejscie przez wszystkie 6 operatorow local_search 
             {
+                std::cout << "ROZPOCZETO L_h_local_serach JEDEN\n";
                 best_improvement_local_search = L_h_local_serach(x_prim, h, 1); //1 - bierzemy najlepszy ruch
+                std::cout << "ZAKONCZONO L_h_local_serach JEDEN\n";
                 gain[h - 1] = best_improvement_local_search.topK[0].gain;
 
+                
                 if (best_improvement_local_search.topK[0].gain > best_gain) // znaleziono lepszy ruch
                 {
                     best_move = best_improvement_local_search.topK[0];
@@ -236,14 +266,20 @@ std::vector<Route> HybridAvnsLns::AVNS_stage_one(std::vector<Route>& solution, i
                     best_move_number = h;
 
                 }
+               
             }
 
             //wyznaczenie score dla kazdego Lh  
+            
             for (int i = 0; i < 6; ++i)
             {
                 scoreLh[i] += gain[i] / best_gain;
+                if (best_gain == 0)
+                {
+                    std::cout << "dzieleieni przez 0";
+                }
             }
-
+            std::cout << "Dziwny pkt dwa  koniec \n";
             //linia 7
             //wykonanie najelpeszegu ruchu Lh 
             //wyznaczenie srednioego kosztu rozwiazanie x_prim;
@@ -253,12 +289,12 @@ std::vector<Route> HybridAvnsLns::AVNS_stage_one(std::vector<Route>& solution, i
                 avg_solution_cost += x_prim[i].route_cost;
             }
             avg_solution_cost /= x_prim.size();
-
-            std::vector<Route> x_bis = perform_move(x_prim, best_move, best_move_number, avg_solution_cost); // linia 7 
-
+            std::cout << "ROZPOCZETO perform_local_move JEDEN\n";
+            std::vector<Route> x_bis = perform_local_move(x_prim, best_move, best_move_number, avg_solution_cost); // linia 7 
+            std::cout << "ZAKONCZONO perform_local_move JEDEN\n";
             //Move or not 
             double x_bis_cost = get_sum_of_route_cost(x_bis);
-
+            std::cout << "ZAKONCZONO get_sum_of_route_cost JEDEN\n";
 
             if (x_bis_cost < x_cost) //jest poprawa  -- lina 9
             {
@@ -270,16 +306,21 @@ std::vector<Route> HybridAvnsLns::AVNS_stage_one(std::vector<Route>& solution, i
             {
                 p = p + 1;
             }
+            std::cout << "                      WARTOSC P:" << p << std::endl;
         }//linia 14
-
+        std::cout << "Koniec linia 14 \n";
         if (x_cost < x_best_cost) // linia 15
         {
             x_best = x;
+            x_best_cost = x_cost;
             lambda = lambda_min;
+            std::cout << "      Jest poprawa        Lambda reset = " << lambda << "\n";
         }
         else
         {
-            lambda = lambda + 0.05 * total_customers; // linia 18
+            //lambda = lambda + 0.05 * total_customers; // linia 18
+            lambda = std::min(lambda + 0.05 * total_customers, lambda_max);
+            std::cout << "Lambda dodanie = " << lambda << "\n";
         }
 
         //Diversification: Apply the LNS based on λ to get x~ 
@@ -288,17 +329,22 @@ std::vector<Route> HybridAvnsLns::AVNS_stage_one(std::vector<Route>& solution, i
         {
             avg_solution_cost += x[i].route_cost;
         }
+        std::cout << "          Koszt rozwiazania: " << avg_solution_cost;
         avg_solution_cost /= x.size();
+        std::cout << "ROZPOCZETO lns_diversification JEDEN\n";
         std::vector<Route> x_tylda = lns_diversification(x, lambda, avg_solution_cost, total_customers); //lina 20
+        std::cout << "ZAKONCZONO lns_diversification JEDEN\n";
         double x_tylda_cost = get_sum_of_route_cost(x_tylda);
         if (x_tylda_cost < x_best_cost) //linia 21
         {
             x_best = x_tylda;
+            x_best_cost = x_tylda_cost;
         }
 
         numDiv = numDiv + 1;
         x = x_tylda;
         x_cost = x_tylda_cost;
+        std::cout << "              NumDiv = " << numDiv << std::endl;;
     }  
 
 
@@ -314,6 +360,7 @@ std::vector<Route> HybridAvnsLns::AVNS_stage_one(std::vector<Route>& solution, i
 
     for (int i = 0; i < 6; ++i)
     {
+        
         probLh[i] = scoreLh[i] / score_sum;
         if (i > 0)
         {
@@ -323,6 +370,7 @@ std::vector<Route> HybridAvnsLns::AVNS_stage_one(std::vector<Route>& solution, i
         {
             fLh[i] = probLh[i];
         }
+       
     }
     fLh[5] = 1.0;
 
@@ -332,7 +380,124 @@ std::vector<Route> HybridAvnsLns::AVNS_stage_one(std::vector<Route>& solution, i
 }
 
 
+//Algorithm 1 The AVNS algorithm (Stage 2)
+std::vector<Route> HybridAvnsLns::AVNS_stage_two(std::vector<Route>& solution, int total_customers)
+{
+    double lambda = lambda_min;
+    double nonImproveDiv = 0;
+    std::vector<int> Wm; //wylosowane operatory linia 33-34
+    std::vector<Route> x = solution;
+    std::vector<Route> x_best = solution;
+    double x_cost = get_sum_of_route_cost(x);
+    double x_best_cost = x_cost;
+    double x_bis_cost = 0.0;
+    while (nonImproveDiv <= maxDiv2)
+    {
+        int p = 1;
+        while (p <= p_max) //linia 30
+        {
+            int m_max = random_int_from_to(lcmin, lcmax); // linia 31
+            Wm.clear(); //reset vactora
+            for (int m = 1; m <= m_max; ++m)
+            {
+                double alfa = random_01();
+                Wm.push_back(findLhat(alfa)); // linia 34
+            }
+            std::sort(Wm.begin(), Wm.end()); // Sortowanie rosnaco  linia 36
+            std::vector<Route> x_prim = S_p_neighbourhood(p, x); // linia 5 - Shaking
+            int m = 1; //lina 39
+
+            double avg_solution_cost = 0.0;
+            for (int i = 0; i < x_prim.size(); ++i)
+            {
+                avg_solution_cost += x_prim[i].route_cost;
+            }
+            avg_solution_cost /= x_prim.size();
+            double x_prim_cost = get_sum_of_route_cost(x_prim);
+            while (m <= m_max) //linia 40
+            {
+                BestMoves best_moves = L_h_local_serach(x_prim, Wm[m - 1], 3);
+                if (!best_moves.topK.empty())
+                {
+                    Move best_Kth_move = best_moves.topK.back(); //kty najelkpszy ruch
+                    if (best_Kth_move.gain > 0) //jest poprawa
+                    {
+                        std::vector<Route> x_bis = perform_local_move(x_prim, best_Kth_move, Wm[m - 1], avg_solution_cost);
+                        x_bis_cost = get_sum_of_route_cost(x_bis);
+                        if (x_bis_cost < x_prim_cost) // linia 42
+                        {
+                            x_prim = x_bis;
+                            x_prim_cost = x_bis_cost;
+                            m = 1; //linia 43
+                            continue;
+                        }
+                    }
+                }
+                m = m + 1;  //linia 44 , 45   
+            } // linia 47
+            //linia 48
+            
+            if (x_prim_cost < x_cost)
+            {
+                x = x_prim;
+                x_cost = x_prim_cost;
+                p = 1;
+            }
+            else
+            {
+                p = p + 1;
+            } //koniec linia 49
+        } //linia 50
+        if (x_cost < x_best_cost) //linia 51
+        {
+            x_best = x;
+            x_best_cost = x_cost;
+            lambda = lambda_min;
+            nonImproveDiv = 0;
+        }
+        else //linia 53
+        {
+            //lambda = lambda + 0.05 * total_customers;
+            lambda = std::min(lambda + 0.05 * total_customers, lambda_max);
+            nonImproveDiv = nonImproveDiv + 1;
+        }//linia 55
+        std::cout << "              nonImproveDiv = " << nonImproveDiv << std::endl;;
+
+        double avg_solution_cost = 0.0;
+        for (int i = 0; i < x.size(); ++i)
+        {
+            avg_solution_cost += x[i].route_cost;
+        }
+        avg_solution_cost /= x.size();
+        
+        std::vector<Route> x_tylda = lns_diversification(x, lambda, avg_solution_cost, total_customers); // czy na x??
+        
+        double x_tylda_cost = get_sum_of_route_cost(x_tylda);
+        if (x_tylda_cost < x_best_cost)
+        {
+            
+            x_best = x_tylda;
+            x_best_cost = x_tylda_cost;
+        }
+        x = x_tylda;
+        x_cost = x_tylda_cost;
+    }//linia 58
+
+    return x_best;
+}
 
 
+
+int HybridAvnsLns::findLhat(double alfa)
+{  
+    for (int h = 1; h <= 6; ++h)
+    {
+        if (fLh[h - 1] >= alfa)
+        {
+            return h;
+        }
+    }
+    return 6;
+}
 
 

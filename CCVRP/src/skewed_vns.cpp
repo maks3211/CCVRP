@@ -29,9 +29,6 @@
 
         result.total_cost = result_cost;
 
-      
-
-		
     }
 
     const Result& Skewed_VNS::get_result() const {

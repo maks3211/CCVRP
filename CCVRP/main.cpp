@@ -16,7 +16,7 @@
 #include "include/skewed_vns.h"
 #include "include/IO_handler.h"
 #include "include/IO_handlerV2.h"
-
+#include "include/hybridAvnsLns.h"
 std::atomic<bool> loading_done(false);
 
 void loading_animation(std::chrono::high_resolution_clock::time_point start_time) {  
@@ -65,15 +65,58 @@ int main()
     std::vector<int> alfa_values = {500};
     const int runs_per_alfa = 1;
     int max_no_improve = 1300;
-	std::cout << "Number of vehicles: " << num_vehicles << std::endl;
-	std::cout << "Runs per alfa: " << runs_per_alfa << std::endl;
-	std::cout << "Max no improve cout: " << max_no_improve << std::endl;
+	//std::cout << "Number of vehicles: " << num_vehicles << std::endl;
+	//std::cout << "Runs per alfa: " << runs_per_alfa << std::endl;
+	//std::cout << "Max no improve cout: " << max_no_improve << std::endl;
 
 	bool loading_animation_enabled = true;
 	//END CONFIGURATION
 
 
     std::cout << std::boolalpha;
+
+
+    
+
+
+    //TEST HYBRID
+    auto start = std::chrono::high_resolution_clock::now();
+
+
+
+
+    HybridAvnsLns hybrid(input, num_vehicles, io_handlers_v2);
+    hybrid.run();
+    Result hybridResult = hybrid.get_result();
+
+
+
+
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double, std::milli> duration = end - start;
+
+    
+
+    hybridResult.duration_seconds = duration.count() / 1000.0; // sekundy
+    bool exceeded = has_negtive_capacity(hybridResult);
+    if (exceeded) {
+        std::cout << "\033[31m";
+    }
+
+    std::cout
+        << " | Czas: " << duration.count() / 1000 << " s"
+        << " | Koszt: " << hybridResult.total_cost
+        << " | Przekroczenie pojemnosci: "
+        << (exceeded ? "TAK" : "NIE")
+        << "\033[0m\n";  // reset na końcu
+
+    std::cout << "czy sie powtarza: " << any_global_duplicates(hybridResult.routes) << "ile wolnego: " << get_total_remaining_capacity(hybridResult) << " ile po " << calculate_remaining_capacity(hybridResult);
+
+    std::cout << "ZAKONCZONO";
+    std::string file_info = "hybridFirstBlood";
+    io_handlers_v2.save_solution(hybridResult, file_info);
+    return 0;
+    //KONIEC HYBRID TEST
 
     Result github = io_handlers.load_solution(0, "Golden_1.vrp");
 
@@ -97,6 +140,9 @@ int main()
     std::cout << "\t\t\t\t\t \\\\==============================================//" << std::endl;
 
 	
+    
+
+
 
     for (int f_alfa : alfa_values)
     {

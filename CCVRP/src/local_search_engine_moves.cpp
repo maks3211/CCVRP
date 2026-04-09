@@ -124,6 +124,7 @@ bool update_best_k_moves_from_vector(BestMoves& best, int k, std::vector<Move>& 
 
 BestMoves get_top_k_1_insertion_moves(std::vector<Route>& solution, int k)
 {
+	//std::cout << "	Rozpoczeto get_top_k_1_insertion_moves \n";
 	//przechowuje wynik koncowy - k najlepszych ruchow
 	BestMoves best_k_moves;
 
@@ -176,6 +177,7 @@ BestMoves get_top_k_1_insertion_moves(std::vector<Route>& solution, int k)
 		}
 	}
 	best_k_moves.L_h = 1;
+	//std::cout << "	Zakonczono get_top_k_1_insertion_moves \n";
 	return best_k_moves;
 }
 
@@ -183,6 +185,7 @@ BestMoves get_top_k_1_insertion_moves(std::vector<Route>& solution, int k)
 //zaminiamy miejscami dwoch klientow 
 BestMoves get_top_k_1_1_exchange_moves(std::vector<Route>& solution, int k)
 {
+	//std::cout << "	Rozpoczeto get_top_k_1_1_exchange_moves \n";
 	BestMoves best_k_moves;
 
 	Move move;
@@ -235,6 +238,7 @@ BestMoves get_top_k_1_1_exchange_moves(std::vector<Route>& solution, int k)
 
 	}
 	best_k_moves.L_h = 2;
+	//std::cout << "	Zakonczono get_top_k_1_1_exchange_moves \n";
 	return best_k_moves;
 }
 
@@ -245,6 +249,7 @@ BestMoves get_top_k_1_1_exchange_moves(std::vector<Route>& solution, int k)
 
 BestMoves get_top_k_2_insertion_moves(std::vector<Route>& solution, int k)
 {
+	//std::cout << "	Rozpoczeto get_top_k_2_insertion_moves \n";
 	BestMoves best_k_moves;
 
 	Move move;
@@ -287,6 +292,7 @@ BestMoves get_top_k_2_insertion_moves(std::vector<Route>& solution, int k)
 		}
 	}
 	best_k_moves.L_h = 3;
+	//std::cout << "	Zakonczono get_top_k_2_insertion_moves \n";
 	return best_k_moves;
 }
 
@@ -295,6 +301,7 @@ BestMoves get_top_k_2_insertion_moves(std::vector<Route>& solution, int k)
 //wybieram dwa rozne punkty na trasie i odwracam caly fragment miedzy nimi
 BestMoves get_top_k_2_opt_moves(std::vector<Route>& solution, int k)
 {
+	//std::cout << "	Rozpoczeto get_top_k_2_opt_moves \n";
 	BestMoves best_k_moves;
 
 	Move move;
@@ -306,22 +313,27 @@ BestMoves get_top_k_2_opt_moves(std::vector<Route>& solution, int k)
 	}
 	avg_cost /= solution.size();
 	double gain = 0.0;
-
+	
 	for (int r_from = 0; r_from < solution.size(); ++r_from) // przejscie przez kazda trase 
 	{
 		const Route& route_from = solution[r_from];
-
+		
 		for (int first_customer = 1; first_customer < route_from.customers.size() - 1; ++first_customer) // -1 poniewaz moge zamienic sie z ostatnim
 		{
 			for (int range = first_customer + 1; range < route_from.customers.size(); ++range)
 			{
 				move = { r_from, first_customer, r_from, range, range - first_customer, 0.0, 0,0,1 };
+			
 				gain = calculate_gain_2_opt_hybrid(solution, move, avg_cost);
+				
 				update_best_k_moves(best_k_moves, gain, k, move);
+				
 			}
 		}
+	
 	}
 	best_k_moves.L_h = 4;
+	//std::cout << "	Zakonczono get_top_k_2_opt_moves \n";
 	return best_k_moves;
 }
 
@@ -329,7 +341,7 @@ BestMoves get_top_k_2_opt_moves(std::vector<Route>& solution, int k)
 //zamieniem ogony dwoch tras - dlugosc ogonow oraz miejsce ciecia moze byc pomiedzy trasami
 BestMoves get_top_k_2_opt_prim_moves(std::vector<Route>& solution, int k)
 {
-
+	//std::cout << "	Rozpoczeto get_top_k_2_opt_prim_moves \n";
 	BestMoves best_k_moves;
 
 	Move move;
@@ -388,6 +400,7 @@ BestMoves get_top_k_2_opt_prim_moves(std::vector<Route>& solution, int k)
 		}
 	}
 	best_k_moves.L_h = 5;
+	//std::cout << "	Zakonczono get_top_k_2_opt_prim_moves \n";
 	return best_k_moves;
 }
 
@@ -396,6 +409,7 @@ BestMoves get_top_k_2_opt_prim_moves(std::vector<Route>& solution, int k)
 //wiec w praktyce najpierw licze 2_opt* a potem dla tych samych punktow ciecia licze 2_opt* ale z odwracaniem fragmentow (rev/org, rev/rev, org/rev)
 BestMoves get_top_k_cross_tail_moves(std::vector<Route>& solution, int k)
 {
+	//std::cout << "	Rozpoczeto get_top_k_cross_tail_moves \n";
 	BestMoves best_k_moves;
 
 	Move move;
@@ -461,6 +475,7 @@ BestMoves get_top_k_cross_tail_moves(std::vector<Route>& solution, int k)
 		}
 	}
 	best_k_moves.L_h = 6;
+	//std::cout << "	Zakonczono get_top_k_cross_tail_moves \n";
 	return best_k_moves;
 }
 
@@ -492,27 +507,34 @@ BestMoves L_h_local_serach(std::vector<Route>& solution, int h, int k)
 
 }
 
-std::vector<Route> perform_move(std::vector<Route>& solution, Move move, int structure, double avg_cost)
+std::vector<Route> perform_local_move(std::vector<Route>& solution, Move move, int structure, double avg_cost)
 {
 	std::vector<Route> my_solution = solution;
 	switch (structure) {
 	case 1:
+		//std::cout << "	ROZPOCZETO perform_1_insertion_move \n";
 		return perform_1_insertion_move(solution, move, avg_cost);
 		break;
 	case 2:
-		return perform_1_1_exchange_move(solution, move, avg_cost);
+		//std::cout << "	ROZPOCZETO perform_1_1_exchange_move \n";
+		return perform_1_1_exchange_move(solution, move, avg_cost);	
 		break;
 	case 3:
+		//std::cout << "	ROZPOCZETO perform_2_insertion_move \n";
 		return perform_2_insertion_move(solution, move, avg_cost);
 		break;
 	case 4:
-		return perform_2_opt_move(solution, move, avg_cost);
+		//std::cout << "	ROZPOCZETO perform_2_opt_move \n";
+		return perform_2_opt_move(solution, move, avg_cost); //tez zwraca blad		
 		break;
 	case 5:
+		//std::cout << "	ROZPOCZETO perform_2_opt_prim_move \n";
 		return perform_2_opt_prim_move(solution, move, avg_cost);
 		break;
 	case 6:
+		//std::cout << "	ROZPOCZETO perform_corss_tail_move \n";
 		return perform_corss_tail_move(solution, move, avg_cost);
+		
 		break;
 	}
 }
@@ -561,6 +583,7 @@ std::vector<Route> perform_1_insertion_move(std::vector<Route>& solution, Move m
 		my_solution[move.from_route].recalculate_all();
 		my_solution[move.to_route].recalculate_all();
 	}
+	
 	return my_solution;
 }
 
@@ -592,6 +615,7 @@ std::vector<Route> perform_1_1_exchange_move(std::vector<Route>& solution, Move 
 	{
 		my_solution[move.from_route].recalculate_all();
 	}
+	
 	return my_solution;
 }
 
@@ -599,8 +623,11 @@ std::vector<Route> perform_1_1_exchange_move(std::vector<Route>& solution, Move 
 std::vector<Route> perform_2_insertion_move(std::vector<Route>& solution, Move move, double avg_cost)
 {
 	//przestawienie w obrebie tej samej trasy   wstawienie na miejsce drugiego z pary   wstawienei na to samo miejsce bez odwracania 
-	if ( move.from_route == move.to_route && (move.to_pos - move.from_pos == 1 || (move.to_pos == move.from_pos && move.orientation == 1))   )    // przestawienie na to samo miejsce lub przestawienie na miejsce drugiego elemntu z pary
+	if (move.from_route == move.to_route && (move.to_pos - move.from_pos == 1 || (move.to_pos == move.from_pos && move.orientation == 1)))    // przestawienie na to samo miejsce lub przestawienie na miejsce drugiego elemntu z pary
+	{
+	
 		return solution;
+	}
 	std::vector<Route> my_solution = solution;
 
 	auto& from_vec = my_solution[move.from_route].customers;
@@ -631,6 +658,7 @@ std::vector<Route> perform_2_insertion_move(std::vector<Route>& solution, Move m
 			std::make_move_iterator(temp.end()));
 		
 		my_solution[move.from_route].recalculate_all(); // nie trzeba przeliczc kosztow
+		
 		return my_solution;
 
 	}
@@ -660,9 +688,12 @@ std::vector<Route> perform_2_opt_move(std::vector<Route>& solution, Move move, d
 	int from_index = move.from_pos;
 	int range = move.to_pos;
 	Route& r = my_solution[move.from_route];
-	std::reverse(r.customers.begin() + from_index, r.customers.begin() + from_index + range);
+	//tu byl juz raz wykryty blad i zostal poprawiony
+	//std::reverse(r.customers.begin() + from_index, r.customers.begin() + from_index + range); //move.to_pos wskazuje na ostatni indeks ktory ma byc zamienony a nie ile elmtow zamienic- to wskazuje move.number_of_moved_clients
+	std::reverse(r.customers.begin() + from_index, r.customers.begin() +  range);
 
 	r.recalculate_all();
+	
 	return my_solution;
 }
 
@@ -702,7 +733,7 @@ std::vector<Route> perform_2_opt_prim_move(std::vector<Route>& solution, Move mo
 	vec_A.recalculate_all();
 	vec_B.recalculate_all();
 
-
+	std::cout << "	ZAKONCZONO perform_2_opt_prim_move\n";
 	return my_solution;
 }
 
@@ -755,5 +786,6 @@ std::vector<Route> perform_corss_tail_move(std::vector<Route>& solution, Move mo
 
 	vec_A.recalculate_all();
 	vec_B.recalculate_all();
+	std::cout << "	ZAKONCZONO perform_corss_tail_move\n";
 	return my_solution;
 }

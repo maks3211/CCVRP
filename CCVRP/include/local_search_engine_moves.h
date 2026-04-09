@@ -86,7 +86,7 @@ BestMoves get_top_k_cross_tail_moves(std::vector<Route>& solution, int k);
 
 BestMoves L_h_local_serach(std::vector<Route>& solution, int h, int k);
 
-std::vector<Route> perform_move(std::vector<Route>& solution, Move move, int structure, double avg_cost);
+std::vector<Route> perform_local_move(std::vector<Route>& solution, Move move, int structure, double avg_cost);
 
 
 std::vector<Route> perform_1_insertion_move(std::vector<Route>& solution, Move move, double avg_cost);
