@@ -261,7 +261,7 @@ std::vector<Route> HybridAvnsLns::AVNS_stage_one(std::vector<Route>& solution, i
     x_best_cost = x_cost;
 
     int numDiv = 1;
-    while (numDiv <= maxDiv)
+    while (numDiv <= config.maxDiv)
     {
         int p = 1;
         while (p <= p_max)
@@ -360,7 +360,7 @@ std::vector<Route> HybridAvnsLns::AVNS_stage_one(std::vector<Route>& solution, i
             x_best = x;
             x_best_cost = x_cost;
             lambda = lambda_min;
-            std::cout << "Poprawa x_cost: " << x_best_cost << std::endl;
+          //  std::cout << "Poprawa x_cost: " << x_best_cost << std::endl;
         }
         else
         {
@@ -395,13 +395,13 @@ std::vector<Route> HybridAvnsLns::AVNS_stage_one(std::vector<Route>& solution, i
         {
             x_best = x_tylda;
             x_best_cost = x_tylda_cost;
-            std::cout << "Poprawa x_tylda: " << x_best_cost << std::endl;
+         //   std::cout << "Poprawa x_tylda: " << x_best_cost << std::endl;
         }
 
         numDiv = numDiv + 1;
         x = x_tylda;
         x_cost = x_tylda_cost;
-        std::cout << "              NumDiv = " << numDiv << std::endl;;
+       // std::cout << "              NumDiv = " << numDiv << std::endl;;
     }  
 
 
@@ -448,7 +448,7 @@ std::vector<Route> HybridAvnsLns::AVNS_stage_two(std::vector<Route>& solution, i
     double x_cost = get_sum_of_route_cost(x);
     double x_best_cost = x_cost;
     double x_bis_cost = 0.0;
-    while (nonImproveDiv <= maxDiv2)
+    while (nonImproveDiv <= config.maxDiv2)
     {
         int p = 1;
         while (p <= p_max) //linia 30
@@ -530,7 +530,7 @@ std::vector<Route> HybridAvnsLns::AVNS_stage_two(std::vector<Route>& solution, i
         {
             x_best = x;
             x_best_cost = x_cost;
-            std::cout << "Poprawa x_cost - Koszt : " << x_best_cost << std::endl;
+           // std::cout << "Poprawa x_cost - Koszt : " << x_best_cost << std::endl;
             lambda = lambda_min;
             nonImproveDiv = 0;
         }
@@ -540,7 +540,7 @@ std::vector<Route> HybridAvnsLns::AVNS_stage_two(std::vector<Route>& solution, i
             lambda = std::min(lambda + 0.05 * total_customers, lambda_max);
             nonImproveDiv = nonImproveDiv + 1;
         }//linia 55
-        std::cout << "              nonImproveDiv = " << nonImproveDiv << std::endl;;
+       // std::cout << "              nonImproveDiv = " << nonImproveDiv << std::endl;;
 
         double avg_solution_cost = 0.0;
         for (int i = 0; i < x.size(); ++i)
@@ -566,7 +566,7 @@ std::vector<Route> HybridAvnsLns::AVNS_stage_two(std::vector<Route>& solution, i
             
             x_best = x_tylda;
             x_best_cost = x_tylda_cost;
-            std::cout << "Poprawa x_tylda - Koszt : " << x_best_cost << std::endl;
+        //    std::cout << "Poprawa x_tylda - Koszt : " << x_best_cost << std::endl;
         }
         x = x_tylda;
         x_cost = x_tylda_cost;

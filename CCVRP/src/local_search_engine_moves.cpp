@@ -824,8 +824,6 @@ std::vector<Route> perform_2_opt_prim_move(std::vector<Route>& solution, Move mo
 
 	vec_A.recalculate_all();
 	vec_B.recalculate_all();
-
-	std::cout << "	ZAKONCZONO perform_2_opt_prim_move\n";
 	return my_solution;
 }
 
@@ -882,6 +880,6 @@ std::vector<Route> perform_corss_tail_move(std::vector<Route>& solution, Move mo
 
 	vec_A.recalculate_all();
 	vec_B.recalculate_all();
-	std::cout << "	ZAKONCZONO perform_corss_tail_move\n";
+	
 	return my_solution;
 }

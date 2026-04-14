@@ -2,6 +2,7 @@
 
 
 std::vector<Route> S_p_neighbourhood(int op_id, std::vector<Route>& solution) {
+	
 	switch (op_id) {
 	case 1: return two_insertion(solution);
 	case 2: return two_one_interchange(solution);

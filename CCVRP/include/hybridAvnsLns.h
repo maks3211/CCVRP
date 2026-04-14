@@ -13,8 +13,8 @@
 
 
 struct hybridAvnsLnsConfig {
-	int paramA = 3;
-	int paramB = 5;
+	int maxDiv = 120;
+	int maxDiv2 = 100;
 };
 
 class HybridAvnsLns
@@ -39,8 +39,8 @@ class HybridAvnsLns
 	double lambda_min = 0.0; // patrz linia 337 (strona 16)
 	double lambda_max = 0.0; // patrz linia 337 (strona 16)
 
-	int maxDiv = 120; //USTAWIC NA ODPOWIEDNIA WARTOSC  - nie ma nigdzie podanej ile to ma byc - wiec raczej na zasadzie prob i bledow!!!!
-	int maxDiv2 = 100; //Stage 2
+	//int maxDiv = 120; //USTAWIC NA ODPOWIEDNIA WARTOSC  - nie ma nigdzie podanej ile to ma byc - wiec raczej na zasadzie prob i bledow!!!!
+	//int maxDiv2 = 100; //Stage 2
 	int lcmin = 3;
 	int lcmax = 5;
 public:

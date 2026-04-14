@@ -39,7 +39,9 @@ void loading_animation(std::chrono::high_resolution_clock::time_point start_time
  
 int main()
 {
-
+    std::cout << "\nUSUNAC/ zmienic nazwe METODE FUCKING\n"; 
+    bool run_Skewed_VNS = false;
+    bool run_hybrid = true;
     
     
     IO_handlerV1::IO_handler io_handlers("Golden_1.vrp");
@@ -51,7 +53,8 @@ int main()
 	//io_handlers_v2.set_result_path("Results/test2");
 	bool res_path = io_handlers_v2.set_result_path("C:/Users/maks0/Desktop/Test/hybrid/final");
 	//io_handlers_v2.set_input_path("InputData/Golden_1.vrp");
-	bool input_path = io_handlers_v2.set_input_path("D:/Nauka/SEM1/NTWI/CCVRP/CCVRP/InputData/Golden_1.vrp");
+	bool input_path = io_handlers_v2.set_input_path("D:/Nauka/SEM1/NTWI/CCVRP/CCVRP/InputData/Golden_2.vrp");
+    const int num_vehicles = 10;
     
 	std::cout << "Input path set: " << std::boolalpha << input_path << std::endl;
 	std::cout << "Result path set: " << std::boolalpha << res_path << std::endl;
@@ -60,8 +63,8 @@ int main()
     //CVRPInstance input = io_handlers.get_instance();
    
 
-	//CONFIGURATION
-    const int num_vehicles = 9;
+	
+   
     std::vector<int> alfa_values = {500};
     const int runs_per_alfa = 1;
     int max_no_improve = 1300;
@@ -74,56 +77,67 @@ int main()
 
 
     std::cout << std::boolalpha;
-    std::string file_info = "hybrid";
-    double avg_hybrid_cost = 0.0;
-    double best_cost = 999999.0;
-    Result best;
-    //Uruchamia 30 prob dla hybrid, zapisuje kazda z prob w folderze hybrid/final oraz zapisuje best of 30 w hybrid
-    for (int rounds = 0; rounds < 30; rounds++)
+
+    //              METHOD CONFIGURATION
+    if (run_hybrid)
     {
-        auto start = std::chrono::high_resolution_clock::now();
-        HybridAvnsLns hybrid(input, num_vehicles, io_handlers_v2);
-        hybrid.run();
-        Result hybridResult = hybrid.get_result();
-        auto end = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<double, std::milli> duration = end - start;
-        hybridResult.duration_seconds = duration.count() / 1000.0; // sekundy
-
-
-        bool exceeded = has_negtive_capacity(hybridResult);
-        std::cout << "\nPozstala pojemnosc [1]: " << hybridResult.routes[1].remaining_capacity << std::endl;
-        if (exceeded) {
-            std::cout << "\033[31m";
-        }
-
-        std::cout
-            << "#" << rounds << "\n"
-            << " | Czas: " << duration.count() / 1000 << " s"
-            << " | Koszt: " << hybridResult.total_cost
-            << " | Przekroczenie pojemnosci: "
-            << (exceeded ? "TAK" : "NIE")
-            << "\033[0m\n";  // reset na końcu
-
-        std::cout << "Czy sa duplikaty: " << any_global_duplicates(hybridResult.routes) << " ile wolnego : " << get_total_remaining_capacity(hybridResult) << " ile po ";// << calculate_remaining_capacity(hybridResult);
-
-        std::cout << "\nZAKONCZONO run\n";
-       
-        io_handlers_v2.save_solution(hybridResult, file_info);
-        avg_hybrid_cost += hybridResult.total_cost;
-        if (best_cost > result.total_cost)
+        std::string file_info = "hybrid_golden_2";
+        //maxDiv, maxDiv2
+        hybridAvnsLnsConfig hybrid_config{ 130, 110 };
+        int number_of_starts = 3;
+        double avg_hybrid_cost = 0.0;
+        double best_hybrid_cost = 99999999.0;
+        Result best;
+        //Uruchamia number_of_starts prob dla hybrid, zapisuje kazda z prob w folderze hybrid/final oraz zapisuje best of number_of_starts w hybrid
+        for (int rounds = 0; rounds < number_of_starts; rounds++)
         {
-            best = hybridResult;
-        }
-    }
+            auto start = std::chrono::high_resolution_clock::now();
+            HybridAvnsLns hybrid(input, num_vehicles, io_handlers_v2, hybrid_config);
+            hybrid.run();
+            Result hybridResult = hybrid.get_result();
+            auto end = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<double, std::milli> duration = end - start;
+            hybridResult.duration_seconds = duration.count() / 1000.0; // sekundy
 
-    avg_hybrid_cost /= 30;
-    io_handlers_v2.set_result_path("C:/Users/maks0/Desktop/Test/hybrid");
-    std::string file_info = "hybrid_best_of_30";
-    io_handlers_v2.save_solution(best, file_info);
-    //TEST HYBRID
-    
-  
+
+            bool exceeded = has_negtive_capacity(hybridResult);
+            std::cout << "\nPozstala pojemnosc [1]: " << hybridResult.routes[1].remaining_capacity << std::endl;
+            if (exceeded) {
+                std::cout << "\033[31m";
+            }
+
+            std::cout
+                << "#" << rounds << "\n"
+                << " | Czas: " << duration.count() / 1000 << " s"
+                << " | Koszt: " << hybridResult.total_cost
+                << " | Przekroczenie pojemnosci: "
+                << (exceeded ? "TAK" : "NIE")
+                << "\033[0m\n";  // reset na końcu
+
+            std::cout << "Czy sa duplikaty: " << any_global_duplicates(hybridResult.routes) << " ile wolnego : " << get_total_remaining_capacity(hybridResult) << " ile po ";// << calculate_remaining_capacity(hybridResult);
+
+            std::cout << "\nZAKONCZONO run\n";
+
+            io_handlers_v2.save_solution(hybridResult, file_info);
+            avg_hybrid_cost += hybridResult.total_cost;
+            if (best_hybrid_cost > hybridResult.total_cost)
+            {
+                best = hybridResult;
+                best_hybrid_cost = hybridResult.total_cost;
+            }
+        }
+
+        avg_hybrid_cost /= number_of_starts;
+        io_handlers_v2.set_result_path("C:/Users/maks0/Desktop/Test/hybrid");
+        file_info = "hybrid_golden_2_best_of_" + std::to_string(number_of_starts);
+      
+        std::cout <<"\n======= Zakonczono hybrid =======" << "\n\nNajlepsze rozwiazanie: " << best_hybrid_cost;
+        std::cout << "\nSredni koszt z " << number_of_starts << " rozwiazan: " << avg_hybrid_cost << "\n";
+        io_handlers_v2.save_solution(best, file_info);
+    }
+   
     return 0;
+
     //KONIEC HYBRID TEST
     ///START O 8:32
 
