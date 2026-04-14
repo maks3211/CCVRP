@@ -9,7 +9,7 @@ std::vector<Route> lns_diversification(std::vector<Route>& solution, int lambda,
 	std::unordered_set<int> unique_routes_remove; //zaweira infomracje z ktorych tras cos usunieto
 	//1. wybor losowego operatora usuwania
 	int method = random_int_from_to(1, 4);
-	std::cout << "LAMBDA: " << lambda << std::endl;
+	
 	switch (method) {
 	case 1:
 		unique_routes_remove.clear();

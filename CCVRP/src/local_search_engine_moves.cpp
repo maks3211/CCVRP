@@ -507,34 +507,106 @@ BestMoves L_h_local_serach(std::vector<Route>& solution, int h, int k)
 
 }
 
+
+void check_fucking_capacity(std::vector<Route> przed, std::vector<Route> po, std::string nazwa)
+{
+	
+	for (int i = 0; i < przed.size(); i++)
+	{
+		int org = przed[i].remaining_capacity;
+		int cal = calculate_remaining_capacity(przed[i]);
+		if (org != cal)
+		{
+			std::cout << "		" << nazwa << "\033[33m" << "\n    Wejscie perform_local_move Pozstala pojemnosc org: " << i << " " << org << " ,przeliczona: " << cal << "\033[0m" << std::endl;
+		}
+	}
+
+	for (int i = 0; i < po.size(); i++)
+	{
+		int org = po[i].remaining_capacity;
+		int cal = calculate_remaining_capacity(po[i]);
+		if (org != cal)
+		{
+			std::cout <<"		" << nazwa << "\033[33m" << "\n    WYJSCIE perform_local_move Pozstala pojemnosc org : " << i << " " << org << ", przeliczona : " << cal << "\033[0m" << std::endl;
+		}
+	}
+}
+
+bool was_1_insertion = false;
+bool was_1_1_exchange = false;
+bool was_2_insertion = false;
+bool was_2_opt_move = false;
+bool was_2_opt_prim = false;
+bool was_2_corss_tail = false;
 std::vector<Route> perform_local_move(std::vector<Route>& solution, Move move, int structure, double avg_cost)
 {
 	std::vector<Route> my_solution = solution;
 	switch (structure) {
 	case 1:
 		//std::cout << "	ROZPOCZETO perform_1_insertion_move \n";
-		return perform_1_insertion_move(solution, move, avg_cost);
+		my_solution = perform_1_insertion_move(solution, move, avg_cost); // TU JEST BLAD POJEMNOSCI !!!! poprawiono 		
+		return my_solution;
+		//return perform_1_insertion_move(solution, move, avg_cost);
 		break;
 	case 2:
 		//std::cout << "	ROZPOCZETO perform_1_1_exchange_move \n";
-		return perform_1_1_exchange_move(solution, move, avg_cost);	
+		//return perform_1_1_exchange_move(solution, move, avg_cost);	
+		my_solution = perform_1_1_exchange_move(solution, move, avg_cost);
+		//check_fucking_capacity(solution, my_solution, "perform_1_1_exchange_move");
+		if (!was_1_1_exchange)
+		{
+			was_1_1_exchange = true;
+			std::cout << "\033[32m" << "=============================WYWKONANO perform_1_1_exchange_move ============================" << "\033[0m" << std::endl;
+		}
+		return my_solution;
 		break;
 	case 3:
 		//std::cout << "	ROZPOCZETO perform_2_insertion_move \n";
-		return perform_2_insertion_move(solution, move, avg_cost);
+		//return perform_2_insertion_move(solution, move, avg_cost);
+		my_solution = perform_2_insertion_move(solution, move, avg_cost); //TU JEST BLAD POJEMNOSCI !!!!
+		//check_fucking_capacity(solution, my_solution, "perform_2_insertion_move");
+		if (!was_2_insertion)
+		{
+			was_2_insertion = true;
+			std::cout << "\033[32m" << "=============================WYWKONANO perform_2_insertion_move============================" << "\033[0m" << std::endl;
+		}
+		return my_solution;
 		break;
 	case 4:
 		//std::cout << "	ROZPOCZETO perform_2_opt_move \n";
-		return perform_2_opt_move(solution, move, avg_cost); //tez zwraca blad		
+		//return perform_2_opt_move(solution, move, avg_cost); //tez zwraca blad	
+		my_solution = perform_2_opt_move(solution, move, avg_cost);
+		//check_fucking_capacity(solution, my_solution, "perform_2_opt_move");
+		if (!was_2_opt_move)
+		{
+			was_2_opt_move = true;
+			std::cout << "\033[32m" << "=============================WYWKONANO perform_2_opt_move - operator wewnatrz jednej trasy============================" << "\033[0m" << std::endl;
+		}
+		return my_solution;
 		break;
 	case 5:
 		//std::cout << "	ROZPOCZETO perform_2_opt_prim_move \n";
-		return perform_2_opt_prim_move(solution, move, avg_cost);
+		//return perform_2_opt_prim_move(solution, move, avg_cost);
+		my_solution = perform_2_opt_prim_move(solution, move, avg_cost);
+		//check_fucking_capacity(solution, my_solution, "perform_2_opt_prim_move");
+		if (!was_2_opt_prim)
+		{
+			was_2_opt_prim = true;
+			std::cout << "\033[32m" << "=============================WYWKONANO perform_2_opt_prim_move============================" << "\033[0m" << std::endl;
+		}
+		return my_solution;
 		break;
 	case 6:
 		//std::cout << "	ROZPOCZETO perform_corss_tail_move \n";
-		return perform_corss_tail_move(solution, move, avg_cost);
-		
+		//return perform_corss_tail_move(solution, move, avg_cost);
+		my_solution = perform_corss_tail_move(solution, move, avg_cost);
+		//check_fucking_capacity(solution, my_solution, "perform_corss_tail_move");
+		if (!was_2_corss_tail)
+		{
+			was_2_corss_tail = true;
+			std::cout << "\033[32m" << "=============================WYWKONANO perform_corss_tail_move============================" << "\033[0m" << std::endl;
+		}
+		return my_solution;
 		break;
 	}
 }
@@ -558,7 +630,8 @@ std::vector<Route> perform_1_insertion_move(std::vector<Route>& solution, Move m
 		{
 			index--;
 		}
-		//usuniecie klienta 
+		//usuniecie klienta
+		
 		my_solution[move.from_route].customers.erase(my_solution[move.from_route].customers.begin() + move.from_pos); 
 
 		//wstawienie klienta
@@ -569,15 +642,19 @@ std::vector<Route> perform_1_insertion_move(std::vector<Route>& solution, Move m
 	}
 	else //przenisienie z trasy A do trasy B
 	{
+		my_solution[move.from_route].remaining_capacity += changing_customer.demand; //dodanie wolnego miejsca usuwanego klienta
 		my_solution[move.from_route].customers.erase(my_solution[move.from_route].customers.begin() + move.from_pos);
-
+		
+		my_solution[move.to_route].remaining_capacity -= changing_customer.demand; // zabranie wolnego miejsca w trasie do ktorej dodaje klienta
 		my_solution[move.to_route].customers.insert(my_solution[move.to_route].customers.begin() + move.to_pos, changing_customer);
+		
 
-		//przeliczenie pojemnosci
-		int new_used_capacity = my_solution[move.from_route].initial_capacity - my_solution[move.from_route].remaining_capacity - changing_customer.demand;
+		//obliczenie wykorzystanej pojemnosci trasy z kotrej usuwam
+		int new_used_capacity = my_solution[move.from_route].initial_capacity - my_solution[move.from_route].remaining_capacity;
+
 		my_solution[move.from_route].penatly_eta = calculate_penalty_hybrid(my_solution[move.from_route].initial_capacity, new_used_capacity, avg_cost);
 
-		new_used_capacity = my_solution[move.to_route].initial_capacity - my_solution[move.to_route].remaining_capacity + changing_customer.demand;
+		new_used_capacity = my_solution[move.to_route].initial_capacity - my_solution[move.to_route].remaining_capacity;
 		my_solution[move.to_route].penatly_eta = calculate_penalty_hybrid(my_solution[move.from_route].initial_capacity, new_used_capacity, avg_cost);
 
 		my_solution[move.from_route].recalculate_all();
@@ -600,9 +677,16 @@ std::vector<Route> perform_1_1_exchange_move(std::vector<Route>& solution, Move 
 	//sa rozne trasy trzeba przeliczyc pojemnosc
 	if (move.from_route != move.to_route)
 	{
-		int new_used_capacity = my_solution[move.from_route].initial_capacity - my_solution[move.from_route].remaining_capacity - client_A.demand + client_B.demand;
+		my_solution[move.from_route].remaining_capacity += client_A.demand; //dodajemy pojemnosci klientow ktorych wyciagamy z tras
+		my_solution[move.to_route].remaining_capacity += client_B.demand;
+
+		my_solution[move.from_route].remaining_capacity -= client_B.demand; // odejmujemy pojemnosci klientow ktrzy sa dodani do tras
+		my_solution[move.to_route].remaining_capacity -= client_A.demand;
+
+
+		int new_used_capacity = my_solution[move.from_route].initial_capacity - my_solution[move.from_route].remaining_capacity;
 		my_solution[move.from_route].penatly_eta = calculate_penalty_hybrid(my_solution[move.from_route].initial_capacity, new_used_capacity, avg_cost);
-		new_used_capacity = my_solution[move.to_route].initial_capacity - my_solution[move.to_route].remaining_capacity - client_B.demand + client_A.demand;
+		new_used_capacity = my_solution[move.to_route].initial_capacity - my_solution[move.to_route].remaining_capacity;
 		my_solution[move.to_route].penatly_eta = calculate_penalty_hybrid(my_solution[move.to_route].initial_capacity, new_used_capacity, avg_cost);
 		my_solution[move.to_route].recalculate_all();
 
@@ -669,10 +753,13 @@ std::vector<Route> perform_2_insertion_move(std::vector<Route>& solution, Move m
 
 
 	//przeliczenie kosztow
-	int new_used_capacity = my_solution[move.from_route].initial_capacity - my_solution[move.from_route].remaining_capacity - move.moved_capacity_from;
+	my_solution[move.from_route].remaining_capacity += move.moved_capacity_from;
+	my_solution[move.to_route].remaining_capacity -= move.moved_capacity_from;
+
+	int new_used_capacity = my_solution[move.from_route].initial_capacity - my_solution[move.from_route].remaining_capacity;
 	my_solution[move.from_route].penatly_eta = calculate_penalty_hybrid(my_solution[move.from_route].initial_capacity, new_used_capacity, avg_cost);
 
-	new_used_capacity = my_solution[move.to_route].initial_capacity - my_solution[move.to_route].remaining_capacity + move.moved_capacity_from;
+	new_used_capacity = my_solution[move.to_route].initial_capacity - my_solution[move.to_route].remaining_capacity;
 	my_solution[move.to_route].penatly_eta = calculate_penalty_hybrid(my_solution[move.to_route].initial_capacity, new_used_capacity, avg_cost);
 
 	my_solution[move.from_route].recalculate_all();
@@ -722,11 +809,16 @@ std::vector<Route> perform_2_opt_prim_move(std::vector<Route>& solution, Move mo
 
 	//przeliczenie kosztow
 
-	int new_used_capacity = vec_A.initial_capacity - solution[move.from_route].remaining_capacity - move.moved_capacity_from + move.moved_capacity_to;
+
+	vec_A.remaining_capacity += move.moved_capacity_from;
+	vec_A.remaining_capacity -= move.moved_capacity_to;
+
+	int new_used_capacity = vec_A.initial_capacity - solution[move.from_route].remaining_capacity;
 	vec_A.penatly_eta = calculate_penalty_hybrid(my_solution[move.from_route].initial_capacity, new_used_capacity, avg_cost);
 
-
-	new_used_capacity = vec_B.initial_capacity - solution[move.to_route].remaining_capacity + move.moved_capacity_from - move.moved_capacity_to;
+	vec_A.remaining_capacity += move.moved_capacity_to;
+	vec_A.remaining_capacity -= move.moved_capacity_from;
+	new_used_capacity = vec_B.initial_capacity - solution[move.to_route].remaining_capacity;
 	vec_B.penatly_eta = calculate_penalty_hybrid(my_solution[move.to_route].initial_capacity, new_used_capacity, avg_cost);
 
 
@@ -737,7 +829,7 @@ std::vector<Route> perform_2_opt_prim_move(std::vector<Route>& solution, Move mo
 	return my_solution;
 }
 
-//analogicznie jak wyzej + odwrocenie kolejnosci ogono
+//analogicznie jak wyzej + odwrocenie kolejnosci ogona
 std::vector<Route> perform_corss_tail_move(std::vector<Route>& solution, Move move, double avg_cost)
 {
 	std::vector<Route> my_solution = solution;
@@ -776,12 +868,16 @@ std::vector<Route> perform_corss_tail_move(std::vector<Route>& solution, Move mo
 	vec_B.customers.insert(vec_B.customers.end(), std::make_move_iterator(tail_A.begin()), std::make_move_iterator(tail_A.end()));
 
 	//przeliczenie kosztow
+	vec_A.remaining_capacity += move.moved_capacity_from;
+	vec_A.remaining_capacity -= move.moved_capacity_to;
 
-	int new_used_capacity = vec_A.initial_capacity - solution[move.from_route].remaining_capacity - move.moved_capacity_from + move.moved_capacity_to;
+	int new_used_capacity = vec_A.initial_capacity - solution[move.from_route].remaining_capacity;
 	vec_A.penatly_eta = calculate_penalty_hybrid(my_solution[move.from_route].initial_capacity, new_used_capacity, avg_cost);
 
+	vec_B.remaining_capacity += move.moved_capacity_to;
+	vec_B.remaining_capacity -= move.moved_capacity_from;
 
-	new_used_capacity = vec_B.initial_capacity - solution[move.to_route].remaining_capacity + move.moved_capacity_from - move.moved_capacity_to;
+	new_used_capacity = vec_B.initial_capacity - solution[move.to_route].remaining_capacity;
 	vec_B.penatly_eta = calculate_penalty_hybrid(my_solution[move.to_route].initial_capacity, new_used_capacity, avg_cost);
 
 	vec_A.recalculate_all();

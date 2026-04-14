@@ -61,6 +61,7 @@ std::vector<Route> HybridAvnsLns::construct_intial_solution()
             [&](const Node& n) { return n.id == best.node_id; });
         if (it != instance.nodes.end()) {
             c.add_customer_at_index(*it, 1, best.distance);
+            
 			instance.nodes.erase(it); //usun wstawionego klienta do trasy z listy wszystkich klientów
         }
         else {
@@ -138,6 +139,18 @@ std::vector<Route> HybridAvnsLns::construct_intial_solution()
         }
     }
 
+    //std::cout << "\nBudowanie rozwiazania poczatkowego:  KOSZTY TRAS: (zapisanie nowej, przeliczonej wartosci)";
+    //for (int i = 0; i < routes.size(); i++)
+    //{
+    //    int org = routes[i].remaining_capacity;
+    //    int cal = calculate_remaining_capacity(routes[i]);
+    //    if (org != cal)
+    //    {
+    //        std::cout << "\033[31m" << "\n    !!!!!ROZNICA Pozstala pojemnosc org: " << i << " " << org << " ,przeliczona: " << cal << "\033[0m" <<std::endl;
+    //    }
+    //}
+
+
 	return routes;
 }
 
@@ -145,6 +158,7 @@ std::vector<Route> HybridAvnsLns::construct_intial_solution()
 
 void HybridAvnsLns::perform_perturbation(std::vector<Route>& routes, Node clientA, int total_customers)
 {
+    std::cout << "\n-----------------PERTURBACJE-----------------\n";
     const int ts = std::max(5, static_cast<int>(0.01 * total_customers));
     std::vector<int> tabu_until(total_customers + 100, 0);
     int iter = 0;
@@ -216,6 +230,17 @@ void HybridAvnsLns::perform_perturbation(std::vector<Route>& routes, Node client
         int r = find_route_with_smallest_violation(routes);
         add_customer_at_index_with_penalty(routes[r],clientA);
     }
+
+ /*   std::cout << "\Perturbation :  KOSZTY TRAS: (zapisanie nowej, przeliczonej wartosci)";
+    for (int i = 0; i < routes.size(); i++)
+    {
+        int org = routes[i].remaining_capacity;
+        int cal = calculate_remaining_capacity(routes[i]);
+        if (org != cal)
+        {
+            std::cout << "\033[31m" << "\n    !!!!!ROZNICA Pozstala pojemnosc org: " << i << " " << org << " ,przeliczona: " << cal << "\033[0m" << std::endl;
+        }
+    }*/
 }
 
 
@@ -241,9 +266,19 @@ std::vector<Route> HybridAvnsLns::AVNS_stage_one(std::vector<Route>& solution, i
         int p = 1;
         while (p <= p_max)
         {
-            std::cout << "ROZPOCZETO S_p_neighbourhood JEDEN\n";
+            //std::cout << "ROZPOCZETO S_p_neighbourhood JEDEN\n";
+         
             std::vector<Route> x_prim = S_p_neighbourhood(p, x);  //linia 5 algorytmu
-            std::cout << "ZAKONCZONO S_p_neighbourhood JEDEN\n";
+        /*    for (int i = 0; i < x_prim.size(); i++)
+            {
+                int org = x_prim[i].remaining_capacity;
+                int cal = calculate_remaining_capacity(x_prim[i]);
+                if (org != cal)
+                {
+                    std::cout << "\033[31m" << "\n    !!!!!ROZNICA po S_p_neighbourhood  Pozstala pojemnosc org: " << i << " " << org << " ,przeliczona: " << cal << "\033[0m" << std::endl;
+                }
+            }*/
+            //std::cout << "ZAKONCZONO S_p_neighbourhood JEDEN\n";
             double gain[6] = { 0.0 }; //kolejne wartosci gain 
             BestMoves best_improvement_local_search;
             Move best_move; //najlepszy ruch
@@ -253,12 +288,13 @@ std::vector<Route> HybridAvnsLns::AVNS_stage_one(std::vector<Route>& solution, i
             //Linia 6 
             for (int h = 1; h <= h_max; ++h) //przejscie przez wszystkie 6 operatorow local_search 
             {
-                std::cout << "ROZPOCZETO L_h_local_serach JEDEN\n";
+                //std::cout << "ROZPOCZETO L_h_local_serach JEDEN\n";
+ 
                 best_improvement_local_search = L_h_local_serach(x_prim, h, 1); //1 - bierzemy najlepszy ruch
-                std::cout << "ZAKONCZONO L_h_local_serach JEDEN\n";
+                //std::cout << "ZAKONCZONO L_h_local_serach JEDEN\n";
                 gain[h - 1] = best_improvement_local_search.topK[0].gain;
 
-                
+
                 if (best_improvement_local_search.topK[0].gain > best_gain) // znaleziono lepszy ruch
                 {
                     best_move = best_improvement_local_search.topK[0];
@@ -279,7 +315,7 @@ std::vector<Route> HybridAvnsLns::AVNS_stage_one(std::vector<Route>& solution, i
                     std::cout << "dzieleieni przez 0";
                 }
             }
-            std::cout << "Dziwny pkt dwa  koniec \n";
+            
             //linia 7
             //wykonanie najelpeszegu ruchu Lh 
             //wyznaczenie srednioego kosztu rozwiazanie x_prim;
@@ -289,12 +325,22 @@ std::vector<Route> HybridAvnsLns::AVNS_stage_one(std::vector<Route>& solution, i
                 avg_solution_cost += x_prim[i].route_cost;
             }
             avg_solution_cost /= x_prim.size();
-            std::cout << "ROZPOCZETO perform_local_move JEDEN\n";
+            //std::cout << "ROZPOCZETO perform_local_move JEDEN\n";
+        
             std::vector<Route> x_bis = perform_local_move(x_prim, best_move, best_move_number, avg_solution_cost); // linia 7 
-            std::cout << "ZAKONCZONO perform_local_move JEDEN\n";
+         /*   for (int i = 0; i < x_bis.size(); i++)
+            {
+                int org = x_bis[i].remaining_capacity;
+                int cal = calculate_remaining_capacity(x_bis[i]);
+                if (org != cal)
+                {
+                    std::cout << "\033[31m" << "\n    !!!!!ROZNICA po perform_local_move  Pozstala pojemnosc org: " << i << " " << org << " ,przeliczona: " << cal << "\033[0m" << std::endl;
+                }
+            }*/
+            //std::cout << "ZAKONCZONO perform_local_move JEDEN\n";
             //Move or not 
             double x_bis_cost = get_sum_of_route_cost(x_bis);
-            std::cout << "ZAKONCZONO get_sum_of_route_cost JEDEN\n";
+            //std::cout << "ZAKONCZONO get_sum_of_route_cost JEDEN\n";
 
             if (x_bis_cost < x_cost) //jest poprawa  -- lina 9
             {
@@ -306,21 +352,21 @@ std::vector<Route> HybridAvnsLns::AVNS_stage_one(std::vector<Route>& solution, i
             {
                 p = p + 1;
             }
-            std::cout << "                      WARTOSC P:" << p << std::endl;
+           // std::cout << "                      WARTOSC P:" << p << std::endl;
         }//linia 14
-        std::cout << "Koniec linia 14 \n";
+
         if (x_cost < x_best_cost) // linia 15
         {
             x_best = x;
             x_best_cost = x_cost;
             lambda = lambda_min;
-            std::cout << "      Jest poprawa        Lambda reset = " << lambda << "\n";
+            std::cout << "Poprawa x_cost: " << x_best_cost << std::endl;
         }
         else
         {
             //lambda = lambda + 0.05 * total_customers; // linia 18
             lambda = std::min(lambda + 0.05 * total_customers, lambda_max);
-            std::cout << "Lambda dodanie = " << lambda << "\n";
+      
         }
 
         //Diversification: Apply the LNS based on λ to get x~ 
@@ -329,16 +375,27 @@ std::vector<Route> HybridAvnsLns::AVNS_stage_one(std::vector<Route>& solution, i
         {
             avg_solution_cost += x[i].route_cost;
         }
-        std::cout << "          Koszt rozwiazania: " << avg_solution_cost;
+        
         avg_solution_cost /= x.size();
-        std::cout << "ROZPOCZETO lns_diversification JEDEN\n";
+        //std::cout << "ROZPOCZETO lns_diversification JEDEN\n";
+     
         std::vector<Route> x_tylda = lns_diversification(x, lambda, avg_solution_cost, total_customers); //lina 20
-        std::cout << "ZAKONCZONO lns_diversification JEDEN\n";
+    /*    for (int i = 0; i < x_tylda.size(); i++)
+        {
+            int org = x_tylda[i].remaining_capacity;
+            int cal = calculate_remaining_capacity(x_tylda[i]);
+            if (org != cal)
+            {
+                std::cout << "\033[31m" << "\n    !!!!!ROZNICA po lns_diversification  Pozstala pojemnosc org: " << i << " " << org << " ,przeliczona: " << cal << "\033[0m" << std::endl;
+            }
+        }*/
+        //std::cout << "ZAKONCZONO lns_diversification JEDEN\n";
         double x_tylda_cost = get_sum_of_route_cost(x_tylda);
         if (x_tylda_cost < x_best_cost) //linia 21
         {
             x_best = x_tylda;
             x_best_cost = x_tylda_cost;
+            std::cout << "Poprawa x_tylda: " << x_best_cost << std::endl;
         }
 
         numDiv = numDiv + 1;
@@ -404,7 +461,18 @@ std::vector<Route> HybridAvnsLns::AVNS_stage_two(std::vector<Route>& solution, i
                 Wm.push_back(findLhat(alfa)); // linia 34
             }
             std::sort(Wm.begin(), Wm.end()); // Sortowanie rosnaco  linia 36
+
+         
             std::vector<Route> x_prim = S_p_neighbourhood(p, x); // linia 5 - Shaking
+         /*   for (int i = 0; i < x_prim.size(); i++)
+            {
+                int org = x_prim[i].remaining_capacity;
+                int cal = calculate_remaining_capacity(x_prim[i]);
+                if (org != cal)
+                {
+                    std::cout << "\033[31m" << "\n    !!!!!ROZNICA po II S_p_neighbourhood op:" <<p<< " Pozstala pojemnosc org: " << i << " " << org << " ,przeliczona: " << cal << "\033[0m" << std::endl;
+                }
+            }*/
             int m = 1; //lina 39
 
             double avg_solution_cost = 0.0;
@@ -422,7 +490,17 @@ std::vector<Route> HybridAvnsLns::AVNS_stage_two(std::vector<Route>& solution, i
                     Move best_Kth_move = best_moves.topK.back(); //kty najelkpszy ruch
                     if (best_Kth_move.gain > 0) //jest poprawa
                     {
+                     
                         std::vector<Route> x_bis = perform_local_move(x_prim, best_Kth_move, Wm[m - 1], avg_solution_cost);
+                  /*      for (int i = 0; i < x_bis.size(); i++)
+                        {
+                            int org = x_bis[i].remaining_capacity;
+                            int cal = calculate_remaining_capacity(x_bis[i]);
+                            if (org != cal)
+                            {
+                                std::cout << "\033[31m" << "\n    !!!!!ROZNICA po II perform_local_move Pozstala pojemnosc org: " << i << " " << org << " ,przeliczona: " << cal << "\033[0m" << std::endl;
+                            }
+                        }*/
                         x_bis_cost = get_sum_of_route_cost(x_bis);
                         if (x_bis_cost < x_prim_cost) // linia 42
                         {
@@ -452,6 +530,7 @@ std::vector<Route> HybridAvnsLns::AVNS_stage_two(std::vector<Route>& solution, i
         {
             x_best = x;
             x_best_cost = x_cost;
+            std::cout << "Poprawa x_cost - Koszt : " << x_best_cost << std::endl;
             lambda = lambda_min;
             nonImproveDiv = 0;
         }
@@ -470,14 +549,24 @@ std::vector<Route> HybridAvnsLns::AVNS_stage_two(std::vector<Route>& solution, i
         }
         avg_solution_cost /= x.size();
         
-        std::vector<Route> x_tylda = lns_diversification(x, lambda, avg_solution_cost, total_customers); // czy na x??
         
+        std::vector<Route> x_tylda = lns_diversification(x, lambda, avg_solution_cost, total_customers); // czy na x??
+     /*   for (int i = 0; i < x_tylda.size(); i++)
+        {
+            int org = x_tylda[i].remaining_capacity;
+            int cal = calculate_remaining_capacity(x_tylda[i]);
+            if (org != cal)
+            {
+                std::cout << "\033[31m" << "\n    !!!!!ROZNICA po II lns_diversification Pozstala pojemnosc org: " << i << " " << org << " ,przeliczona: " << cal << "\033[0m" << std::endl;
+            }
+        }*/
         double x_tylda_cost = get_sum_of_route_cost(x_tylda);
         if (x_tylda_cost < x_best_cost)
         {
             
             x_best = x_tylda;
             x_best_cost = x_tylda_cost;
+            std::cout << "Poprawa x_tylda - Koszt : " << x_best_cost << std::endl;
         }
         x = x_tylda;
         x_cost = x_tylda_cost;

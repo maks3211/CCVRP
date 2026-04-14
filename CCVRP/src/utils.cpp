@@ -440,13 +440,25 @@ bool any_global_duplicates(const std::vector<Route>& routes) {
 
 bool has_negtive_capacity(const Result& result)
 {
+    std::cout << "\n Sprawdzanie pojemnosci:\n";
+    int i = 0;
+    for (int j = 0; j < result.routes.size(); ++j)
+    {
+        std::cout << j << ": " << result.routes[j].remaining_capacity << "  ";
+        std::cout << " nowa = " << get_remaining_capacity(result.routes[j]) << "\n";
+    }
+    std::cout << "\n";
     for(auto &a : result.routes)
     {
+
+        std::cout << i << ": " << a.remaining_capacity << "   ";
         if (a.remaining_capacity < 0)
         {
 			return true;
         }
+        i++;
     }
+    std::cout << std::endl;
 	return false;
 }
 

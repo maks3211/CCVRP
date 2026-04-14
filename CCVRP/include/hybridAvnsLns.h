@@ -39,9 +39,8 @@ class HybridAvnsLns
 	double lambda_min = 0.0; // patrz linia 337 (strona 16)
 	double lambda_max = 0.0; // patrz linia 337 (strona 16)
 
-	int maxDiv = 15; //USTAWIC NA ODPOWIEDNIA WARTOSC  - nie ma nigdzie podanej ile to ma byc - wiec raczej na zasadzie prob i bledow!!!!
-	//Stage 2
-	int maxDiv2 = 15;
+	int maxDiv = 120; //USTAWIC NA ODPOWIEDNIA WARTOSC  - nie ma nigdzie podanej ile to ma byc - wiec raczej na zasadzie prob i bledow!!!!
+	int maxDiv2 = 100; //Stage 2
 	int lcmin = 3;
 	int lcmax = 5;
 public:

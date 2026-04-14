@@ -99,7 +99,20 @@ namespace IO_handlerV2
     {
         std::filesystem::path folder(result_path);
 
-        std::string filename = add_to_name + "final_result.vrp";
+        auto now = std::chrono::system_clock::now();
+        std::time_t now_time = std::chrono::system_clock::to_time_t(now);
+
+        std::tm tm{};
+#ifdef _WIN32
+        localtime_s(&tm, &now_time);
+#else
+        localtime_r(&now_time, &tm);
+#endif
+
+        std::ostringstream ss;
+        ss << std::put_time(&tm, "%d_%m_%H_%M_%S");
+
+        std::string filename = add_to_name + "_" + ss.str() + ".vrp";
         std::filesystem::path file = folder / filename;
 
         std::filesystem::create_directories(folder);
@@ -122,6 +135,7 @@ namespace IO_handlerV2
         }
 
         out << "\n\n" << "Total solution cost: " << solution.total_cost << "\n";
+        out << "\n" << "Total computing time: " << solution.duration_seconds << " s" << "\n";
 		out << "\n" << IO_handler_utils::create_table(solution);
     }
 
