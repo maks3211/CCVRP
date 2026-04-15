@@ -70,6 +70,7 @@
         {
             customers.insert(customers.begin() + index, customer);
         }
+   
         route_cost += addded_cost;
         remaining_capacity -= customer.demand;
 
@@ -127,7 +128,10 @@
 
         // 1. Czas przyjazdu do nowego klienta u
         // Czas dotarcia do poprzednika + dystans do u
-        double t_u = arrival_times[insert_pos - 1] + euclidean_distance(customers[insert_pos - 1], u);
+        // 
+                                  
+         double t_u = arrival_times[insert_pos - 1] + euclidean_distance(customers[insert_pos - 1], u);
+      
 
         // 2. Obliczamy Delta G+ (o ile wydłuży się droga dla kolejnych klientów)
         double delta_G_plus = 0.0;
@@ -149,7 +153,40 @@
         return t_u + (remaining_after * delta_G_plus);
     }
 
+    //napisane dla bso - 'moja' implentacja/ pomysl
+    void Route::calculate_insertion_cost(int insert_pos, const Node& u, double& delta_G_plus, double& delta_total)
+    {
+        int n = (int)customers.size();
 
+        // 1. Czas przyjazdu do nowego klienta u
+        // Czas dotarcia do poprzednika + dystans do u
+        // 
+
+        double t_u = arrival_times[insert_pos - 1] + euclidean_distance(customers[insert_pos - 1], u);
+
+
+        // 2. Obliczamy Delta G+ (o ile wydłuży się droga dla kolejnych klientów)
+        double tmp_delta_G_plus = 0.0;
+
+        // Jeśli wstawiamy w środek trasy (istnieje klient na pozycji insert_pos)
+        if (insert_pos < n) {
+            double d_prev_u = euclidean_distance(customers[insert_pos - 1], u);
+            double d_u_next = euclidean_distance(u, customers[insert_pos]);
+            double d_prev_next = euclidean_distance(customers[insert_pos - 1], customers[insert_pos]);
+
+            tmp_delta_G_plus = d_prev_u + d_u_next - d_prev_next;
+        }
+        // Jeśli insert_pos == n (wstawianie na sam koniec), delta_G_plus wynosi 0.0
+        // ponieważ nikt nie jedzie dalej i nie ma krawędzi powrotnej do bazy.
+
+        // 3. Wzór 11: t_u + (liczba klientów za nim * delta_G)
+        int remaining_after = n - insert_pos;
+        double tmp_delta_total = t_u + (remaining_after * tmp_delta_G_plus);
+
+        //'zwracanie' wynikow
+        delta_G_plus = tmp_delta_G_plus;
+        delta_total = tmp_delta_total;
+    }
 
     // liczy koszt dotarcia od magazynu do klienta na indeksie pos 
     double Route::cumulative_cost_up_to(int pos)
@@ -394,4 +431,15 @@
 
     }
 
+    //napisane dla bso - 'moja' implentacja/ pomysl
+    void Route::update_arrival_times(int insert_pos, const Node& u, double delta_G_plus, double delta_total)
+    {
+        double t_u = arrival_times[insert_pos - 1] + euclidean_distance(customers[insert_pos - 1], customers[insert_pos]);
+        arrival_times.insert(arrival_times.begin() + insert_pos, t_u);
+        for (size_t i = insert_pos + 1; i < arrival_times.size(); ++i) {
+            arrival_times[i] += delta_G_plus;
+        }
+        route_cost += delta_total;
+
+    }
 

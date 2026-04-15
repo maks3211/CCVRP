@@ -17,6 +17,8 @@
 #include "include/IO_handler.h"
 #include "include/IO_handlerV2.h"
 #include "include/hybridAvnsLns.h"
+#include "include/bso.h"
+
 std::atomic<bool> loading_done(false);
 
 void loading_animation(std::chrono::high_resolution_clock::time_point start_time) {  
@@ -39,7 +41,12 @@ void loading_animation(std::chrono::high_resolution_clock::time_point start_time
  
 int main()
 {
-    std::cout << "\nUSUNAC/ zmienic nazwe METODE FUCKING\n"; 
+
+
+
+
+
+    std::cout << "\n!!!!!!!!!USUNAC/ zmienic nazwe METODE FUCKING!!!!!!!!!\n"; 
     bool run_Skewed_VNS = false;
     bool run_hybrid = true;
     
@@ -53,8 +60,8 @@ int main()
 	//io_handlers_v2.set_result_path("Results/test2");
 	bool res_path = io_handlers_v2.set_result_path("C:/Users/maks0/Desktop/Test/hybrid/final");
 	//io_handlers_v2.set_input_path("InputData/Golden_1.vrp");
-	bool input_path = io_handlers_v2.set_input_path("D:/Nauka/SEM1/NTWI/CCVRP/CCVRP/InputData/Golden_2.vrp");
-    const int num_vehicles = 10;
+	bool input_path = io_handlers_v2.set_input_path("D:/Nauka/SEM1/NTWI/CCVRP/CCVRP/InputData/Golden_1.vrp");
+    const int num_vehicles = 9;
     
 	std::cout << "Input path set: " << std::boolalpha << input_path << std::endl;
 	std::cout << "Result path set: " << std::boolalpha << res_path << std::endl;
@@ -76,12 +83,17 @@ int main()
 	//END CONFIGURATION
 
 
+    /*BrainStormOptimalization hybrid(input, num_vehicles, io_handlers_v2);
+    hybrid.run();
+    Result res = hybrid.get_result();
+    std::cout << "KONIEC";
+    return 0;*/
     std::cout << std::boolalpha;
 
     //              METHOD CONFIGURATION
     if (run_hybrid)
     {
-        std::string file_info = "hybrid_golden_2";
+        std::string file_info = "hybrid_golden_1";
         //maxDiv, maxDiv2
         hybridAvnsLnsConfig hybrid_config{ 130, 110 };
         int number_of_starts = 3;
@@ -128,12 +140,12 @@ int main()
         }
 
         avg_hybrid_cost /= number_of_starts;
-        io_handlers_v2.set_result_path("C:/Users/maks0/Desktop/Test/hybrid");
-        file_info = "hybrid_golden_2_best_of_" + std::to_string(number_of_starts);
+      //  io_handlers_v2.set_result_path("C:/Users/maks0/Desktop/Test/hybrid");
+      //  file_info = "hybrid_golden_2_best_of_" + std::to_string(number_of_starts);
       
         std::cout <<"\n======= Zakonczono hybrid =======" << "\n\nNajlepsze rozwiazanie: " << best_hybrid_cost;
         std::cout << "\nSredni koszt z " << number_of_starts << " rozwiazan: " << avg_hybrid_cost << "\n";
-        io_handlers_v2.save_solution(best, file_info);
+       // io_handlers_v2.save_solution(best, file_info);
     }
    
     return 0;

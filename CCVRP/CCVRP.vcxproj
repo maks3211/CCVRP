@@ -141,6 +141,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="src\bindings.cpp" />
+    <ClCompile Include="src\bso.cpp" />
     <ClCompile Include="src\cvrp_parser.cpp" />
     <ClCompile Include="src\gainFunctions.cpp" />
     <ClCompile Include="src\hybridAvnsLns.cpp" />
@@ -159,6 +160,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\algorithms_runner.h" />
+    <ClInclude Include="include\bso.h" />
     <ClInclude Include="include\cvrp_parser.h" />
     <ClInclude Include="include\cvrp_types.h" />
     <ClInclude Include="include\gainFunctions.h" />

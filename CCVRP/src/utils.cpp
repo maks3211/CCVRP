@@ -153,11 +153,13 @@ double g(Route& pi)
 {
     int p = pi.customers.size() - 1; // liczba klientów w trasie (minus baza)
     double result = 0.0;
-    pi.cumulative_costs[0] = 0.0;
+    pi.cumulative_costs.clear();
+    pi.cumulative_costs.push_back(0.0);
+    
     for (int i = 1; i <= p; i++)
     {
         result += (p - i + 1) * euclidean_distance(pi.customers[i - 1], pi.customers[i]);
-		pi.cumulative_costs[i] = result; // zapis kosztu skumulowanego do klienta i
+        pi.cumulative_costs.push_back(result); // zapis kosztu skumulowanego do klienta i
     }
     //to dodalem!!!
 	pi.route_cost = result;

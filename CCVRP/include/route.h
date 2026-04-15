@@ -24,7 +24,12 @@ struct Route {
     std::vector<double> arrival_times; // czas przyjazdu do danego klienta - czyli np [3] czas dotarca do klienta [3] - nie czas skumulowany poprstu czas przejazdu od 0->1->2->3
     double get_arrival_time(int pos) const { return (pos < arrival_times.size()) ? arrival_times[pos] : 0.0; }
 
-
+    //dla BSO jest to koszt skumulowany czyli 
+    //                                       c[0] = 0
+    //                                       c[1] = 5
+    //                                       c[2] = 5 + (5 + 3) = 13
+    //                                       c[3] = 13 + (5 + 3 + 7) = 28
+    //      Czyli c[ostatni] = koszt calego rozwiazania
     std::vector<double> cumulative_costs; // koszt skumulowany do danego klienta - czyli np [3] koszt dotarca do klienta [3] - czyli czas przejazdu od 0->1->2->3
 
     Route(int vehicle_id, int capacity);
@@ -53,7 +58,7 @@ struct Route {
 
     double calculate_removal_cost(int j, int u = 1);
     double calculate_insertion_cost(int insert_pos, const Node& u);
-
+    void calculate_insertion_cost(int insert_pos, const Node& u, double& delta_G_plus, double& delta_total);
     double cumulative_cost_up_to(int pos);
     double cumulative_cost_after(int pos);
    
@@ -104,6 +109,7 @@ struct Route {
 
     ////Koniec dla hybrid
 
+    void update_arrival_times(int insert_pos, const Node& u, double delta_G_plus, double delta_total);
 
 };
 
