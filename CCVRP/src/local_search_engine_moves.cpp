@@ -883,3 +883,493 @@ std::vector<Route> perform_corss_tail_move(std::vector<Route>& solution, Move mo
 	
 	return my_solution;
 }
+
+
+
+
+//BRAIN STORM OPTIMALIZATION [103]
+
+bool perform_first_improvement_2_opt(std::vector<Route>& solution)
+{
+
+
+	for (int r_from = 0; r_from < solution.size(); ++r_from) // przejscie po kolei przez wszystkie trasy
+	{
+		Route& route_from = solution[r_from];
+		int n = route_from.customers.size() - 1;
+		std::vector<double> next_arrival_times(route_from.customers.size(), 0.0);
+		
+		for (int first_customer = 1; first_customer < route_from.customers.size() - 1; ++first_customer) // -1 poniewaz moge zamienic sie z ostatnim
+		{
+			//koszt niezmienioego framgentu
+			double prefix_cost = 0.0;
+			for (int k = 1; k < first_customer; ++k) {  //dla k = 0 arrival times = 0
+				prefix_cost += route_from.arrival_times[k];
+				next_arrival_times[k] = route_from.arrival_times[k];
+			}
+
+
+			for (int last_customer = first_customer + 1; last_customer <= n; ++last_customer) //przejscie przez kazda dlugosc odwracanego fragmentu
+			{
+				double new_total_cost = prefix_cost;
+				double current_arrival_time = route_from.arrival_times[first_customer - 1];
+				//czasy odwroconego framgnetu
+				for (int k = last_customer, idx = first_customer; k >= first_customer; --k, ++idx)
+				{
+					const Node& current_node = route_from.customers[k];
+					const Node& prev_node = (k == last_customer) ? route_from.customers[first_customer - 1]
+						: route_from.customers[k + 1];
+
+					current_arrival_time += euclidean_distance(prev_node, current_node);
+					next_arrival_times[idx] = current_arrival_time;
+					new_total_cost += current_arrival_time;
+				}
+
+				//za odwroconytm fragmentem
+				for (int k = last_customer + 1; k <= n; ++k)
+				{
+					const Node& current_node = route_from.customers[k];
+					const Node& prev_node = (k == last_customer + 1) ? route_from.customers[first_customer]
+						: route_from.customers[k - 1];
+
+					current_arrival_time += euclidean_distance(prev_node, current_node);
+					next_arrival_times[k] = current_arrival_time;
+					new_total_cost += current_arrival_time;
+				}
+
+
+				if (new_total_cost < route_from.route_cost) // jest poprawa - od razu koniec
+				{
+					std::reverse(route_from.customers.begin() + first_customer, route_from.customers.begin() + last_customer + 1);
+					route_from.arrival_times = next_arrival_times;
+					route_from.route_cost = new_total_cost;
+					
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
+
+bool perform_first_improvement_exchange(std::vector<Route>& solution)
+{
+	//w obrebie tej samej trasy
+	for (int r1_idx = 0; r1_idx < solution.size(); ++r1_idx)
+	{
+		Route& r1 = solution[r1_idx];
+		for (int r2_idx = r1_idx; r2_idx < solution.size(); ++r2_idx)
+		{
+			
+			Route& r2 = solution[r2_idx];
+			bool same_route = (r1_idx == r2_idx);
+
+			std::vector<double> next_arrival_times1(r1.customers.size());
+			std::vector<double> next_arrival_times2(r2.customers.size());
+			for (int pos1 = 1; pos1 < r1.customers.size(); ++pos1)
+			{
+				int start_index = same_route ? pos1 + 1 : 1;
+				
+				for (int pos2 = start_index; pos2 < r2.customers.size(); ++pos2)
+				{
+					if (!same_route)
+					{
+						double demand1 = r1.customers[pos1].demand;
+						double demand2 = r2.customers[pos2].demand;
+						if (r1.remaining_capacity + demand1 - demand2 < 0) continue; // czyli jezeli nie ma miejsca to sprawdz nastepna wymiane
+						if (r2.remaining_capacity + demand2 - demand1 < 0) continue;
+						
+						double new_cost1 = calculate_virtual_exchange_cost(r1, pos1, r2.customers[pos2], next_arrival_times1);
+						double new_cost2 = calculate_virtual_exchange_cost(r2, pos2, r1.customers[pos1], next_arrival_times2);
+						double old_total = r1.route_cost + r2.route_cost;
+						double new_total = new_cost1 + new_cost2;
+						if (new_total < old_total)
+						{
+							std::swap(r1.customers[pos1], r2.customers[pos2]);
+							r1.arrival_times = next_arrival_times1;
+							r1.route_cost = new_cost1;
+							r1.remaining_capacity = r1.remaining_capacity + demand1 - demand2; // remaining_capacity infomrauje o tym ile jest jeszcze wolnego miejsca 
+
+							r2.arrival_times = next_arrival_times2;
+							r2.route_cost = new_cost2;
+							r2.remaining_capacity = r2.remaining_capacity + demand2 - demand1; 
+							return true;
+						}
+					}
+					else
+					{
+						std::vector<double> next_times(r1.customers.size());
+						double new_cost = calculate_intra_exchange_cost(r1, pos1, pos2, next_times);
+
+						if (new_cost < r1.route_cost) 
+						{
+							std::swap(r1.customers[pos1], r1.customers[pos2]);
+							r1.arrival_times = next_times;
+							r1.route_cost = new_cost;
+							return true;
+						}
+					}
+				}
+			}
+
+		}
+	}
+	return false;
+}
+bool perform_first_improvement_cross(std::vector<Route>& solution)
+{
+	for (int r1_idx = 0; r1_idx < solution.size() - 1; ++r1_idx)
+	{
+		Route& r1 = solution[r1_idx];
+		if (r1.customers.size() < 2)
+		{
+			continue;
+		}
+		for (int r2_idx = r1_idx + 1; r2_idx < solution.size(); ++r2_idx)
+		{
+			Route& r2 = solution[r2_idx];
+			if (r2.customers.size() < 2)
+			{
+				continue;
+			}
+			
+			//przejscie przez wszytkie poczatki ogona trasy 1
+			for (int tail_1_start_index = 1; tail_1_start_index < r1.customers.size(); ++tail_1_start_index) // -1 - co najmniej dwa lementy w ogonie
+			{
+				int tail_1_length = r1.customers.size() - tail_1_start_index;
+				int demand_1 = 0;
+				for (int i = tail_1_start_index; i < r1.customers.size(); ++i)
+				{
+					demand_1 += r1.customers[i].demand;
+				}
+				//przejscie przez ogony trasy 2
+				for (int tail_2_start_index = 1; tail_2_start_index < r2.customers.size(); ++tail_2_start_index)
+				{
+					if (tail_1_start_index == 1 && tail_2_start_index == 1) //nie wymieniam ogonow jezeli oba zaczynaja sie od pierwszego elemntu- wtedy wymiana calej trasy 
+					{
+						continue;
+					}
+					int tail_2_length = r2.customers.size() - tail_2_start_index;
+					int demand_2 = 0;
+					for (int i = tail_2_start_index; i < r2.customers.size(); ++i)
+					{
+						demand_2 += r2.customers[i].demand;
+					}
+					if (r1.remaining_capacity + demand_1 - demand_2 < 0 || r2.remaining_capacity + demand_2 - demand_1 < 0) // nie ma miejsca na zmiene
+					{
+						continue;
+					}
+					//jest miejsce, mozna sprawdzc nowe koszty tras
+					std::vector<double> next_times1, next_times2;
+					// Nowy koszt trasy 1 (G³owa r1 + Ogon r2)
+					double new_cost1 = calculate_cross_path_cost(r1, r2, tail_1_start_index, tail_2_start_index, next_times1);
+					// Nowy koszt trasy 2 (G³owa r2 + Ogon r1)
+					double new_cost2 = calculate_cross_path_cost(r2, r1, tail_2_start_index, tail_1_start_index, next_times2);
+					
+					double old_sum_cost = r1.route_cost + r2.route_cost;
+					double new_sum_cost = new_cost1 + new_cost2;
+					if (new_sum_cost < old_sum_cost)
+					{
+						std::vector<Node> tail_1(r1.customers.begin() + tail_1_start_index, r1.customers.end());
+						std::vector<Node> tail_2(r2.customers.begin() + tail_2_start_index, r2.customers.end());
+
+						r1.customers.erase(r1.customers.begin() + tail_1_start_index, r1.customers.end());
+						r2.customers.erase(r2.customers.begin() + tail_2_start_index, r2.customers.end());
+
+						r1.customers.insert(r1.customers.end(), std::make_move_iterator(tail_2.begin()), std::make_move_iterator(tail_2.end()));
+						r2.customers.insert(r2.customers.end(), std::make_move_iterator(tail_1.begin()), std::make_move_iterator(tail_1.end()));
+
+						r1.remaining_capacity += (demand_1 - demand_2);
+						r1.route_cost = new_cost1;
+						r1.arrival_times = next_times1;
+						
+						r2.remaining_capacity += (demand_2 - demand_1);
+						r2.route_cost = new_cost2;
+						r2.arrival_times = next_times2;		
+						return true;
+					}
+				}
+			}
+		}
+	}
+	return false;
+}
+bool perform_first_improvement_relocation(std::vector<Route>& solution)
+{
+	for (int r1_idx = 0; r1_idx < solution.size(); ++r1_idx) // donor
+	{
+		for (int r2_idx = 0; r2_idx < solution.size(); ++r2_idx) // receiver
+		{
+			Route& r1 = solution[r1_idx]; 
+			Route& r2 = solution[r2_idx];
+			bool same_route = (r1_idx == r2_idx);
+			if (r1.customers.size() < 2) continue;
+			for (int pos_from = 1; pos_from < r1.customers.size(); ++pos_from)
+			{
+				Node node_to_move = r1.customers[pos_from];
+				for (int pos_to = 1; pos_to < (same_route ? r2.customers.size() : r2.customers.size() + 1); ++pos_to)
+				{
+					if (same_route && (pos_to == pos_from || pos_to == pos_from + 1)) continue;
+					if (!same_route) {
+						if (r2.remaining_capacity - node_to_move.demand < 0) continue; // nie ma miejsca
+					}
+
+					double new_cost_r1, new_cost_r2;
+					std::vector<double> next_times1, next_times2;
+					if (same_route) {
+						new_cost_r1 = calculate_intra_relocation_cost(r1, pos_from, pos_to, next_times1);
+						new_cost_r2 = 0;
+					}
+					else {
+						new_cost_r1 = calculate_removal_cost_for_relocation(r1, pos_from, next_times1);
+						new_cost_r2 = calculate_insertion_cost_for_relocation(r2, pos_to, node_to_move, next_times2);
+					}
+
+					double old_sum_cost = same_route ? r1.route_cost : (r1.route_cost + r2.route_cost);
+					double new_sum_cost = new_cost_r1 + new_cost_r2;
+					if (new_sum_cost < old_sum_cost)
+					{
+						if (same_route)
+						{
+							//int index = pos_to;
+							//if (pos_from < pos_to)
+						///	{
+						//		index--;
+						//	}
+							//usuniecie klienta
+							r1.customers.erase(r1.customers.begin() + pos_from);
+
+							//wstawienie klienta
+							r1.customers.insert(r1.customers.begin() + pos_to, node_to_move);
+							r1.route_cost = new_cost_r1;
+							r1.arrival_times = next_times1;
+
+							
+						}	
+						else
+						{
+							r1.remaining_capacity += node_to_move.demand; //dodanie wolnego miejsca usuwanego klienta
+							r2.remaining_capacity -= node_to_move.demand; // zabranie wolnego miejsca w trasie do ktorej dodaje klienta
+
+
+							r1.customers.erase(r1.customers.begin() + pos_from); //usun klienta
+							r2.customers.insert(r2.customers.begin() + pos_to, node_to_move); // wstaw klienta 
+
+							r1.route_cost = new_cost_r1; //aktualizacja kosztow tras
+							r2.route_cost = new_cost_r2; 
+							r1.arrival_times = next_times1;
+							r2.arrival_times = next_times2;
+						}
+						
+						
+						
+						return true;
+					}
+				}
+			}
+		}
+	}
+	
+	return false;
+}
+
+
+//dwie trasy
+double calculate_virtual_exchange_cost(const Route& route, int exchange_pos, const Node& new_node, std::vector<double>& buffer_times)
+{
+	double new_total_cost = 0.0;
+
+	// Kopiujemy prefix (do exchange_pos - 1)
+	for (int k = 1; k < exchange_pos; ++k) {
+		buffer_times[k] = route.arrival_times[k];
+		new_total_cost += buffer_times[k];
+	}
+
+	double current_time = route.arrival_times[exchange_pos - 1];
+
+	// Przeliczamy od exchange_pos do koñca
+	for (int k = exchange_pos; k < route.customers.size(); ++k)
+	{
+		const Node& current_node = (k == exchange_pos) ? new_node : route.customers[k];
+		const Node& prev_node = (k == exchange_pos) ? route.customers[k - 1] :
+			(k == exchange_pos + 1) ? new_node : route.customers[k - 1];
+
+		current_time += euclidean_distance(prev_node, current_node);
+		buffer_times[k] = current_time;
+		new_total_cost += current_time;
+	}
+	return new_total_cost;
+}
+
+//jedna trasa 
+double calculate_intra_exchange_cost(const Route& route, int p1, int p2, std::vector<double>& buffer) {
+	double total_cost = 0.0;
+	// Prefix
+	for (int k = 1; k < p1; ++k) {
+		buffer[k] = route.arrival_times[k];
+		total_cost += buffer[k];
+	}
+
+	double current_time = route.arrival_times[p1 - 1];
+	for (int k = p1; k < route.customers.size(); ++k) {
+		// Logika wyboru klienta (wirtualna zamiana)
+		int current_idx = k;
+		if (k == p1) current_idx = p2;
+		else if (k == p2) current_idx = p1;
+
+		int prev_idx = k - 1;
+		if (prev_idx == p1) prev_idx = p2;
+		else if (prev_idx == p2) prev_idx = p1;
+
+		const Node& curr_node = route.customers[current_idx];
+		const Node& prev_node = route.customers[prev_idx];
+
+		current_time += euclidean_distance(prev_node, curr_node);
+		buffer[k] = current_time;
+		total_cost += current_time;
+	}
+	return total_cost;
+}
+
+
+
+double calculate_cross_path_cost(const Route& main_route, const Route& tail_source_route,
+	int cut_point, int tail_start, std::vector<double>& buffer_times)
+{
+	
+	buffer_times.assign(cut_point + (tail_source_route.customers.size() - tail_start), 0.0);
+	double total_cumulative_cost = 0.0;
+
+	// 1. Kopiujemy czasy g³owy (nie zmieniaj¹ siê)
+	for (int k = 1; k < cut_point; ++k) {
+		buffer_times[k] = main_route.arrival_times[k];
+		total_cumulative_cost += buffer_times[k];
+	}
+
+	// 2. Nowy czas startu dla pierwszego elementu nowego ogona
+	double current_time = main_route.arrival_times[cut_point - 1];
+
+	// £¹czymy ostatni element g³owy z pierwszym elementem nowego ogona
+	const Node& head_end = main_route.customers[cut_point - 1];
+
+	for (int k = tail_start; k < tail_source_route.customers.size(); ++k)
+	{
+		const Node& current_node = tail_source_route.customers[k];
+		const Node& prev_node = (k == tail_start) ? head_end : tail_source_route.customers[k - 1];		
+		current_time += euclidean_distance(prev_node, current_node);
+
+		int buffer_idx = cut_point + (k - tail_start);
+		buffer_times[buffer_idx] = current_time;
+		total_cumulative_cost += current_time;
+	}
+
+	return total_cumulative_cost;
+}
+
+
+//dla roznych tras
+double calculate_removal_cost_for_relocation(const Route& route, int pos, std::vector<double>& buffer)
+{
+	// Nowa trasa bêdzie mia³a o 1 element mniej ni¿ obecna
+	int new_size = static_cast<int>(route.customers.size()) - 1;
+	buffer.assign(new_size, 0.0);
+
+	double total_sum = 0.0;
+	double current_time = 0.0;
+
+	// Tworzymy wektor wskaŸników na wêz³y w nowej kolejnoœci (pomijaj¹c 'pos')
+	std::vector<const Node*> new_nodes;
+	new_nodes.reserve(new_size);
+	for (int i = 0; i < route.customers.size(); ++i) {
+		if (i == pos) continue;
+		new_nodes.push_back(&route.customers[i]);
+	}
+
+	// Buffer[0] to zawsze Depot (czas 0.0)
+	buffer[0] = 0.0;
+
+	// Liczymy czasy przyjazdu dla nowej kolejnoœci
+	for (int i = 1; i < new_nodes.size(); ++i) {
+		double dist = euclidean_distance(*new_nodes[i - 1], *new_nodes[i]);
+		current_time += dist;
+		buffer[i] = current_time;
+		total_sum += current_time;
+	}
+
+
+	return total_sum;
+}
+
+double calculate_insertion_cost_for_relocation(const Route& route, int pos, const Node& node, std::vector<double>& buffer)
+{
+	// Nowa trasa bêdzie mia³a o 1 element wiêcej
+	int new_size = static_cast<int>(route.customers.size()) + 1;
+	buffer.assign(new_size, 0.0);
+
+	double total_sum = 0.0;
+	double current_time = 0.0;
+
+	// Budujemy now¹ kolejnoœæ wêz³ów
+	std::vector<const Node*> new_nodes;
+	new_nodes.reserve(new_size);
+
+	for (int i = 0; i < route.customers.size(); ++i) {
+		if (i == pos) {
+			new_nodes.push_back(&node); // Wstawiamy nowego klienta
+		}
+		new_nodes.push_back(&route.customers[i]);
+	}
+
+	// Obs³uga przypadku, gdy wstawiamy na sam koniec trasy (za ostatniego klienta)
+	if (pos == route.customers.size()) {
+		new_nodes.push_back(&node);
+	}
+
+	// Buffer[0] to zawsze Depot
+	buffer[0] = 0.0;
+
+	// Liczymy czasy przyjazdu
+	for (int i = 1; i < new_nodes.size(); ++i) {
+		double dist = euclidean_distance(*new_nodes[i - 1], *new_nodes[i]);
+		current_time += dist;
+		buffer[i] = current_time;
+		total_sum += current_time;
+	}
+	return total_sum;
+}
+
+//jedna trasa
+double calculate_intra_relocation_cost(const Route& route, int pos_from, int pos_to, std::vector<double>& buffer)
+{
+	int n_with_depot = route.customers.size();
+	buffer.assign(n_with_depot, 0.0);
+
+	// 1. Tworzymy mapê nowej kolejnoœci indeksów (symulacja ruchu)
+	std::vector<int> new_order;
+	new_order.reserve(n_with_depot);
+	for (int i = 0; i < n_with_depot; ++i) new_order.push_back(i);
+
+	// Fizycznie symulujemy przesuniêcie indeksu w pomocniczym wektorze
+	int val = new_order[pos_from];
+	new_order.erase(new_order.begin() + pos_from);
+	new_order.insert(new_order.begin() + pos_to, val);
+
+	double total_cost = 0.0;
+	double current_time = 0.0;
+
+	// Buffer[0] to zawsze depot (0.0), nie dodajemy do total_cost
+	buffer[0] = 0.0;
+
+	// 2. Przeliczamy trasê od zera wed³ug nowej kolejnoœci
+	for (int k = 1; k < n_with_depot; ++k) {
+		int curr_node_idx = new_order[k];
+		int prev_node_idx = new_order[k - 1];
+
+		current_time += euclidean_distance(route.customers[prev_node_idx], route.customers[curr_node_idx]);
+
+		buffer[k] = current_time;
+		total_cost += current_time;
+	}
+
+	return total_cost;
+}

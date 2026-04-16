@@ -155,6 +155,7 @@
     <ClCompile Include="src\random_utils.cpp" />
     <ClCompile Include="src\ResultsParser.cpp" />
     <ClCompile Include="src\route.cpp" />
+    <ClCompile Include="src\single_route_improvement.cpp" />
     <ClCompile Include="src\skewed_vns.cpp" />
     <ClCompile Include="src\utils.cpp" />
   </ItemGroup>
@@ -176,6 +177,7 @@
     <ClInclude Include="include\random_utils.h" />
     <ClInclude Include="include\ResultsParser.h" />
     <ClInclude Include="include\route.h" />
+    <ClInclude Include="include\single_route_improvement.h" />
     <ClInclude Include="include\skewed_vns.h" />
     <ClInclude Include="include\utils.h" />
     <ClInclude Include="src\json.hpp" />

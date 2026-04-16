@@ -51,7 +51,7 @@ int main()
     bool run_hybrid = true;
     
     
-    IO_handlerV1::IO_handler io_handlers("Golden_1.vrp");
+    IO_handlerV1::IO_handler io_handlers("Golden_2.vrp");
 
 
 	IO_handlerV2::IO_handler io_handlers_v2;
@@ -60,8 +60,8 @@ int main()
 	//io_handlers_v2.set_result_path("Results/test2");
 	bool res_path = io_handlers_v2.set_result_path("C:/Users/maks0/Desktop/Test/hybrid/final");
 	//io_handlers_v2.set_input_path("InputData/Golden_1.vrp");
-	bool input_path = io_handlers_v2.set_input_path("D:/Nauka/SEM1/NTWI/CCVRP/CCVRP/InputData/Golden_1.vrp");
-    const int num_vehicles = 9;
+	bool input_path = io_handlers_v2.set_input_path("D:/Nauka/SEM1/NTWI/CCVRP/CCVRP/InputData/Golden_2.vrp");
+    const int num_vehicles = 10;
     
 	std::cout << "Input path set: " << std::boolalpha << input_path << std::endl;
 	std::cout << "Result path set: " << std::boolalpha << res_path << std::endl;
@@ -83,11 +83,11 @@ int main()
 	//END CONFIGURATION
 
 
-    /*BrainStormOptimalization hybrid(input, num_vehicles, io_handlers_v2);
+    BrainStormOptimalization hybrid(input, num_vehicles, io_handlers_v2);
     hybrid.run();
     Result res = hybrid.get_result();
     std::cout << "KONIEC";
-    return 0;*/
+    return 0;
     std::cout << std::boolalpha;
 
     //              METHOD CONFIGURATION

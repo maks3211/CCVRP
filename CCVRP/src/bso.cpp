@@ -1,6 +1,45 @@
 #include "bso.h"
 
 
+
+void check_costs(std::vector<Route>& routes, int op) {
+    double total_cost = 0.0;
+    std::cout << ".";
+    for (int roz = 0; roz < routes.size(); ++roz)
+    {
+        //std::cout << "\n#" << roz << " Koszt z route_cost : " << routes[roz].route_cost;
+        double my_cost = 0.0;
+        for (int i = 0; i < routes[roz].customers.size(); ++i)
+        {
+            my_cost += routes[roz].arrival_times[i];
+
+        }
+        double przeliczone = g(routes[roz]);
+        
+        //std::cout << "\n#" << roz << " Koszt z arrival_times : " << my_cost;
+       //std::cout << "\n#" << roz << " Przeliczony  : " << przeliczone;
+
+        total_cost += my_cost;
+
+
+        double eps = 1e-6;
+
+        bool equal_ab = std::abs(routes[roz].route_cost - my_cost) <= eps;
+        bool equal_ac = std::abs(routes[roz].route_cost - przeliczone) <= eps;
+
+        std::cout << std::fixed << std::setprecision(3);
+        if (!(equal_ab && equal_ac))
+        {
+            std::cout << std::fixed << std::setprecision(3)
+                << "\n!!!!!??????!!!!!!JEST ROZNACA op: "<<op <<"\n#" << roz << " Koszt z route_cost : " << routes[roz].route_cost
+                << "\n#" << roz << " Koszt z arrival_times : " << my_cost
+                << "\n#" << roz << " Przeliczony  : " << przeliczone
+                << std::endl;
+        }
+    }
+    
+}
+
 BrainStormOptimalization::BrainStormOptimalization(CVRPInstance instance, int num_vehicles, IO_handlerV2::IO_handler io_handlers_v2, brainConfig config) : instance(instance), io_handlers_v2(io_handlers_v2), num_vehicles(num_vehicles), config(config)
 {
     num_of_customers = instance.nodes.size() - 1;
@@ -145,24 +184,107 @@ std::vector<Route> BrainStormOptimalization::construct_initial_solution()
         }
     }   
 
-
     //DEBUGGIN ONLY
     double total_cost = 0.0;
+    std::cout << "\n================= ETAP PIERWSZY =================";
     for (int roz = 0; roz < routes.size(); ++roz)
     {
+        std::cout << "\n#" << roz << " Koszt z route_cost : " << routes[roz].route_cost;
         double my_cost = 0.0;
         for (int i = 0; i < routes[roz].customers.size(); ++i)
         {
             my_cost += routes[roz].arrival_times[i];
-          
-        }
-       double przeliczone= g(routes[roz]);
 
-        std::cout << "\n#"<<roz<< " MOJ OBLICZONY KOSZT : " << my_cost;
-        std::cout << "\n#"<<roz<< " Przeliczony  : " << przeliczone;
+        }
+        double przeliczone = g(routes[roz]);
+
+        std::cout << "\n#" << roz << " Koszt z arrival_times : " << my_cost;
+        std::cout << "\n#" << roz << " Przeliczony  : " << przeliczone;
         total_cost += my_cost;
     }
-    std::cout << "\nCalkowity KOSZT : " << total_cost;
+    std::cout << "\n================= Calkowity KOSZT : " << total_cost;
+    //END FOR TESTING
+
+
+    //zakonczono regret-cost-insertion
+    //Local serach 
+    std::cout << "\n\n\n Local serach  ";
+    while (true)
+    {
+        while (perform_first_improvement_2_opt(routes)) //1
+        {
+            //Stosuj 2-opt tak dlugo az przynosi to poprawe       
+                           
+        }
+        if (perform_first_improvement_exchange(routes)) //2
+        {
+          // check_costs(routes,2);
+            continue; //jest poprawa wroc do 2-opt
+        }
+        if (perform_first_improvement_cross(routes)) //3 
+        {       
+            
+            continue;
+        }
+      
+        if (perform_first_improvement_relocation(routes)) //4 - zwraca zly koszt
+        {
+//            check_costs(routes,4);
+            continue;
+        }
+        break;
+    }
+    std::cout << "\n\n\nETAP PIERWSZY";
+
+    //FOR TESTING
+    total_cost = 0.0;
+    std::cout << "\n================= ETAP DRUGI =================";
+    for (int roz = 0; roz < routes.size(); ++roz)
+    {
+        std::cout << "\n#" << roz << " Koszt z route_cost : " << routes[roz].route_cost;
+        double my_cost = 0.0;
+        for (int i = 0; i < routes[roz].customers.size(); ++i)
+        {
+            my_cost += routes[roz].arrival_times[i];
+
+        }
+        double przeliczone = g(routes[roz]);
+
+        std::cout << "\n#" << roz << " Koszt z arrival_times : " << my_cost;
+        std::cout << "\n#" << roz << " Przeliczony  : " << przeliczone;
+        total_cost += my_cost;
+    }
+    std::cout << "\n================= Calkowity KOSZT : =======" << total_cost << "=======";
+    //END FOR TESTING
+ 
+
+    //Single route improvemnt - szukaj poprawy dla kazdej trasy z osobna
+    for (int i = 0; i < routes.size(); ++i)
+    {
+        single_route_improvement(routes[i], config.T1);
+    }
+
+    //FOR TESTING
+    total_cost = 0.0;
+    std::cout << "\n================= ETAP TRZECI =================";
+    for (int roz = 0; roz < routes.size(); ++roz)
+    {
+        std::cout << "\n#" << roz << " Koszt z route_cost : " << routes[roz].route_cost;
+        double my_cost = 0.0;
+        for (int i = 0; i < routes[roz].customers.size(); ++i)
+        {
+            my_cost += routes[roz].arrival_times[i];
+
+        }
+        double przeliczone = g(routes[roz]);
+
+        std::cout << "\n#" << roz << " Koszt z arrival_times : " << my_cost;
+        std::cout << "\n#" << roz << " Przeliczony  : " << przeliczone;
+        total_cost += my_cost;
+    }
+    std::cout << "\n ================= Calkowity KOSZT : ======" << total_cost << "=======";
+    //END FOR TESTING
+
     return routes;
 }
 
@@ -179,3 +301,8 @@ void BrainStormOptimalization::run()
 const Result& BrainStormOptimalization::get_result() const {
     return result;
 }
+
+
+
+
+

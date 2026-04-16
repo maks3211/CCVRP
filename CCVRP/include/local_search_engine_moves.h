@@ -1,5 +1,6 @@
 #pragma once 
 #include <vector>
+#include <algorithm>
 #include "move.h"	
 #include "route.h"	
 #include "gainFunctions.h"
@@ -95,3 +96,29 @@ std::vector<Route> perform_2_insertion_move(std::vector<Route>& solution, Move m
 std::vector<Route> perform_2_opt_move(std::vector<Route>& solution, Move move, double avg_cost);
 std::vector<Route> perform_2_opt_prim_move(std::vector<Route>& solution, Move move, double avg_cost);
 std::vector<Route> perform_corss_tail_move(std::vector<Route>& solution, Move move, double avg_cost);
+
+
+//BRAIN STORM OPTIMALIZATION [103]
+//odwrocenie kolejnosci fragmentu wewnatrz jednej trasy (jedna trasa)
+bool perform_first_improvement_2_opt(std::vector<Route>& solution);
+//zamiana mijescami dwoch klientow (jedna/ dwie trasy)
+bool perform_first_improvement_exchange(std::vector<Route>& solution);
+bool perform_first_improvement_cross(std::vector<Route>& solution);
+bool perform_first_improvement_relocation(std::vector<Route>& solution);
+
+
+//FUNKCJE POMOCNICZE TO WYLICZANIA NOWEGO KOSZTU TRAS
+//dwie trasy
+double calculate_virtual_exchange_cost(const Route& route, int exchange_pos, const Node& new_node, std::vector<double>& buffer_times);
+//jedna trasa 
+double calculate_intra_exchange_cost(const Route& route, int p1, int p2, std::vector<double>& buffer);
+
+double calculate_cross_path_cost(const Route& main_route, const Route& tail_source_route,
+	int cut_point, int tail_start, std::vector<double>& buffer_times);
+
+//dla roznych tras
+double calculate_removal_cost_for_relocation(const Route& route, int pos, std::vector<double>& buffer);
+double calculate_insertion_cost_for_relocation(const Route& route, int pos, const Node& node, std::vector<double>& buffer);
+
+//jedna trasa
+double calculate_intra_relocation_cost(const Route& route, int pos_from, int pos_to, std::vector<double>& buffer);

@@ -7,8 +7,10 @@
 #include "random_utils.h"
 #include "utils.h"
 #include "IO_handlerV2.h"
+#include "local_search_engine_moves.h"
+#include "single_route_improvement.h"
 struct brainConfig {
-	int param_a = 10;
+	int T1 = 500; // 'called single route improvement' iteration number  - wykorzystywane w construct_initial_solution
 	int param_b = 20;
 };
 

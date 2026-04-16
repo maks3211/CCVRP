@@ -1,6 +1,6 @@
 #include "random_utils.h"
 
-
+//MOZNA TO ZOPTYMALIZOWAC NP TAK ABY KORZYSTAC ZE WSPOLENGO UNIFORM_INT_DISTRUBUTION ITP!!!
  std::mt19937 rng(std::random_device{}());
 
 std::pair<int, int> get_random_client(std::vector<Route>& s) 
