@@ -9,8 +9,13 @@ struct segment_last_index
 {
 	int i, j, k, l;
 };
-
-void single_route_improvement(Route& route, int iterations);
+/// <summary>
+/// 
+/// </summary>
+/// <param name="route"></param>
+/// <param name="iterations"></param>
+/// <param name="margin">O tyle moze byc gorsze nowe rozwiazanie od najlepeszego</param>
+void single_route_improvement(Route& route, int iterations,double margin = 0.01);
 
 void perform_3_opt(Route& route, int i, int j, int k);
 void perform_4_opt(Route& route, int i, int j, int k, int l);

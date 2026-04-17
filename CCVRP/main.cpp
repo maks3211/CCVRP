@@ -86,7 +86,7 @@ int main()
     BrainStormOptimalization hybrid(input, num_vehicles, io_handlers_v2);
     hybrid.run();
     Result res = hybrid.get_result();
-    std::cout << "KONIEC";
+    std::cout << "\nKONIEC";
     return 0;
     std::cout << std::boolalpha;
 

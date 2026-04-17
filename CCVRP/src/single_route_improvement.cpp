@@ -1,7 +1,7 @@
 #include "single_route_improvement.h"
 
 
-void single_route_improvement(Route& route, int iterations)
+void single_route_improvement(Route& route, int iterations, double margin)
 {
 	int three_opt_times = 0;
 	double old_old_cost = route.route_cost;
@@ -76,7 +76,7 @@ void single_route_improvement(Route& route, int iterations)
 		//std::cout << "\n						 KOSZT TRASY po 2-OPT: " << tmp[0].route_cost << "\n";
 		changed_route = tmp[0];
 		
-		if (std::abs(tmp[0].route_cost - route.route_cost) < 0.01) // jest poprawa z drobnym marginesem
+		if (std::abs(tmp[0].route_cost - route.route_cost) < margin) // jest poprawa z drobnym marginesem
 		{
 			
 			route = tmp[0];

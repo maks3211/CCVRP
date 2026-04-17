@@ -68,7 +68,7 @@ std::vector<std::pair<int, int>> get_n_random_clients(std::vector<Route>& s, int
 }
 
 
-
+//[0,1)
 double random_01() {
     static std::uniform_real_distribution<double> dist(0.0, 1.0);
     return dist(rng);  

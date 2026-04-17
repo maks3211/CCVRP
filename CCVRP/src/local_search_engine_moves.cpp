@@ -1344,12 +1344,12 @@ double calculate_intra_relocation_cost(const Route& route, int pos_from, int pos
 	int n_with_depot = route.customers.size();
 	buffer.assign(n_with_depot, 0.0);
 
-	// 1. Tworzymy mapê nowej kolejnoœci indeksów (symulacja ruchu)
+	
 	std::vector<int> new_order;
 	new_order.reserve(n_with_depot);
 	for (int i = 0; i < n_with_depot; ++i) new_order.push_back(i);
 
-	// Fizycznie symulujemy przesuniêcie indeksu w pomocniczym wektorze
+	
 	int val = new_order[pos_from];
 	new_order.erase(new_order.begin() + pos_from);
 	new_order.insert(new_order.begin() + pos_to, val);
@@ -1357,10 +1357,9 @@ double calculate_intra_relocation_cost(const Route& route, int pos_from, int pos
 	double total_cost = 0.0;
 	double current_time = 0.0;
 
-	// Buffer[0] to zawsze depot (0.0), nie dodajemy do total_cost
 	buffer[0] = 0.0;
 
-	// 2. Przeliczamy trasê od zera wed³ug nowej kolejnoœci
+	
 	for (int k = 1; k < n_with_depot; ++k) {
 		int curr_node_idx = new_order[k];
 		int prev_node_idx = new_order[k - 1];
