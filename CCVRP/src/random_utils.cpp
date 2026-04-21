@@ -68,13 +68,51 @@ std::vector<std::pair<int, int>> get_n_random_clients(std::vector<Route>& s, int
 }
 
 
+std::vector<std::pair<int, int>> get_n_random_clients_diff_routes(
+    std::vector<Route>& s, int n, int min_index, bool exclude_last)
+{
+    std::vector<std::pair<int, int>> result;
+
+    int num_routes = s.size();
+    if (num_routes == 0) return result;
+
+    int k = std::min(n, num_routes);
+
+    std::vector<int> route_indices(num_routes);
+    for (int i = 0; i < num_routes; ++i)
+        route_indices[i] = i;
+
+    std::shuffle(route_indices.begin(), route_indices.end(), rng);
+
+    for (int i = 0; i < k; ++i) {
+        int r = route_indices[i];
+        int size = s[r].customers.size();
+
+        
+        int start = min_index;
+        int end = exclude_last ? size - 2 : size - 1;
+
+       
+        if (start > end)
+            continue;
+
+        std::uniform_int_distribution<int> dist(start, end);
+        int c = dist(rng);
+
+        result.emplace_back(r, c);
+    }
+
+    return result;
+}
+
+
 //[0,1)
 double random_01() {
     static std::uniform_real_distribution<double> dist(0.0, 1.0);
     return dist(rng);  
 }
 
-
+//[from, to] - moze wylosowac from jak i to
 int random_int_from_to(int from, int to)
 {
     std::uniform_int_distribution<int> dist(from, to);  

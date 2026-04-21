@@ -95,7 +95,7 @@ namespace IO_handlerV2
     }
 
     //zapisuje rozwiazanie do wybranego folderu - nie tworzy samemu folderu
-    void IO_handler::save_solution(Result& solution, std::string add_to_name)
+    void IO_handler::save_solution(Result& solution, std::string add_to_name,std::string additional_info)
     {
         std::filesystem::path folder(result_path);
 
@@ -135,7 +135,8 @@ namespace IO_handlerV2
         }
 
         out << "\n\n" << "Total solution cost: " << solution.total_cost << "\n";
-        out << "\n" << "Total computing time: " << solution.duration_seconds << " s" << "\n";
+        out << "\n" << "Total computing time: " << solution.duration_seconds << "s" << "\n";
+        out << "\n" << additional_info << "\n";
 		out << "\n" << IO_handler_utils::create_table(solution);
     }
 

@@ -954,7 +954,6 @@ bool perform_first_improvement_2_opt(std::vector<Route>& solution)
 
 bool perform_first_improvement_exchange(std::vector<Route>& solution)
 {
-	//w obrebie tej samej trasy
 	for (int r1_idx = 0; r1_idx < solution.size(); ++r1_idx)
 	{
 		Route& r1 = solution[r1_idx];
@@ -1016,6 +1015,7 @@ bool perform_first_improvement_exchange(std::vector<Route>& solution)
 	}
 	return false;
 }
+
 bool perform_first_improvement_cross(std::vector<Route>& solution)
 {
 	for (int r1_idx = 0; r1_idx < solution.size() - 1; ++r1_idx)
@@ -1094,6 +1094,7 @@ bool perform_first_improvement_cross(std::vector<Route>& solution)
 	}
 	return false;
 }
+
 bool perform_first_improvement_relocation(std::vector<Route>& solution)
 {
 	for (int r1_idx = 0; r1_idx < solution.size(); ++r1_idx) // donor

@@ -25,6 +25,12 @@ int get_random_clients_from_route(Route& route, int num_clients);
 //zwraca n losowych klientow - moga sie powtarzac w ramach jednej trasy
 std::vector<std::pair<int, int>> get_n_random_clients(std::vector<Route>& s, int n);
 
+std::vector<std::pair<int, int>> get_n_random_clients_diff_routes(
+    std::vector<Route>& s,
+    int n,
+    int min_index = 1,
+    bool exclude_last = false);
+
 double random_01();
 
 int random_int_from_to(int from, int to);

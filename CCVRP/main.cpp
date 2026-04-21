@@ -41,30 +41,27 @@ void loading_animation(std::chrono::high_resolution_clock::time_point start_time
  
 int main()
 {
-
-
-
-
-
     std::cout << "\n!!!!!!!!!USUNAC/ zmienic nazwe METODE FUCKING!!!!!!!!!\n"; 
-    bool run_Skewed_VNS = false;
-    bool run_hybrid = true;
+    std::cout << "\nCO Z FUNKCJA perform_regert_cost_insertion I gdy nie NIE UDALO SIE WSTAWIC KLIENTA - NIE MA MIEJSCA ???\n"; 
+    bool run_Skewed_VNS = true;
+    bool run_hybrid = false;
+    bool run_bso = false;
     
     
-    IO_handlerV1::IO_handler io_handlers("Golden_2.vrp");
+    IO_handlerV1::IO_handler io_handlers("Golden_1.vrp");
 
 
 	IO_handlerV2::IO_handler io_handlers_v2;
     io_handlers_v2.save_progress_enabled = false;
 
 	//io_handlers_v2.set_result_path("Results/test2");
-	bool res_path = io_handlers_v2.set_result_path("C:/Users/maks0/Desktop/Test/hybrid/final");
+	
 	//io_handlers_v2.set_input_path("InputData/Golden_1.vrp");
-	bool input_path = io_handlers_v2.set_input_path("D:/Nauka/SEM1/NTWI/CCVRP/CCVRP/InputData/Golden_2.vrp");
-    const int num_vehicles = 10;
+	bool input_path = io_handlers_v2.set_input_path("D:/Nauka/SEM1/NTWI/CCVRP/CCVRP/InputData/Golden_1.vrp");
+    const int num_vehicles = 9;
     
 	std::cout << "Input path set: " << std::boolalpha << input_path << std::endl;
-	std::cout << "Result path set: " << std::boolalpha << res_path << std::endl;
+	
 
     CVRPInstance input = io_handlers_v2.get_instance();
     //CVRPInstance input = io_handlers.get_instance();
@@ -81,14 +78,82 @@ int main()
 
 	bool loading_animation_enabled = true;
 	//END CONFIGURATION
-
-
-    BrainStormOptimalization hybrid(input, num_vehicles, io_handlers_v2);
-    hybrid.run();
-    Result res = hybrid.get_result();
-    std::cout << "\nKONIEC";
-    return 0;
     std::cout << std::boolalpha;
+    if (run_bso)
+    {
+        bool res_path = io_handlers_v2.set_result_path("C:/Users/maks0/Desktop/Test/bso");
+        std::cout << "Result path set: " << std::boolalpha << res_path << std::endl;
+        std::string file_info = "bso_golden_1";
+        brainConfig bso_config{};
+        bso_config.main_loop_itarations = 6;
+        bso_config.T1 = 50;
+        int number_of_starts = 10;
+        double avg_bso_cost = 0.0;
+        double avg_bso_time = 0.0;
+        double best_bso_cost = 99999999.0;
+        Result best;
+
+
+       
+     
+        for (int rounds = 0; rounds < number_of_starts; rounds++)
+        {
+            auto start = std::chrono::high_resolution_clock::now();
+            BrainStormOptimalization bso(input, num_vehicles, io_handlers_v2, bso_config);
+            bso.run();
+            Result result = bso.get_result();
+            auto end = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<double, std::milli> duration = end - start;
+            result.duration_seconds = duration.count() / 1000.0; // sekundy
+
+
+            bool exceeded = has_negtive_capacity(result);
+            std::cout << "\nPozstala pojemnosc [1]: " << result.routes[1].remaining_capacity << std::endl;
+            if (exceeded) {
+                std::cout << "\033[31m";
+            }
+
+            std::cout
+                << "#" << rounds << "\n"
+                << " | Czas: " << duration.count() / 1000 << " s"
+                << " | Koszt: " << result.total_cost
+                << " | Przekroczenie pojemnosci: "
+                << (exceeded ? "TAK" : "NIE")
+                << "\033[0m\n";  // reset na końcu
+
+            std::cout << "Czy sa duplikaty: " << any_global_duplicates(result.routes) << " ile wolnego : " << get_total_remaining_capacity(result) << " ile po ";// << calculate_remaining_capacity(hybridResult);
+
+            std::cout << "\nZAKONCZONO run\n";
+
+            std::string additional_info =
+                "T1 = " + std::to_string(bso_config.T1) +
+                ", Main loop iterations: " + std::to_string(bso_config.main_loop_itarations);
+            io_handlers_v2.save_solution(result, file_info, additional_info);
+            avg_bso_cost += result.total_cost;
+            avg_bso_time += result.duration_seconds;
+            if (best_bso_cost > result.total_cost)
+            {
+                best = result;
+                best_bso_cost = result.total_cost;
+            }
+        }
+
+        avg_bso_cost /= number_of_starts;
+        avg_bso_time /= number_of_starts;
+          io_handlers_v2.set_result_path("C:/Users/maks0/Desktop/Test/bso/best");
+          file_info = "bso_golden_1_best_of_" + std::to_string(number_of_starts);
+
+        std::cout << "\n======= Zakonczono bso =======" << "\n\nNajlepsze rozwiazanie: " << best_bso_cost;
+        std::cout << "\nSredni koszt z " << number_of_starts << " rozwiazan: " << avg_bso_cost << "\n";
+        std::string additional_info =
+            "T1 = " + std::to_string(bso_config.T1) +
+            ", Main loop iterations: " + std::to_string(bso_config.main_loop_itarations) + 
+            "\nAverage cost of solution from: " + std::to_string(number_of_starts) +
+            " attempts: " + std::to_string(avg_bso_cost) + "\nAverage computing time from: " + std::to_string(number_of_starts) + " attempts: " + std::to_string(avg_bso_time) + "s";
+        io_handlers_v2.save_solution(best, file_info, additional_info);
+    }
+
+   
 
     //              METHOD CONFIGURATION
     if (run_hybrid)
@@ -148,25 +213,10 @@ int main()
        // io_handlers_v2.save_solution(best, file_info);
     }
    
-    return 0;
+   
 
     //KONIEC HYBRID TEST
     ///START O 8:32
-
-    Result github = io_handlers.load_solution(0, "Golden_1.vrp");
-
-    //for (int i = 0; i < github.routes.size(); i++)
-    //{
-    //  //  github.routes[i].customers.erase(github.routes[i].customers.begin());
-    //    github.routes[i].customers.push_back(github.routes[i].customers[0]);
-    //}
-    calculate_cost(github);
-   calculate_remaining_capacity(github);
-     
-	//Result github = io_handlers.load_solution(0,"Golden_1_240.vrp");
-    //calculate_cost(github);
-	//calculate_remaining_capacity(github);
-    //io_handlers.save_solution(github);
 
     //notepadd ++ \b(\d+)\b(?=.*\b\1\b)
  
@@ -174,7 +224,9 @@ int main()
     std::cout << "\t\t\t\t\t ||============Rozpoczecie Skewed_VNS============||" << std::endl;
     std::cout << "\t\t\t\t\t \\\\==============================================//" << std::endl;
 
-	
+    bool res_path = io_handlers_v2.set_result_path("C:/Users/maks0/Desktop/Test/skewed");
+    std::cout << "Result path set: " << std::boolalpha << res_path << std::endl;
+    std::string file_info = "skewed_golden_1";
     
 
 

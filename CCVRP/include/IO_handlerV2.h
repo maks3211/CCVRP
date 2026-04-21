@@ -23,7 +23,7 @@ namespace IO_handlerV2
 
 	public:
 		CVRPInstance get_instance();
-		void save_solution(Result& solution, std::string add_to_name = "");
+		void save_solution(Result& solution, std::string add_to_name = "",std::string additional_info = "");
 		void save_progress(Result& solution);
 		bool set_input_path(const std::string& path);
 		bool set_result_path(const std::string& path);
