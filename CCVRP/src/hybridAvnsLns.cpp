@@ -9,19 +9,17 @@ HybridAvnsLns::HybridAvnsLns(CVRPInstance instance, int num_vehicles, IO_handler
 
 void HybridAvnsLns::run()
 {
-    std::cout << "Rozpoczenie hybrd lns\n";
     int number_of_customers = instance.nodes.size() - 1;
     std::vector<Route> routes = construct_intial_solution();
-    std::cout << "Jest rozwiazanie poczatkowe\n";
     for (int i = 0; i < routes.size(); ++i)
     {
         routes[i].recalculate_all();
     }
-
+    std::cout << "\njeden";
     routes = AVNS_stage_one(routes, number_of_customers);
-    std::cout << "Zakopnczono etap 1\n";
+    std::cout << "\ndwa";
     routes = AVNS_stage_two(routes, number_of_customers);
-    std::cout << "Zakopnczono etap 2\n";
+    std::cout << "\ntrzy";
     double cost = get_sum_of_route_cost(routes);
     result.routes = routes;
     result.total_cost = cost;
@@ -128,8 +126,7 @@ std::vector<Route> HybridAvnsLns::construct_intial_solution()
 
             Node problematicClient = instance.nodes[0];     // na razie pierwszy (możesz zmienić na max demand)
 
-            std::cout << "Brak feasible wstawienia → uruchamiam perturbation dla klienta "
-                << problematicClient.id << "\n";
+           
 
             perform_perturbation(routes, problematicClient,total_customers);
 
@@ -158,7 +155,6 @@ std::vector<Route> HybridAvnsLns::construct_intial_solution()
 
 void HybridAvnsLns::perform_perturbation(std::vector<Route>& routes, Node clientA, int total_customers)
 {
-    std::cout << "\n-----------------PERTURBACJE-----------------\n";
     const int ts = std::max(5, static_cast<int>(0.01 * total_customers));
     std::vector<int> tabu_until(total_customers + 100, 0);
     int iter = 0;
@@ -176,9 +172,8 @@ void HybridAvnsLns::perform_perturbation(std::vector<Route>& routes, Node client
                 if (tabu_until[clientB.id] > iter) continue;
 
                 // Usuwamy B
-                std::cout << "Jest blad w tym miejscu";
                 routes[r].remove_customer_at_index(pos);
-                std::cout << "KONIEC tego miejsca";
+
                 // Próbujemy wstawić A (forced)
                 InsertionResult insA = find_best_insertion(routes[r], clientA);
 
@@ -226,7 +221,7 @@ void HybridAvnsLns::perform_perturbation(std::vector<Route>& routes, Node client
     // Ostateczny fallback
     if (!success)
     {
-        std::cout << "[PERTURBATION] Nie udało się znaleźć miejsca → ostateczny fallback\n";
+
         int r = find_route_with_smallest_violation(routes);
         add_customer_at_index_with_penalty(routes[r],clientA);
     }
@@ -254,7 +249,6 @@ std::vector<Route> HybridAvnsLns::AVNS_stage_one(std::vector<Route>& solution, i
     }
     double lambda = lambda_min;
     
-    std::cout << "Lambda init = " << lambda << "\n";
     double x_cost = 0.0;
     double x_best_cost = 0.0;
     x_cost = get_sum_of_route_cost(x);
@@ -263,6 +257,7 @@ std::vector<Route> HybridAvnsLns::AVNS_stage_one(std::vector<Route>& solution, i
     int numDiv = 1;
     while (numDiv <= config.maxDiv)
     {
+        std::cout << numDiv <<" ";
         int p = 1;
         while (p <= p_max)
         {
@@ -450,6 +445,7 @@ std::vector<Route> HybridAvnsLns::AVNS_stage_two(std::vector<Route>& solution, i
     double x_bis_cost = 0.0;
     while (nonImproveDiv <= config.maxDiv2)
     {
+        std::cout << nonImproveDiv;
         int p = 1;
         while (p <= p_max) //linia 30
         {

@@ -6,6 +6,7 @@
 #include "random_utils.h"
 #include "utils.h"
 #include "IO_handlerV2.h"
+#include "local_search_engine_moves.h"
 
 struct SkewedVNSConfig {
 	int block_size = 3;
@@ -35,7 +36,7 @@ public:
 	std::vector<Route> constructive_heurestic();
 
 	/// <summary>  
-	/// N1 - Simple insert 
+	/// N1 - Simple insert - biore jednego klienta i sprawdzam po kolei wszystki mozliwe pozycje - zwracam pierwsza poprawe 
 	/// N2 - block insert
 	/// N3 - simple permute - swapping two customers
 	/// All performed intra/ inter route

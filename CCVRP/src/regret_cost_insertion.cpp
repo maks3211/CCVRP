@@ -92,8 +92,5 @@ void perform_regert_cost_insertion(std::vector<Route>& routes,std::vector<Node>&
 			std::cout << "NIE UDALO SIE WSTAWIC KLIENTA - NIE MA MIEJSCA";
 			break;
 		}
-
-
 	}
-
 }

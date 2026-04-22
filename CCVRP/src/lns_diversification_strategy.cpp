@@ -27,11 +27,7 @@ std::vector<Route> lns_diversification(std::vector<Route>& solution, int lambda,
 		{
 			
 			//sortowanie malejaco- moge usuwac od tylu 	
-			bool correct = modified_solution[to_remove[i].route_index].remove_customer_at_index(to_remove[i].client_index);
-			if (!correct) // warunek w celach debugowania - nie wplywa na logike
-			{
-				std::cout << "ZLY INDEKS CASE 1 rozmiar: " << to_remove.size() << "to_remove[i].client_index = " << to_remove[i].client_index << "\n";
-			}
+	
 			unique_routes_remove.insert(to_remove[i].route_index);
 		}
 		break;
@@ -44,12 +40,7 @@ std::vector<Route> lns_diversification(std::vector<Route>& solution, int lambda,
 		for (int i = 0; i < to_remove.size(); ++i)
 		{
 
-			
-			bool correct = modified_solution[to_remove[i].route_index].remove_customer_at_index(to_remove[i].client_index);
-			if (!correct)
-			{
-				std::cout << "ZLY INDEKS CASE 2 rozmiar:  " << to_remove.size() << "to_remove[i].client_index = " << to_remove[i].client_index << "\n";
-			}
+		
 			unique_routes_remove.insert(to_remove[i].route_index);
 		}
 		break;
@@ -63,11 +54,7 @@ std::vector<Route> lns_diversification(std::vector<Route>& solution, int lambda,
 
 		for (int i = 0; i < to_remove.size(); ++i)
 		{	
-			bool correct = modified_solution[to_remove[i].route_index].remove_customer_at_index(to_remove[i].client_index);
-			if (!correct)
-			{
-				std::cout << "ZLY INDEKS CASE 3 rozmiar: " << to_remove.size() << " to_remove[i].client_index = " << to_remove[i].client_index << "\n";
-			}
+			
 			unique_routes_remove.insert(to_remove[i].route_index);
 		}
 		break;
@@ -79,11 +66,7 @@ std::vector<Route> lns_diversification(std::vector<Route>& solution, int lambda,
 	
 		for (int i = 0; i < to_remove.size(); ++i)
 		{
-			bool correct = modified_solution[to_remove[i].route_index].remove_customer_at_index(to_remove[i].client_index);
-			if (!correct)
-			{
-				std::cout << "ZLY INDEKS CASE 4 rozmiar:\n" << to_remove.size() << "to_remove[i].client_index = " << to_remove[i].client_index << "\n";
-			}
+		
 			unique_routes_remove.insert(to_remove[i].route_index);
 		}
 		break;
@@ -118,9 +101,9 @@ std::vector<Route> lns_diversification(std::vector<Route>& solution, int lambda,
 		
 			if (to_add.client_index == -1) // nie udalo sie nalezc miejsca - przeprowac perturbacje i odrazu aktualzacja calego rozwiazania
 			{
-				std::cout << "rozpoczecie perform_perturbation w lns_diversification \n";
+			
 				HybridAvnsLns::perform_perturbation(modified_solution, solution[route_index].customers[client_index], total_customers); 
-				std::cout << "zakonczenie perform_perturbation w lns_diversification \n";
+				
 				for (auto r : modified_solution) //przeliczam wszystkie trasy bo nie mam informacji o tym ktore zostaly zmienione
 				{
 					r.recalculate_all();	

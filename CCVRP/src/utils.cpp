@@ -148,13 +148,17 @@ InsertionResult calculate_insertion_cost(Route& route, Node& i, int insertion_in
 
 
 
-
+//ORGINAL
+/*
 double g(Route& pi)
 {
     int p = pi.customers.size() - 1; // liczba klientów w trasie (minus baza)
     double result = 0.0;
     pi.cumulative_costs.clear();
     pi.cumulative_costs.push_back(0.0);
+
+   
+
     
     for (int i = 1; i <= p; i++)
     {
@@ -165,6 +169,38 @@ double g(Route& pi)
 	pi.route_cost = result;
     return result;
 }
+*/
+
+double g(Route& pi)
+{
+    int p = pi.customers.size() - 1; 
+    double result = 0.0;      
+    double current_time = 0.0; 
+
+    pi.cumulative_costs.clear();
+    pi.arrival_times.clear();
+
+    // Inicjalizacja dla bazy (index 0)
+    pi.cumulative_costs.push_back(0.0);
+    pi.arrival_times.push_back(0.0);
+
+    for (int i = 1; i <= p; i++)
+    {
+        double dist = euclidean_distance(pi.customers[i - 1], pi.customers[i]);
+
+        
+        current_time += dist;
+        pi.arrival_times.push_back(current_time);
+
+      
+        result += (p - i + 1) * dist;
+        pi.cumulative_costs.push_back(result);
+    }
+
+    pi.route_cost = result;
+    return result;
+}
+
 
 
 

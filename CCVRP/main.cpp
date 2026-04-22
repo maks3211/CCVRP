@@ -41,28 +41,51 @@ void loading_animation(std::chrono::high_resolution_clock::time_point start_time
  
 int main()
 {
-    std::cout << "\n!!!!!!!!!USUNAC/ zmienic nazwe METODE FUCKING!!!!!!!!!\n"; 
+   
     std::cout << "\nCO Z FUNKCJA perform_regert_cost_insertion I gdy nie NIE UDALO SIE WSTAWIC KLIENTA - NIE MA MIEJSCA ???\n"; 
     bool run_Skewed_VNS = true;
     bool run_hybrid = false;
     bool run_bso = false;
     
     
+    int number_of_starts = 2;
+    int number_of_starts_hybrid = number_of_starts;
+    int number_of_starts_skewed = number_of_starts;
+    int number_of_starts_bso    = number_of_starts;
+ 
+    bool loading_animation_enabled = false;
+    //=========== BSO CONFIG ===========
+    brainConfig bso_config{};
+    bso_config.main_loop_itarations = 6;
+    bso_config.T1 = 50;
+
+    //=========== HYBRID CONFIG ===========
+    hybridAvnsLnsConfig hybrid_config{};
+    hybrid_config.maxDiv = 60;
+    hybrid_config.maxDiv2 = 30;
+
+    //=========== SKEWED CONFIG ===========
+    SkewedVNSConfig skewed_config{};
+    skewed_config.f_alfa = 500;
+    skewed_config.SVNS_max_no_improve = 300;
+
     IO_handlerV1::IO_handler io_handlers("Golden_1.vrp");
-
-
 	IO_handlerV2::IO_handler io_handlers_v2;
     io_handlers_v2.save_progress_enabled = false;
 
-	//io_handlers_v2.set_result_path("Results/test2");
-	
-	//io_handlers_v2.set_input_path("InputData/Golden_1.vrp");
-	bool input_path = io_handlers_v2.set_input_path("D:/Nauka/SEM1/NTWI/CCVRP/CCVRP/InputData/Golden_1.vrp");
+    //=========== USTAWIENIA WEJSCIA ===========
     const int num_vehicles = 9;
+    std::string instance_name = "Golden_1.vrp"; //NAZWA PLIKU 
+    std::string result_folder_name = "golden1"; //NAZWA FOLDERU WYNIKOWEGO
     
-	std::cout << "Input path set: " << std::boolalpha << input_path << std::endl;
-	
 
+    std::string full_input_path = "D:/Nauka/SEM1/NTWI/CCVRP/CCVRP/InputData/" + instance_name;
+
+    //=========== USTAWIENIA ZAPISU ===========
+    std::string main_result_path = "C:/Users/maks0/Desktop/Test/";
+    std::string folder_name = "konsultacje";  //czyli teraz zapis bedzie np. w /Test/konsultacje/bso
+	bool input_path = io_handlers_v2.set_input_path(full_input_path);
+	std::cout << "Input path set: " << std::boolalpha << input_path << std::endl;
     CVRPInstance input = io_handlers_v2.get_instance();
     //CVRPInstance input = io_handlers.get_instance();
    
@@ -76,39 +99,51 @@ int main()
 	//std::cout << "Runs per alfa: " << runs_per_alfa << std::endl;
 	//std::cout << "Max no improve cout: " << max_no_improve << std::endl;
 
-	bool loading_animation_enabled = true;
+
 	//END CONFIGURATION
     std::cout << std::boolalpha;
+    //                                                  =========BSO=========
     if (run_bso)
     {
-        bool res_path = io_handlers_v2.set_result_path("C:/Users/maks0/Desktop/Test/bso");
+        std::cout << "\n=========== ROZPOCZECIE BSO ===========\n";
+        std::string full_result_path = main_result_path + "bso/" + folder_name + "/ " + result_folder_name;
+        bool res_path = io_handlers_v2.set_result_path(full_result_path);
         std::cout << "Result path set: " << std::boolalpha << res_path << std::endl;
-        std::string file_info = "bso_golden_1";
-        brainConfig bso_config{};
-        bso_config.main_loop_itarations = 6;
-        bso_config.T1 = 50;
-        int number_of_starts = 10;
+        std::string file_info = "bso_" + result_folder_name;
+
+        
         double avg_bso_cost = 0.0;
         double avg_bso_time = 0.0;
         double best_bso_cost = 99999999.0;
         Result best;
 
-
-       
-     
-        for (int rounds = 0; rounds < number_of_starts; rounds++)
+        for (int rounds = 0; rounds < number_of_starts_bso; rounds++)
         {
-            auto start = std::chrono::high_resolution_clock::now();
+            
             BrainStormOptimalization bso(input, num_vehicles, io_handlers_v2, bso_config);
+            loading_done = false;
+            auto start = std::chrono::high_resolution_clock::now();
+#ifndef _DEBUG
+            std::thread anim_thread;
+            if (loading_animation_enabled) {
+                anim_thread = std::thread(loading_animation, start);
+            }
+#endif  // !_DEBUG
             bso.run();
-            Result result = bso.get_result();
+            loading_done = true;
             auto end = std::chrono::high_resolution_clock::now();
+#ifndef _DEBUG
+            if (loading_animation_enabled && anim_thread.joinable()) {
+                anim_thread.join();
+            }
+#endif
+            Result result = bso.get_result();        
             std::chrono::duration<double, std::milli> duration = end - start;
             result.duration_seconds = duration.count() / 1000.0; // sekundy
 
 
             bool exceeded = has_negtive_capacity(result);
-            std::cout << "\nPozstala pojemnosc [1]: " << result.routes[1].remaining_capacity << std::endl;
+           
             if (exceeded) {
                 std::cout << "\033[31m";
             }
@@ -138,41 +173,61 @@ int main()
             }
         }
 
-        avg_bso_cost /= number_of_starts;
-        avg_bso_time /= number_of_starts;
-          io_handlers_v2.set_result_path("C:/Users/maks0/Desktop/Test/bso/best");
-          file_info = "bso_golden_1_best_of_" + std::to_string(number_of_starts);
+        avg_bso_cost /= number_of_starts_bso;
+        avg_bso_time /= number_of_starts_bso;
+          io_handlers_v2.set_result_path(main_result_path + "bso/best");
+          file_info = "bso_" + result_folder_name + "_best_of_" + std::to_string(number_of_starts_bso);
 
         std::cout << "\n======= Zakonczono bso =======" << "\n\nNajlepsze rozwiazanie: " << best_bso_cost;
-        std::cout << "\nSredni koszt z " << number_of_starts << " rozwiazan: " << avg_bso_cost << "\n";
+        std::cout << "\nSredni koszt z " << number_of_starts_bso << " rozwiazan: " << avg_bso_cost << "\n";
         std::string additional_info =
             "T1 = " + std::to_string(bso_config.T1) +
             ", Main loop iterations: " + std::to_string(bso_config.main_loop_itarations) + 
-            "\nAverage cost of solution from: " + std::to_string(number_of_starts) +
-            " attempts: " + std::to_string(avg_bso_cost) + "\nAverage computing time from: " + std::to_string(number_of_starts) + " attempts: " + std::to_string(avg_bso_time) + "s";
+            "\nAverage cost of solution from: " + std::to_string(number_of_starts_bso) +
+            " attempts: " + std::to_string(avg_bso_cost) + "\nAverage computing time from: " + std::to_string(number_of_starts_bso) + " attempts: " + std::to_string(avg_bso_time) + "s";
         io_handlers_v2.save_solution(best, file_info, additional_info);
+
+        std::cout << "\n=========== KONIEC BSO ===========\n";
     }
 
    
 
-    //              METHOD CONFIGURATION
+    //                                                  =========HYBRID=========
     if (run_hybrid)
     {
-        std::string file_info = "hybrid_golden_1";
-        //maxDiv, maxDiv2
-        hybridAvnsLnsConfig hybrid_config{ 130, 110 };
-        int number_of_starts = 3;
+        std::cout << "\n=========== ROZPOCZECIE HYBRID ===========\n";
+        std::string full_result_path = main_result_path + "hybrid/" + folder_name + "/ " + result_folder_name;
+        bool res_path = io_handlers_v2.set_result_path(full_result_path);
+        std::cout << "Result path set: " << std::boolalpha << res_path << std::endl;
+        std::string file_info = "hybrid_" + result_folder_name;
+        
         double avg_hybrid_cost = 0.0;
+        double avg_hybrid_time = 0.0;
         double best_hybrid_cost = 99999999.0;
         Result best;
         //Uruchamia number_of_starts prob dla hybrid, zapisuje kazda z prob w folderze hybrid/final oraz zapisuje best of number_of_starts w hybrid
-        for (int rounds = 0; rounds < number_of_starts; rounds++)
+        for (int rounds = 0; rounds < number_of_starts_hybrid; rounds++)
         {
-            auto start = std::chrono::high_resolution_clock::now();
             HybridAvnsLns hybrid(input, num_vehicles, io_handlers_v2, hybrid_config);
+
+            loading_done = true;
+            auto start = std::chrono::high_resolution_clock::now();
+//#ifndef _DEBUG
+//            std::thread anim_thread;
+//            if (loading_animation_enabled) {
+//                anim_thread = std::thread(loading_animation, start);
+//            }
+//#endif  // !_DEBUG
             hybrid.run();
-            Result hybridResult = hybrid.get_result();
             auto end = std::chrono::high_resolution_clock::now();
+//            loading_done = true;
+//#ifndef _DEBUG
+//            if (loading_animation_enabled && anim_thread.joinable()) {
+//                anim_thread.join();
+//            }
+//#endif
+            Result hybridResult = hybrid.get_result();
+            
             std::chrono::duration<double, std::milli> duration = end - start;
             hybridResult.duration_seconds = duration.count() / 1000.0; // sekundy
 
@@ -195,8 +250,12 @@ int main()
 
             std::cout << "\nZAKONCZONO run\n";
 
-            io_handlers_v2.save_solution(hybridResult, file_info);
+            std::string additional_info =
+                "MaxDiv = " + std::to_string(hybrid_config.maxDiv) +
+                ", MaxDiv2 = " + std::to_string(hybrid_config.maxDiv2);
+            io_handlers_v2.save_solution(hybridResult, file_info, additional_info);
             avg_hybrid_cost += hybridResult.total_cost;
+            avg_hybrid_time += hybridResult.duration_seconds;
             if (best_hybrid_cost > hybridResult.total_cost)
             {
                 best = hybridResult;
@@ -204,130 +263,108 @@ int main()
             }
         }
 
-        avg_hybrid_cost /= number_of_starts;
-      //  io_handlers_v2.set_result_path("C:/Users/maks0/Desktop/Test/hybrid");
-      //  file_info = "hybrid_golden_2_best_of_" + std::to_string(number_of_starts);
-      
-        std::cout <<"\n======= Zakonczono hybrid =======" << "\n\nNajlepsze rozwiazanie: " << best_hybrid_cost;
-        std::cout << "\nSredni koszt z " << number_of_starts << " rozwiazan: " << avg_hybrid_cost << "\n";
-       // io_handlers_v2.save_solution(best, file_info);
+        avg_hybrid_cost /= number_of_starts_hybrid;
+        avg_hybrid_time /= number_of_starts_hybrid;
+        io_handlers_v2.set_result_path(main_result_path + "hybrid/best");
+        file_info = "hybrid_" + result_folder_name + "_best_of_" + std::to_string(number_of_starts_hybrid);
+
+        std::cout << "\n======= Zakonczono hybrid =======" << "\n\nNajlepsze rozwiazanie: " << best_hybrid_cost;
+        std::cout << "\nSredni koszt z " << number_of_starts_hybrid << " rozwiazan: " << avg_hybrid_cost << "\n";
+        std::string additional_info =
+            "MaxDiv = " + std::to_string(hybrid_config.maxDiv) +
+            " ,MaxDiv2 = " + std::to_string(hybrid_config.maxDiv2) +
+            "\nAverage cost of solution from: " + std::to_string(number_of_starts_hybrid) +
+            " attempts: " + std::to_string(avg_hybrid_cost) + "\nAverage computing time from: " + std::to_string(number_of_starts_hybrid) + " attempts: " + std::to_string(avg_hybrid_time) + "s";
+        io_handlers_v2.save_solution(best, file_info, additional_info);
+        std::cout << "\n=========== KONIEC HYBRID ===========\n";
     }
    
    
-
-    //KONIEC HYBRID TEST
-    ///START O 8:32
-
-    //notepadd ++ \b(\d+)\b(?=.*\b\1\b)
- 
-    std::cout << "\t\t\t\t\t //==============================================\\\\" << std::endl;
-    std::cout << "\t\t\t\t\t ||============Rozpoczecie Skewed_VNS============||" << std::endl;
-    std::cout << "\t\t\t\t\t \\\\==============================================//" << std::endl;
-
-    bool res_path = io_handlers_v2.set_result_path("C:/Users/maks0/Desktop/Test/skewed");
-    std::cout << "Result path set: " << std::boolalpha << res_path << std::endl;
-    std::string file_info = "skewed_golden_1";
-    
-
-
-
-    for (int f_alfa : alfa_values)
+    //                                                  =========SKEWED=========
+    if (run_Skewed_VNS)
     {
-		double total_duration_seconds = 0.0;
-        double total_cost = 0.0;
-        double best_cost = std::numeric_limits<double>::max();
-        Result best_result;
-       
+        std::cout << "\n=========== ROZPOCZECIE SKEWED ===========\n";
+        std::string full_result_path = main_result_path + "skewed/" + folder_name + "/ " + result_folder_name;
+        bool res_path = io_handlers_v2.set_result_path(full_result_path);
+        std::cout << "Result path set: " << std::boolalpha << res_path << std::endl;
+        std::string file_info = "skewed_" + result_folder_name;
 
-        std::cout << "\n============== TEST DLA f_alfa = " << f_alfa << " ==============\n";
 
-        for (int i = 0; i < runs_per_alfa; ++i)
+        double avg_skewed_cost = 0.0;
+        double avg_skewed_time = 0.0;
+        double best_skewed_cost = 99999999.0;
+        Result best;
+
+        for (int rounds = 0; rounds < number_of_starts_skewed; rounds++)
         {
+            Skewed_VNS skewed_vnss(input, num_vehicles, io_handlers_v2, skewed_config);
+
+            loading_done = false; 
             auto start = std::chrono::high_resolution_clock::now();
-            loading_done = false;
 
-
-//#ifndef _DEBUG
+#ifndef _DEBUG
             std::thread anim_thread;
             if (loading_animation_enabled) {
                 anim_thread = std::thread(loading_animation, start);
             }
-//#endif  // !_DEBUG
+#endif  // !_DEBUG
 
-          
-
-            Skewed_VNS skewed_vnss(input ,num_vehicles, io_handlers_v2);
-            skewed_vnss.config.f_alfa = f_alfa;
-			skewed_vnss.config.SVNS_max_no_improve = max_no_improve;
             skewed_vnss.run();
-            Result result = skewed_vnss.get_result();
-
             loading_done = true;
-//#ifndef _DEBUG
+            auto end = std::chrono::high_resolution_clock::now();
+
+#ifndef _DEBUG
             if (loading_animation_enabled && anim_thread.joinable()) {
                 anim_thread.join();
             }
-//#endif
+#endif
          
-
-            auto end = std::chrono::high_resolution_clock::now();
+            Result result = skewed_vnss.get_result();
             std::chrono::duration<double, std::milli> duration = end - start;
-			result.duration_seconds = duration.count() / 1000.0; // sekundy
+            result.duration_seconds = duration.count() / 1000.0; // sekundy
+
             bool exceeded = has_negtive_capacity(result);
             if (exceeded) {
                 std::cout << "\033[31m";
             }
 
-            std::cout << "Run " << i + 1
+            std::cout
+                << "#" << rounds << "\n"
                 << " | Czas: " << duration.count() / 1000 << " s"
                 << " | Koszt: " << result.total_cost
                 << " | Przekroczenie pojemnosci: "
                 << (exceeded ? "TAK" : "NIE")
-                << "\033[0m\n";  // reset na końcu
+                << "\033[0m\n";  // reset na koncu
+            std::cout << "Czy sa duplikaty: " << any_global_duplicates(result.routes) << " ile wolnego : " << get_total_remaining_capacity(result) << " ile po ";// << calculate_remaining_capacity(hybridResult);
 
-            std::cout << "czy sie powtarza: " << any_global_duplicates(result.routes) <<"ile wolnego: " << get_total_remaining_capacity(result) << " ile po " << calculate_remaining_capacity(result);
-		
-          
-            if (result.total_cost < best_cost)
+
+            std::string additional_info =
+                "F_alfa =  " + std::to_string(skewed_config.f_alfa);
+
+            io_handlers_v2.save_solution(result, file_info, additional_info);
+            avg_skewed_cost += result.total_cost;
+            avg_skewed_time += result.duration_seconds;
+            if (best_skewed_cost > result.total_cost)
             {
-                best_cost = result.total_cost;
-                best_result = result;
+                best = result;
+                best_skewed_cost = result.total_cost;
             }
-
-            total_cost += result.total_cost;
-			total_duration_seconds += result.duration_seconds;
-
-              
         }
 
-        double avg_cost = total_cost / runs_per_alfa;
-		double avg_time = total_duration_seconds / runs_per_alfa;
-        std::cout << "\033[32m"  // włącz zielony
-            << ">>> f_alfa = " << f_alfa
-            << " | Najlepszy koszt: " << best_cost
-            << " | Sredni koszt: " << avg_cost
-			<< " | Sredni czas: " << avg_time << "s"
-            << "\033[0m"   // reset koloru (wraca do domyślnego)
-            << "\n";
-       
-        //io_handlers.save_solution(best_result);
-		std::string file_info = "fAlfa" + std::to_string(f_alfa);
-		io_handlers_v2.save_solution(best_result, file_info);
-		//io_handlers_v2.save_progress(best_result);
-    }
+        avg_skewed_cost /= number_of_starts_skewed;
+        avg_skewed_time /= number_of_starts_skewed;
+        io_handlers_v2.set_result_path(main_result_path + "skewed/best");
+        file_info = "skewed_" + result_folder_name + "_best_of_" + std::to_string(number_of_starts_skewed);
 
-
-
-
-
-
-    
-
-
-
-
-    // Result test = io_handlers.load_solution(2);
-
-   
+        std::cout << "\n======= Zakonczono skewed =======" << "\n\nNajlepsze rozwiazanie: " << best_skewed_cost;
+        std::cout << "\nSredni koszt z " << number_of_starts_skewed << " rozwiazan: " << avg_skewed_cost << "\n";
+        std::string additional_info =
+            "F_alfa =  " + std::to_string(skewed_config.f_alfa) +
+            "\nSVNS_max_no_improve =  " + std::to_string(skewed_config.SVNS_max_no_improve) +
+            "\nAverage cost of solution from: " + std::to_string(number_of_starts_skewed) +
+            " attempts: " + std::to_string(avg_skewed_cost) + "\nAverage computing time from: " + std::to_string(number_of_starts_skewed) + " attempts: " + std::to_string(avg_skewed_time) + "s";
+        io_handlers_v2.save_solution(best, file_info, additional_info);
+        std::cout << "\n=========== KONIEC SKEWED ===========\n";
+    }   
 }
 

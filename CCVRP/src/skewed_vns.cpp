@@ -16,7 +16,9 @@
         {
             routes[i].route_cost = g(routes[i]); // oblicz koszt trasy
         }
-        
+   
+
+     
         result.routes = SVNS(routes);
 		//
 
@@ -162,16 +164,16 @@
             
             int idx = 0;
             for (auto& route : s)
-            {
-                double saved_cost = route.route_cost;
-                double calculated_cost = g(route);
-                if (saved_cost != calculated_cost) {
-                    std::cout << "UWAGA: route " << idx++
-                        << " cost mismatch: saved=" << saved_cost
-                        << " recalculated=" << calculated_cost << "\n";
-                }
+                {
+                    double saved_cost = route.route_cost;
+                    double calculated_cost = g(route);
+                    if (saved_cost != calculated_cost) {
+                        std::cout << "UWAGA: route " << idx++
+                            << " cost mismatch: saved=" << saved_cost
+                            << " recalculated=" << calculated_cost << "\n";
+                    }
                 
-            }
+                }
             }
 
         }
@@ -249,7 +251,10 @@
                 }
                 */
            
-                double przed_P = calculate_cost(s_prim);
+              
+                //double przed_P = calculate_cost(s_prim); //to bylo
+
+             
 				s_test = P(s_prim, k); //perturbation
 				s_prim = s_test;
 				double po_P = calculate_cost(s_prim);
@@ -568,13 +573,14 @@
         }
     }
 
+    //poprawione p1 i p2
     std::vector<Route> Skewed_VNS::P(std::vector<Route>& s, int procedure)
     {
         std::vector<Route> s_prime = s;
         std::vector<Route> s_best = s;
        // double f_s = f(s); // koszt oryginalnego rozwiazaia
 
-
+       
 
         switch (procedure)
         {
@@ -584,73 +590,100 @@
         {
             for (int max_attempts = 0; max_attempts < 400; max_attempts++)
             {
+                std::vector<double> next_times2;
+                std::vector<double> best_times2;
                 std::pair<int, int> random_client = get_random_client(s);
                 auto& route = s_prime[random_client.first];
-                auto client = route.customers[random_client.second];
+
+                if (route.customers.size() <= 2) continue;
+                int k = random_client.second;
+                Node client = route.customers[k]; // wylosowany klient dla ktorego sprawdzam wszystkie pozycje w jego trasie
 
 
-                //zapisujemy orginalny koszt trasy ktora bedziemy modyfikowac
-
-               // double best_cost = g(route);
-                double best_cost = std::numeric_limits<double>::max();
-                int best_pos = -1;
-
-                route.customers.erase(route.customers.begin() + random_client.second);
-                for (int p = 1; p <= route.customers.size(); p++)
+                //1. Koszt po usunieciu klienta
+                double reduction = 0.0;
+                int n_after_client = route.customers.size() - 1 - k;
+                if (k < route.customers.size() - 1) // klient nie byl ostatni
                 {
-                     if (p == random_client.second)
-                     {
-                         continue;
-                     }
-
-                    auto temp_customers = route.customers;
-                    temp_customers.insert(temp_customers.begin() + p, client);
-
-                    Route temp_route = route;
-                    temp_route.customers = temp_customers;
-                    //obliczamy nowy koszt trasy
-                    double current_cost = g(temp_route);
-                    if (current_cost < best_cost) {
-                        best_cost = current_cost;
-                        best_pos = p; // zapisujemy najlepsza pozycje
-
-                    }
+                    double d_prev_k = euclidean_distance(route.customers[k - 1], route.customers[k]); // wyznacznie ustatnsu a -> k
+                    double d_k_next = euclidean_distance(route.customers[k], route.customers[k + 1]); // k->b
+                    double d_prev_next = euclidean_distance(route.customers[k - 1], route.customers[k + 1]); //a->b
+                    reduction = (d_prev_k + d_k_next) - d_prev_next;
                 }
-                if (best_pos != -1) {
+                else // klient byl na koncu
+                {
+                    reduction = euclidean_distance(route.customers[k - 1], route.customers[k]);
+                }
+
+                double cost_without_k = route.route_cost - route.arrival_times[k] - (n_after_client * reduction); // koszt trasy bez klienta 
+
+                double wejscie = route.route_cost;
+
+                Route current_nodes = route;
+                current_nodes.customers.erase(current_nodes.customers.begin() + k);
+
+                double test_new_cost_without_k = g(current_nodes);
+
+
+                double best_total_cost = std::numeric_limits<double>::max();
+                int best_pos = -1;
+                double new_cost_r2;
+               
+                for (int p = 1; p <= current_nodes.customers.size(); ++p) // sprawdzenie wszystkich pozycji
+                {
+                    if (p == random_client.second)
+                    {
+                        continue;
+                    }
+                    new_cost_r2 = calculate_insertion_cost_for_relocation(current_nodes, p, client, next_times2);
+
+
+                    if (new_cost_r2 < best_total_cost) {
+                      
+                        best_total_cost = new_cost_r2;
+                        best_pos = p;
+                        best_times2 = next_times2;
+                    }
+                    
+                }
+                //zapisanie wyniku
+                if (best_pos != -1 ) {
+
+                    route.customers = current_nodes.customers;
                     route.customers.insert(route.customers.begin() + best_pos, client);
-                    route.route_cost = best_cost; // aktualizujemy koszt trasy
-                   
+                    route.route_cost = best_total_cost;
+                    route.arrival_times = best_times2;
                     return s_prime;
-                } 
-                //std::cout <<"\n ile p1: " << max_attempts << "\n";
-                s_prime = s;
-                s_best = s;
+                }
+                s_prime = s;  
             }
             return s;
-          
+
         }
+
+        //P2
         case 2:
         {
-          
-            for (int max_attempts = 0; max_attempts < 400; max_attempts++)
+            int best_route=0, best_pos=0;
+            double r1_cost=0, r2_cost=0;
+            std::vector<double> best_times1;
+            std::vector<double> best_times2;
+            for (int max_attempts = 0; max_attempts < 20; max_attempts++)
             {
-
+               
                 //Szukamy najlepszej pozycja poza aktualna trasa
                 std::pair<int, int> random_client = get_random_client(s);
+                Route& r1 = s_prime[random_client.first];
+              
+                Node node_to_move = r1.customers[random_client.second]; // losowy klient ktorego przestawiam
+                if (r1.customers.size() < 2) continue;
 
-                auto client = s_prime[random_client.first].customers[random_client.second]; // losowy klient ktorego przestawiam
-
-
-                auto& first_route = s_prime[random_client.first];
-                first_route.remaining_capacity += client.demand;
-                first_route.customers.erase(first_route.customers.begin() + random_client.second);
-
-
-                double first_route_init_cost = s[random_client.first].route_cost;
-                double first_route_removed_cost = g(first_route); //nowy koszt trasy z ktorej usuwamy klienta
-
-             //   double best_delta = 0.0;
-                double best_delta = -std::numeric_limits<double>::max();
+                double new_cost_r1, new_cost_r2;
+                std::vector<double> next_times1, next_times2;
+                //nowy koszt trasy po usunieciu z niej klienta
+                new_cost_r1 = calculate_removal_cost_for_relocation(r1, random_client.second, next_times1);
+   
+                double best_delta = std::numeric_limits<double>::max();
 
                 for (int r = 0; r < s.size(); r++)//przechodzimy przez kolejne trasy
                 {
@@ -659,50 +692,56 @@
                     {
                         continue; // nie przestawiamy klienta w tej samej trasie
                     }
-                    auto& second_route = s_prime[r];
+
+                    Route& r2 = s_prime[r];
                     // Sprawdzenie pojemnoœci raz dla ca³ej trasy
-                    if (client.demand > second_route.remaining_capacity)
+                    if (node_to_move.demand > r2.remaining_capacity)
                         continue;
 
-                    double second_route_init_cost = s[r].route_cost;
 
-                    for (int c = 1; c <= s[r].customers.size(); c++)
+                    for (int c = 1; c <= r2.customers.size(); c++) // przejscie przez wszyskie pozycje w innej trasie
                     {
-                        auto temp_customers = second_route.customers;
-                        temp_customers.insert(temp_customers.begin() + c, client);
+                        
+                        new_cost_r2 = calculate_insertion_cost_for_relocation(r2, c, node_to_move, next_times2);
 
-                        // trasa z nowym uk³adem klientów i zaktualizowan¹ pojemnoœci¹
-                        Route temp_route = second_route;
-                        temp_route.customers = temp_customers;
-                        temp_route.remaining_capacity -= client.demand;
+                        //sumaryczny koszt tras po zmianie
+                        double new_sum_cost = new_cost_r1 + new_cost_r2;
+                       
 
-                        double second_route_removed_cost = g(temp_route);
-
-                        double cost_delta = (first_route_init_cost + second_route_init_cost) - (first_route_removed_cost + second_route_removed_cost);
-                        if (cost_delta > best_delta) // oznacza ze poprawa
+             
+                        if (best_delta > new_sum_cost) // oznacza ze poprawa
                         {
                             //  std::cout << "P2 POPRAWA \n";
-                            best_delta = cost_delta;
-                            s_best = s_prime;
-                            s_best[r] = temp_route;
-                            s_best[random_client.first] = first_route;
-
-                            s_best[random_client.first].route_cost = first_route_removed_cost;
-                            s_best[r].route_cost = second_route_removed_cost;
+                            best_delta = new_sum_cost;
+                            best_times1 = next_times1; // nowy arrival_times dla trasy z ktorej uzuwam
+                            best_times2 = next_times2; // nowy arrival_times dla trasy do ktorej wstawiam
+                            r1_cost = new_cost_r1;
+                            r2_cost = new_cost_r2;
+                            best_pos = c;
+                            best_route = r;
+                            
                         }
                     }
                 }
-
-               // if (best_delta > 0.0)
-                //{
-                    return s_best;
-               // }
-               // To jezli nie ma poprawy i losowanie innego klienta- teraz jest zmiana ze moze zwrocic gorszego od wejscia
-					//ale i tak zwraca najleposzego (oprocz gdy jest taki sam jak wejscie)  
-                s_prime = s;
-                s_best = s;
+                if (best_pos == 0)
+                {
+                    continue;
+                }
+                //ZAPISANIE WYNIKU
+                r1.customers.erase(r1.customers.begin() + random_client.second); // usun klienta
+                r1.remaining_capacity += node_to_move.demand;
+                r1.arrival_times = best_times1;
+                r1.route_cost = r1_cost;
+                //std::cout << "\n pozzucja:" << best_pos << " rozmiar trasy: ";
+                //std::cout << s_prime[best_route].customers.size() << "\n";
+                s_prime[best_route].customers.insert(s_prime[best_route].customers.begin() + best_pos, node_to_move);
+                s_prime[best_route].remaining_capacity -= node_to_move.demand;
+                s_prime[best_route].arrival_times = best_times2;
+                s_prime[best_route].route_cost = r2_cost;
+                
+                return s_prime; // zwraca najlepsze rozwiazanie - usuwa losowego klienta i wstawia go na najlepsza pozycje
             }
-            return s;
+            return s; // w ogle nie udalo sie znalezc poprawy w max_attempts - zwroc orginal
 
         }
         case 3:

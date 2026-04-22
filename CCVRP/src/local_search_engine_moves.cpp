@@ -508,36 +508,8 @@ BestMoves L_h_local_serach(std::vector<Route>& solution, int h, int k)
 }
 
 
-void check_fucking_capacity(std::vector<Route> przed, std::vector<Route> po, std::string nazwa)
-{
-	
-	for (int i = 0; i < przed.size(); i++)
-	{
-		int org = przed[i].remaining_capacity;
-		int cal = calculate_remaining_capacity(przed[i]);
-		if (org != cal)
-		{
-			std::cout << "		" << nazwa << "\033[33m" << "\n    Wejscie perform_local_move Pozstala pojemnosc org: " << i << " " << org << " ,przeliczona: " << cal << "\033[0m" << std::endl;
-		}
-	}
 
-	for (int i = 0; i < po.size(); i++)
-	{
-		int org = po[i].remaining_capacity;
-		int cal = calculate_remaining_capacity(po[i]);
-		if (org != cal)
-		{
-			std::cout <<"		" << nazwa << "\033[33m" << "\n    WYJSCIE perform_local_move Pozstala pojemnosc org : " << i << " " << org << ", przeliczona : " << cal << "\033[0m" << std::endl;
-		}
-	}
-}
 
-bool was_1_insertion = false;
-bool was_1_1_exchange = false;
-bool was_2_insertion = false;
-bool was_2_opt_move = false;
-bool was_2_opt_prim = false;
-bool was_2_corss_tail = false;
 std::vector<Route> perform_local_move(std::vector<Route>& solution, Move move, int structure, double avg_cost)
 {
 	std::vector<Route> my_solution = solution;
@@ -552,60 +524,40 @@ std::vector<Route> perform_local_move(std::vector<Route>& solution, Move move, i
 		//std::cout << "	ROZPOCZETO perform_1_1_exchange_move \n";
 		//return perform_1_1_exchange_move(solution, move, avg_cost);	
 		my_solution = perform_1_1_exchange_move(solution, move, avg_cost);
-		//check_fucking_capacity(solution, my_solution, "perform_1_1_exchange_move");
-		if (!was_1_1_exchange)
-		{
-			was_1_1_exchange = true;
-			std::cout << "\033[32m" << "=============================WYWKONANO perform_1_1_exchange_move ============================" << "\033[0m" << std::endl;
-		}
+	
+		
 		return my_solution;
 		break;
 	case 3:
 		//std::cout << "	ROZPOCZETO perform_2_insertion_move \n";
 		//return perform_2_insertion_move(solution, move, avg_cost);
-		my_solution = perform_2_insertion_move(solution, move, avg_cost); //TU JEST BLAD POJEMNOSCI !!!!
-		//check_fucking_capacity(solution, my_solution, "perform_2_insertion_move");
-		if (!was_2_insertion)
-		{
-			was_2_insertion = true;
-			std::cout << "\033[32m" << "=============================WYWKONANO perform_2_insertion_move============================" << "\033[0m" << std::endl;
-		}
+		my_solution = perform_2_insertion_move(solution, move, avg_cost); 
+		
+		
 		return my_solution;
 		break;
 	case 4:
 		//std::cout << "	ROZPOCZETO perform_2_opt_move \n";
 		//return perform_2_opt_move(solution, move, avg_cost); //tez zwraca blad	
 		my_solution = perform_2_opt_move(solution, move, avg_cost);
-		//check_fucking_capacity(solution, my_solution, "perform_2_opt_move");
-		if (!was_2_opt_move)
-		{
-			was_2_opt_move = true;
-			std::cout << "\033[32m" << "=============================WYWKONANO perform_2_opt_move - operator wewnatrz jednej trasy============================" << "\033[0m" << std::endl;
-		}
+		
+		
 		return my_solution;
 		break;
 	case 5:
 		//std::cout << "	ROZPOCZETO perform_2_opt_prim_move \n";
 		//return perform_2_opt_prim_move(solution, move, avg_cost);
 		my_solution = perform_2_opt_prim_move(solution, move, avg_cost);
-		//check_fucking_capacity(solution, my_solution, "perform_2_opt_prim_move");
-		if (!was_2_opt_prim)
-		{
-			was_2_opt_prim = true;
-			std::cout << "\033[32m" << "=============================WYWKONANO perform_2_opt_prim_move============================" << "\033[0m" << std::endl;
-		}
+		
+		
 		return my_solution;
 		break;
 	case 6:
 		//std::cout << "	ROZPOCZETO perform_corss_tail_move \n";
 		//return perform_corss_tail_move(solution, move, avg_cost);
 		my_solution = perform_corss_tail_move(solution, move, avg_cost);
-		//check_fucking_capacity(solution, my_solution, "perform_corss_tail_move");
-		if (!was_2_corss_tail)
-		{
-			was_2_corss_tail = true;
-			std::cout << "\033[32m" << "=============================WYWKONANO perform_corss_tail_move============================" << "\033[0m" << std::endl;
-		}
+		
+		
 		return my_solution;
 		break;
 	}
@@ -1160,10 +1112,7 @@ bool perform_first_improvement_relocation(std::vector<Route>& solution)
 							r2.route_cost = new_cost_r2; 
 							r1.arrival_times = next_times1;
 							r2.arrival_times = next_times2;
-						}
-						
-						
-						
+						}	
 						return true;
 					}
 				}
@@ -1311,27 +1260,16 @@ double calculate_insertion_cost_for_relocation(const Route& route, int pos, cons
 	double current_time = 0.0;
 
 	// Budujemy now¹ kolejnoœæ wêz³ów
-	std::vector<const Node*> new_nodes;
-	new_nodes.reserve(new_size);
+	std::vector<Node> new_nodes = route.customers;
+	new_nodes.insert(new_nodes.begin() + pos, node);
 
-	for (int i = 0; i < route.customers.size(); ++i) {
-		if (i == pos) {
-			new_nodes.push_back(&node); // Wstawiamy nowego klienta
-		}
-		new_nodes.push_back(&route.customers[i]);
-	}
-
-	// Obs³uga przypadku, gdy wstawiamy na sam koniec trasy (za ostatniego klienta)
-	if (pos == route.customers.size()) {
-		new_nodes.push_back(&node);
-	}
-
+	
 	// Buffer[0] to zawsze Depot
 	buffer[0] = 0.0;
 
 	// Liczymy czasy przyjazdu
 	for (int i = 1; i < new_nodes.size(); ++i) {
-		double dist = euclidean_distance(*new_nodes[i - 1], *new_nodes[i]);
+		double dist = euclidean_distance(new_nodes[i - 1], new_nodes[i]);
 		current_time += dist;
 		buffer[i] = current_time;
 		total_sum += current_time;

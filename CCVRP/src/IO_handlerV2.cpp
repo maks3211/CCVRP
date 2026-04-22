@@ -11,7 +11,7 @@ namespace IO_handlerV2
         return false;
 	}
 
-    bool IO_handler::set_result_path(const std::string& path)
+   /* bool IO_handler::set_result_path(const std::string& path)
     {
         if (std::filesystem::exists(path)) {
             result_path = path;
@@ -19,7 +19,22 @@ namespace IO_handlerV2
         }
         return false;
 	}
+    */
 
+    bool IO_handler::set_result_path(const std::string& path)
+    {
+        std::filesystem::path p(path);
+
+        if (!std::filesystem::exists(p)) {
+            // utwórz katalog (równie¿ poœrednie)
+            if (!std::filesystem::create_directories(p)) {
+                return false; // nie uda³o siê utworzyæ
+            }
+        }
+
+        result_path = path;
+        return true;
+    }
 
 	CVRPInstance IO_handler::get_instance()
 	{
