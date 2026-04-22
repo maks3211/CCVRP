@@ -15,11 +15,11 @@ void HybridAvnsLns::run()
     {
         routes[i].recalculate_all();
     }
-    std::cout << "\njeden";
+ 
     routes = AVNS_stage_one(routes, number_of_customers);
-    std::cout << "\ndwa";
+  
     routes = AVNS_stage_two(routes, number_of_customers);
-    std::cout << "\ntrzy";
+   
     double cost = get_sum_of_route_cost(routes);
     result.routes = routes;
     result.total_cost = cost;
@@ -257,7 +257,7 @@ std::vector<Route> HybridAvnsLns::AVNS_stage_one(std::vector<Route>& solution, i
     int numDiv = 1;
     while (numDiv <= config.maxDiv)
     {
-        std::cout << numDiv <<" ";
+       
         int p = 1;
         while (p <= p_max)
         {
@@ -445,7 +445,7 @@ std::vector<Route> HybridAvnsLns::AVNS_stage_two(std::vector<Route>& solution, i
     double x_bis_cost = 0.0;
     while (nonImproveDiv <= config.maxDiv2)
     {
-        std::cout << nonImproveDiv;
+       
         int p = 1;
         while (p <= p_max) //linia 30
         {

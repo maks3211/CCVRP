@@ -43,8 +43,8 @@ int main()
 {
    
     std::cout << "\nCO Z FUNKCJA perform_regert_cost_insertion I gdy nie NIE UDALO SIE WSTAWIC KLIENTA - NIE MA MIEJSCA ???\n"; 
-    bool run_Skewed_VNS = true;
-    bool run_hybrid = false;
+    bool run_Skewed_VNS = false;
+    bool run_hybrid = true;
     bool run_bso = false;
     
     
@@ -61,8 +61,8 @@ int main()
 
     //=========== HYBRID CONFIG ===========
     hybridAvnsLnsConfig hybrid_config{};
-    hybrid_config.maxDiv = 60;
-    hybrid_config.maxDiv2 = 30;
+    hybrid_config.maxDiv = 130;
+    hybrid_config.maxDiv2 = 110;
 
     //=========== SKEWED CONFIG ===========
     SkewedVNSConfig skewed_config{};

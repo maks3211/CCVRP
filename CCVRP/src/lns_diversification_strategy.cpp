@@ -27,7 +27,7 @@ std::vector<Route> lns_diversification(std::vector<Route>& solution, int lambda,
 		{
 			
 			//sortowanie malejaco- moge usuwac od tylu 	
-	
+			bool correct = modified_solution[to_remove[i].route_index].remove_customer_at_index(to_remove[i].client_index);
 			unique_routes_remove.insert(to_remove[i].route_index);
 		}
 		break;
@@ -40,7 +40,7 @@ std::vector<Route> lns_diversification(std::vector<Route>& solution, int lambda,
 		for (int i = 0; i < to_remove.size(); ++i)
 		{
 
-		
+			bool correct = modified_solution[to_remove[i].route_index].remove_customer_at_index(to_remove[i].client_index);
 			unique_routes_remove.insert(to_remove[i].route_index);
 		}
 		break;
@@ -54,7 +54,7 @@ std::vector<Route> lns_diversification(std::vector<Route>& solution, int lambda,
 
 		for (int i = 0; i < to_remove.size(); ++i)
 		{	
-			
+			bool correct = modified_solution[to_remove[i].route_index].remove_customer_at_index(to_remove[i].client_index);
 			unique_routes_remove.insert(to_remove[i].route_index);
 		}
 		break;
@@ -66,7 +66,7 @@ std::vector<Route> lns_diversification(std::vector<Route>& solution, int lambda,
 	
 		for (int i = 0; i < to_remove.size(); ++i)
 		{
-		
+			bool correct = modified_solution[to_remove[i].route_index].remove_customer_at_index(to_remove[i].client_index);
 			unique_routes_remove.insert(to_remove[i].route_index);
 		}
 		break;
