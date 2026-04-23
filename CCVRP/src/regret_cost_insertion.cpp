@@ -2,7 +2,7 @@
 //przekazuje vector klientow do wstawinia oraz wektor tras do ktorych ma zostac wykonanie wstawienie
 //zmiana jest odrazu widoczna w przekazanym routes
 //customers_to_insert nie jest modyfikowane
-void perform_regert_cost_insertion(std::vector<Route>& routes,std::vector<Node>& customers_to_insert)
+bool perform_regert_cost_insertion(std::vector<Route>& routes,std::vector<Node>& customers_to_insert)
 {
 	double best_delta_cost = 0.0, second_best_delta_cost = 0.0; // przechowuje dwa najlepsze koszty wstawienia (te ktore powoduja najmnieszy wzrost kosztu)
 	double delta_f = 0.0; // regret value
@@ -12,7 +12,7 @@ void perform_regert_cost_insertion(std::vector<Route>& routes,std::vector<Node>&
 	while (!to_insert.empty())
 	{
 		double maximum_regret_cost = -1.0;
-		Move best_move; // Obiekt przechowuj¹cy: Node index, Route index, Position, delta_G, delta_T
+		Move best_move; //przechowuje Node index, Route index, Position, delta_G, delta_T
 		double delta_G = 0.0, delta_T = 0.0;
 
 		for (int i = 0; i < to_insert.size(); ++i)
@@ -89,8 +89,16 @@ void perform_regert_cost_insertion(std::vector<Route>& routes,std::vector<Node>&
 			to_insert.erase(to_insert.begin() + best_move.from_pos);
 		}
 		else {
-			std::cout << "NIE UDALO SIE WSTAWIC KLIENTA - NIE MA MIEJSCA";
+			//std::cout << "\n===============NIE UDALO SIE WSTAWIC KLIENTA - NIE MA MIEJSCA";
+			//for (auto& c : to_insert) {
+			//	std::cout << "Klient ID: " << c.id << " Demand: " << c.demand << "\n";
+			//}
+			//for (int r = 0; r < routes.size(); r++) {
+			//	std::cout << "Trasa " << r << " wolne: " << routes[r].remaining_capacity << "\n";
+			//}
+			return false;
 			break;
 		}
 	}
+	return true;
 }

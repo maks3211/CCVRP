@@ -23,7 +23,7 @@ struct brainConfig {
 	//3.3 The divergent operation
 	int N = 150;// "to generate N new solutions where N is a parameter"
 	double alfa_2 = 0.05;
-	int T2 = 5;
+	int T2 = 5; // Liczba iteracji divergent operation dzilajacej na podproblemie
 	
 
 };

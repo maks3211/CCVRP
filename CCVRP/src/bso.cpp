@@ -97,7 +97,6 @@ std::vector<Route> BrainStormOptimalization::construct_initial_solution()
     instance.nodes.erase(instance.nodes.begin());
       perform_regert_cost_insertion(routes,instance.nodes);
 
-
     //DEBUGGIN ONLY
     /*
     double total_cost = 0.0;
@@ -253,11 +252,10 @@ void BrainStormOptimalization::run()
     int my_stopping_condition = 3;
     int iterations = 0;
     //2: while the stopping condition is not satisfied do
-    while (iterations < config.main_loop_itarations) //SZKIELET GLOWNEJ PETLI LINA 2
+    while (iterations < config.main_loop_itarations) 
     {
         //funkcja nie modyfikuje wejscia (routes) tylko zwraca zmodyfikowany element
-        std::vector<Route> spb = perturbation(sb, config.alfa_1);
-
+        std::vector<Route> spb = perturbation(sb, config.alfa_1); //na calym rozwiazaniu 
         std::vector<std::vector<Route>> sub_problems = decomposition(spb);
         for (int i = 0; i < sub_problems.size(); ++i) // linia 8
         {
@@ -299,31 +297,30 @@ void BrainStormOptimalization::run()
     //std::cout << "\n\t\t================= OSTATNI ETAP =================";
 
     double total_cost = 0;
-    if (check_costs(sb, -2))
-    {
-        for (int roz = 0; roz < sb.size(); ++roz)
-        {
-            std::cout << "\n#" << roz << " Koszt z route_cost : " << sb[roz].route_cost;
-            double my_cost = 0.0;
-            for (int i = 0; i < sb[roz].customers.size(); ++i)
-            {
-                my_cost += sb[roz].arrival_times[i];
-
-            }
-            double przeliczone = g(sb[roz]);
-
-            std::cout << "\n#" << roz << " Koszt z arrival_times : " << my_cost;
-            std::cout << "\n#" << roz << " Przeliczony  : " << przeliczone;
-            total_cost += my_cost;
-        }
-
-    }
-    total_cost = 0;
+                             // if (check_costs(sb, -2))
+                             // {
+                             //     for (int roz = 0; roz < sb.size(); ++roz)
+                             //     {
+                             //         std::cout << "\n#" << roz << " Koszt z route_cost : " << sb[roz].route_cost;
+                             //         double my_cost = 0.0;
+                             //         for (int i = 0; i < sb[roz].customers.size(); ++i)
+                             //         {
+                             //             my_cost += sb[roz].arrival_times[i];
+                             //
+                             //         }
+                             //         double przeliczone = g(sb[roz]);
+                             //
+                             //         std::cout << "\n#" << roz << " Koszt z arrival_times : " << my_cost;
+                             //         std::cout << "\n#" << roz << " Przeliczony  : " << przeliczone;
+                             //         total_cost += my_cost;
+                             //     }
+                             //
+                             // }
+                             // total_cost = 0;
     for (int roz = 0; roz < sb.size(); ++roz)
     {
         total_cost += sb[roz].route_cost;
-    }
-    std::cout << " Calkowity KOSZT : " << total_cost << " =================";
+    }  
     result.total_cost = total_cost;
     result.routes = sb;
 
@@ -377,9 +374,12 @@ std::vector<Route> BrainStormOptimalization::perturbation(std::vector<Route>& sb
         selected_route.arrival_times = next_times1; 
     }
 
-
-   
-    perform_regert_cost_insertion(spb, r1); // przeprowadzenie procedury dla kazdego klienta
+    bool regret_complete = perform_regert_cost_insertion(spb, r1); // przeprowadzenie procedury dla kazdego klienta 
+    if (!regret_complete) // jezeli nie uda wstawic sie wszystkich kllientow w regret-cost to powrot do rozwiazanie wejsciowego
+    {    
+        spb = sb;
+    }
+    
     return spb;
 }
 
@@ -586,8 +586,7 @@ bool BrainStormOptimalization::divergent_operation(std::vector<Route>& spb)
 
             case 3:
             {
-                
-                my_solution = perturbation(my_solution, config.alfa_2);                   
+                my_solution = perturbation(my_solution, config.alfa_2);     
                 break;
             }
         }
