@@ -42,11 +42,11 @@ void loading_animation(std::chrono::high_resolution_clock::time_point start_time
 int main()
 {
     bool run_Skewed_VNS = true;
-    bool run_hybrid = true;
-    bool run_bso = true;
+    bool run_hybrid = false;
+    bool run_bso = false;
     
     
-    int number_of_starts = 15;
+    int number_of_starts = 1;
     int number_of_starts_hybrid = number_of_starts;
     int number_of_starts_skewed = number_of_starts;
     int number_of_starts_bso    = number_of_starts;
@@ -58,17 +58,17 @@ int main()
     brainConfig bso_config{};
     bso_config.main_loop_itarations = 6;
     bso_config.T1 = 50; //wartosc z artykulu = 50
-    bso_config.T2 = 5; // wartosc z artykulu = 50
+    bso_config.T2 = 5; // wartosc z artykulu = 5
 
     //=========== HYBRID CONFIG ===========
     hybridAvnsLnsConfig hybrid_config{};
-    hybrid_config.maxDiv = 130;
-    hybrid_config.maxDiv2 = 110;
+    hybrid_config.maxDiv = 130; //130
+    hybrid_config.maxDiv2 = 110; //110
 
     //=========== SKEWED CONFIG ===========
     SkewedVNSConfig skewed_config{};
     skewed_config.f_alfa = 500;
-    skewed_config.SVNS_max_no_improve = 300; //dac potem 1000
+    skewed_config.SVNS_max_no_improve = 450; //300
 
 
 
@@ -86,7 +86,7 @@ int main()
 
     //=========== USTAWIENIA ZAPISU ===========
     std::string main_result_path = "C:/Users/maks0/Desktop/Test/";
-    std::string folder_name = "konsultacje";  //czyli teraz zapis bedzie np. w /Test/konsultacje/bso
+    std::string folder_name = "saveTest";  //czyli teraz zapis bedzie np. w /Test/konsultacje/bso
 	bool input_path = io_handlers_v2.set_input_path(full_input_path);
 	std::cout << "Input path set: " << std::boolalpha << input_path << std::endl;
     CVRPInstance input = io_handlers_v2.get_instance();
@@ -111,6 +111,7 @@ int main()
         double avg_bso_cost = 0.0;
         double avg_bso_time = 0.0;
         double best_bso_cost = 99999999.0;
+        double worst_bso_cost = 0.0;
         Result best;
 
         for (int rounds = 0; rounds < number_of_starts_bso; rounds++)
@@ -167,6 +168,11 @@ int main()
                 best = result;
                 best_bso_cost = result.total_cost;
             }
+
+            if(result.total_cost > worst_bso_cost) // zapisane najgorszego wyniku
+            {
+               worst_bso_cost = result.total_cost;
+            }
         }
 
         avg_bso_cost /= number_of_starts_bso;
@@ -178,10 +184,10 @@ int main()
         std::cout << "\nSredni koszt z " << number_of_starts_bso << " rozwiazan: " << avg_bso_cost << "\n";
         std::string additional_info =
             "T1 = " + std::to_string(bso_config.T1) +
-            "T2 = " + std::to_string(bso_config.T2) +
+            ", T2 = " + std::to_string(bso_config.T2) +
             ", Main loop iterations: " + std::to_string(bso_config.main_loop_itarations) + 
             "\nAverage cost of solution from: " + std::to_string(number_of_starts_bso) +
-            " attempts: " + std::to_string(avg_bso_cost) + "\nAverage computing time from: " + std::to_string(number_of_starts_bso) + " attempts: " + std::to_string(avg_bso_time) + "s";
+            " attempts: " + std::to_string(avg_bso_cost) + "\nAverage computing time from: " + std::to_string(number_of_starts_bso) + " attempts: " + std::to_string(avg_bso_time) + "s" + "\n Worst solution cost: " + std::to_string(worst_bso_cost);
         io_handlers_v2.save_solution(best, file_info, additional_info);
 
         std::cout << "\n                =========== KONIEC BSO ===========\n";
@@ -201,6 +207,7 @@ int main()
         double avg_hybrid_cost = 0.0;
         double avg_hybrid_time = 0.0;
         double best_hybrid_cost = 99999999.0;
+        double worst_hybrid_cost = 0.0;
         Result best;
         //Uruchamia number_of_starts prob dla hybrid, zapisuje kazda z prob w folderze hybrid/final oraz zapisuje best of number_of_starts w hybrid
         for (int rounds = 0; rounds < number_of_starts_hybrid; rounds++)
@@ -258,6 +265,10 @@ int main()
                 best = hybridResult;
                 best_hybrid_cost = hybridResult.total_cost;
             }
+            if (hybridResult.total_cost > worst_hybrid_cost) // zapisane najgorszego wyniku
+            {
+                worst_hybrid_cost = hybridResult.total_cost;
+            }
         }
 
         avg_hybrid_cost /= number_of_starts_hybrid;
@@ -271,7 +282,7 @@ int main()
             "MaxDiv = " + std::to_string(hybrid_config.maxDiv) +
             " ,MaxDiv2 = " + std::to_string(hybrid_config.maxDiv2) +
             "\nAverage cost of solution from: " + std::to_string(number_of_starts_hybrid) +
-            " attempts: " + std::to_string(avg_hybrid_cost) + "\nAverage computing time from: " + std::to_string(number_of_starts_hybrid) + " attempts: " + std::to_string(avg_hybrid_time) + "s";
+            " attempts: " + std::to_string(avg_hybrid_cost) + "\nAverage computing time from: " + std::to_string(number_of_starts_hybrid) + " attempts: " + std::to_string(avg_hybrid_time) + "s" + "\n Worst solution cost: " + std::to_string(worst_hybrid_cost);
         io_handlers_v2.save_solution(best, file_info, additional_info);
         std::cout << "\n                =========== KONIEC HYBRID ===========\n";
     }
@@ -290,6 +301,7 @@ int main()
         double avg_skewed_cost = 0.0;
         double avg_skewed_time = 0.0;
         double best_skewed_cost = 99999999.0;
+        double worst_skewed_cost = 0.0;
         Result best;
 
         for (int rounds = 0; rounds < number_of_starts_skewed; rounds++)
@@ -346,6 +358,10 @@ int main()
                 best = result;
                 best_skewed_cost = result.total_cost;
             }
+            if (result.total_cost > worst_skewed_cost) // zapisane najgorszego wyniku
+            {
+                worst_skewed_cost = result.total_cost;
+            }
         }
 
         avg_skewed_cost /= number_of_starts_skewed;
@@ -359,7 +375,7 @@ int main()
             "F_alfa =  " + std::to_string(skewed_config.f_alfa) +
             "\nSVNS_max_no_improve =  " + std::to_string(skewed_config.SVNS_max_no_improve) +
             "\nAverage cost of solution from: " + std::to_string(number_of_starts_skewed) +
-            " attempts: " + std::to_string(avg_skewed_cost) + "\nAverage computing time from: " + std::to_string(number_of_starts_skewed) + " attempts: " + std::to_string(avg_skewed_time) + "s";
+            " attempts: " + std::to_string(avg_skewed_cost) + "\nAverage computing time from: " + std::to_string(number_of_starts_skewed) + " attempts: " + std::to_string(avg_skewed_time) + "s" + "\n Worst solution cost: " + std::to_string(worst_skewed_cost);;
         io_handlers_v2.save_solution(best, file_info, additional_info);
         std::cout << "\n                =========== KONIEC SKEWED ===========\n";
     }   

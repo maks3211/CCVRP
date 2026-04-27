@@ -27,6 +27,7 @@ namespace IO_handlerV2
 		void save_progress(Result& solution);
 		bool set_input_path(const std::string& path);
 		bool set_result_path(const std::string& path);
+		void save_progress(Result& solution, std::string add_to_name, std::string time); // zapisuje do jednego pliku tylko aktualny koszt rozwiazania pochodzacy z wektora progress
 		bool save_progress_enabled = true;
 	};
 }

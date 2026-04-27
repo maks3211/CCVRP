@@ -38,6 +38,9 @@ public:
 	brainConfig config;
 	int num_vehicles;
 	int num_of_customers;
+
+	std::vector<double> cost_progress;
+	std::vector<double> divergent_cost_progress;
 	BrainStormOptimalization(CVRPInstance instance, int num_vehicles, IO_handlerV2::IO_handler io_handlers_v2, brainConfig = {});
 
 	std::vector<Route> construct_initial_solution();

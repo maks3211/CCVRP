@@ -1,6 +1,6 @@
 #pragma once
 #include "cvrp_types.h"
-
+#include<vector>
 #include <iostream>
 //Zawiera vector klientow, id pojazdu, pozostala pojemnosc oraz koszt trasy
 struct Route {
@@ -120,4 +120,5 @@ struct Result
     std::vector<Route> routes;
 	double total_cost = 0.0;  
 	double duration_seconds = 0.0;
+    std::vector<double> cost_progress;
 };

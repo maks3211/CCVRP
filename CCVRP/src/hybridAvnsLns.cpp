@@ -15,7 +15,9 @@ void HybridAvnsLns::run()
     {
         routes[i].recalculate_all();
     }
- 
+    cost_progress.push_back(get_sum_of_route_cost(routes));
+
+
     routes = AVNS_stage_one(routes, number_of_customers);
   
     routes = AVNS_stage_two(routes, number_of_customers);
@@ -24,6 +26,7 @@ void HybridAvnsLns::run()
     result.routes = routes;
     result.total_cost = cost;
     result.duration_seconds = 0.0;
+    result.cost_progress = this->cost_progress;
 
 }
 
@@ -397,6 +400,8 @@ std::vector<Route> HybridAvnsLns::AVNS_stage_one(std::vector<Route>& solution, i
         x = x_tylda;
         x_cost = x_tylda_cost;
        // std::cout << "              NumDiv = " << numDiv << std::endl;;
+
+        cost_progress.push_back(x_best_cost);     //  ZAPIS 
     }  
 
 
@@ -566,6 +571,9 @@ std::vector<Route> HybridAvnsLns::AVNS_stage_two(std::vector<Route>& solution, i
         }
         x = x_tylda;
         x_cost = x_tylda_cost;
+        
+        cost_progress.push_back(x_best_cost);     //  ZAPIS 
+
     }//linia 58
 
     return x_best;

@@ -153,6 +153,34 @@ namespace IO_handlerV2
         out << "\n" << "Total computing time: " << solution.duration_seconds << "s" << "\n";
         out << "\n" << additional_info << "\n";
 		out << "\n" << IO_handler_utils::create_table(solution);
+        save_progress(solution, add_to_name, ss.str());
+    }
+
+
+    void IO_handler::save_progress(Result& solution, std::string add_to_name, std::string time)
+    {
+        std::filesystem::path folder(result_path);
+
+     
+      
+
+        std::string filename = add_to_name + "_progress_" + time + ".vrp";
+        std::filesystem::path file = folder / filename;
+
+        std::filesystem::create_directories(folder);
+
+        std::ofstream out(file);
+        if (!out.is_open())
+        {
+            throw std::runtime_error("Nie mozna otworzyc pliku do zapisu: " + file.string());
+        }
+
+        for (int i = 0; i < solution.cost_progress.size(); i++)
+        {
+            out << solution.cost_progress[i] << "\n";
+        }
+
+        
     }
 
     void IO_handler::save_progress(Result& solution)

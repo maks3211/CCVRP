@@ -16,7 +16,7 @@
         {
             routes[i].route_cost = g(routes[i]); // oblicz koszt trasy
         }
-   
+        cost_progress.push_back(calculate_cost(routes));    // ZAPIS
 
      
         result.routes = SVNS(routes);
@@ -30,7 +30,7 @@
         }
 
         result.total_cost = result_cost;
-
+        result.cost_progress = this->cost_progress;
     }
 
     const Result& Skewed_VNS::get_result() const {
@@ -290,7 +290,9 @@
                     {
                         s_best_result.total_cost += s_best_result.routes[i].route_cost;
                     }
-					io_handlers_v2.save_progress(s_best_result);
+					
+                  
+
 
                 }
                 else
@@ -303,6 +305,7 @@
                 {
                     last_best_total_cost = s_best_result.total_cost;
                 }
+                cost_progress.push_back(last_best_total_cost); // ZAPIS
                 //std::cout << "\r" << std::string(200, ' ') << "\r"
                 //    << "No improve iterations: " << no_improve_count
                 //    << "          Current best total cost: "

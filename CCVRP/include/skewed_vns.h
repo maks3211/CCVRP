@@ -26,7 +26,7 @@ public:
 	CVRPInstance instance; // Instance of the CVRP problem
 	SkewedVNSConfig config;
 	int num_vehicles; // Number of vehicles in the instance
-	
+	std::vector<double> cost_progress;
 
 	Skewed_VNS(CVRPInstance instance, int num_vehicles,IO_handlerV2::IO_handler io_handlers_v2 ,SkewedVNSConfig config = {});
 	

@@ -23,7 +23,7 @@ class HybridAvnsLns
 	Result result; // Result of the algorithm
 	IO_handlerV2::IO_handler io_handlers_v2;
 
-
+	std::vector<double> cost_progress;
 	
 
 	//tablica z wynikami dla opertow local

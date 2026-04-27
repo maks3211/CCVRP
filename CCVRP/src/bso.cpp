@@ -97,134 +97,20 @@ std::vector<Route> BrainStormOptimalization::construct_initial_solution()
     instance.nodes.erase(instance.nodes.begin());
       perform_regert_cost_insertion(routes,instance.nodes);
 
-    //DEBUGGIN ONLY
-    /*
-    double total_cost = 0.0;
-    std::cout << "\n\t\t================= ETAP PIERWSZY - regret cost insertion, ";
-    if (check_costs(routes, -1))
-    {
-        for (int roz = 0; roz < routes.size(); ++roz)
-        {
-            std::cout << "\n#" << roz << " Koszt z route_cost : " << routes[roz].route_cost;
-            double my_cost = 0.0;
-            for (int i = 0; i < routes[roz].customers.size(); ++i)
-            {
-                my_cost += routes[roz].arrival_times[i];
-
-            }
-            double przeliczone = g(routes[roz]);
-
-            std::cout << "\n#" << roz << " Koszt z arrival_times : " << my_cost;
-            std::cout << "\n#" << roz << " Przeliczony  : " << przeliczone;
-            total_cost += my_cost;
-        }
-     
-    }
-    total_cost = 0;
-    for (int roz = 0; roz < routes.size(); ++roz)
-    {
-        total_cost += routes[roz].route_cost;
-    }
-    std::cout << " Calkowity KOSZT : " << total_cost << " =================";
-    */
-    //END FOR TESTING
-
+ 
+      cost_progress.push_back(calculate_cost(routes));     //ZAPIS 
 
     //Local serach
     local_search(routes);
-    /*while (true)
-    {
-        while (perform_first_improvement_2_opt(routes)) //1
-        {
-            //Stosuj 2-opt tak dlugo az przynosi to poprawe       
-                           
-        }
-        if (perform_first_improvement_exchange(routes)) //2
-        {
-            continue; //jest poprawa wroc do 2-opt
-        }
-        if (perform_first_improvement_cross(routes)) //3 
-        {       
-            
-            continue;
-        }
-      
-        if (perform_first_improvement_relocation(routes)) //4 - zwraca zly koszt - naprawione - przypadek single route
-        {
-            continue;
-        }
-        break;
-    }
-    */
-
-    //FOR TESTING
-    /*
-    std::cout << "\n\t\t================= ETAP DRUGI - Local serach, ";
-    if (check_costs(routes, -2))
-    {
-        for (int roz = 0; roz < routes.size(); ++roz)
-        {
-            std::cout << "\n#" << roz << " Koszt z route_cost : " << routes[roz].route_cost;
-            double my_cost = 0.0;
-            for (int i = 0; i < routes[roz].customers.size(); ++i)
-            {
-                my_cost += routes[roz].arrival_times[i];
-
-            }
-            double przeliczone = g(routes[roz]);
-
-            std::cout << "\n#" << roz << " Koszt z arrival_times : " << my_cost;
-            std::cout << "\n#" << roz << " Przeliczony  : " << przeliczone;
-            total_cost += my_cost;
-        }
-
-    }
-    total_cost = 0;
-    for (int roz = 0; roz < routes.size(); ++roz)
-    {
-        total_cost += routes[roz].route_cost;
-    }
-    std::cout << " Calkowity KOSZT : " << total_cost << " =================";,
-    */
-    //END FOR TESTING
+    cost_progress.push_back(calculate_cost(routes));     //ZAPIS 
  
-
     //Single route improvemnt - szukaj poprawy dla kazdej trasy z osobna
     for (int i = 0; i < routes.size(); ++i)
     {
         single_route_improvement(routes[i], config.T1, config.single_route_improvement_margin);
     }
-
-    //FOR TESTING
-    /*
-    std::cout << "\n\t\t================= ETAP TRZCI - Single route improvement, ";
-    if (check_costs(routes, -2))
-    {
-        for (int roz = 0; roz < routes.size(); ++roz)
-        {
-            std::cout << "\n#" << roz << " Koszt z route_cost : " << routes[roz].route_cost;
-            double my_cost = 0.0;
-            for (int i = 0; i < routes[roz].customers.size(); ++i)
-            {
-                my_cost += routes[roz].arrival_times[i];
-
-            }
-            double przeliczone = g(routes[roz]);
-
-            std::cout << "\n#" << roz << " Koszt z arrival_times : " << my_cost;
-            std::cout << "\n#" << roz << " Przeliczony  : " << przeliczone;
-            total_cost += my_cost;
-        }
-
-    }
-    total_cost = 0;
-    for (int roz = 0; roz < routes.size(); ++roz)
-    {
-        total_cost += routes[roz].route_cost;
-    }
-    std::cout << " Calkowity KOSZT : " << total_cost << " =================";
-    */
-    //END FOR TESTING
+    cost_progress.push_back(calculate_cost(routes));     //ZAPIS 
+   
     
     
    
@@ -256,11 +142,22 @@ void BrainStormOptimalization::run()
     {
         //funkcja nie modyfikuje wejscia (routes) tylko zwraca zmodyfikowany element
         std::vector<Route> spb = perturbation(sb, config.alfa_1); //na calym rozwiazaniu 
+
+        //TU MOGE ZAPISAC 
+
+
         std::vector<std::vector<Route>> sub_problems = decomposition(spb);
+
+        divergent_cost_progress.assign(config.N, 0.0); // ZAPIS  reset wektora wynikow w roziwzaywaniu podproblemow
+
         for (int i = 0; i < sub_problems.size(); ++i) // linia 8
         {
             divergent_operation(sub_problems[i]);   //linia 9 - 13 // po tym kroku sub_problem ma tylko poprawione rozwiazanie, nie zwraca nic gorszego nic wejscie
         }
+
+        cost_progress.insert(cost_progress.end(), divergent_cost_progress.begin(), divergent_cost_progress.end()); // dopisanie do koncowego wektora postepu
+
+       
 
         //skladanie rozwiazania
         s_cost = 0.0;
@@ -268,6 +165,7 @@ void BrainStormOptimalization::run()
         {
             s_cost += get_sum_of_route_cost(sub_problems[i]); // koszt calego rozwiazania po polaczeniu podproblemow
         }
+
 
         if (s_cost < sb_cost)
         {
@@ -289,6 +187,7 @@ void BrainStormOptimalization::run()
                 return a.vehicle_id < b.vehicle_id;
                 });
         }
+        cost_progress.push_back(sb_cost); //ZAPIS 
         iterations++;
     }
 
@@ -323,6 +222,7 @@ void BrainStormOptimalization::run()
     }  
     result.total_cost = total_cost;
     result.routes = sb;
+    result.cost_progress = this->cost_progress;
 
 }
 
@@ -615,6 +515,7 @@ bool BrainStormOptimalization::divergent_operation(std::vector<Route>& spb)
         {
             my_solution = spb;
         }
+        divergent_cost_progress[i - 1] += new_cost; // ZAPIS zapisane nowego kosztu podproblemu
     }
     return improved;
 }
