@@ -23,11 +23,12 @@ namespace IO_handlerV2
 
 	public:
 		CVRPInstance get_instance();
-		void save_solution(Result& solution, std::string add_to_name = "",std::string additional_info = "");
+		void save_solution(Result& solution, std::string add_to_name = "", std::string additional_info = "", const std::vector<double>& run_results = {});
 		void save_progress(Result& solution);
 		bool set_input_path(const std::string& path);
 		bool set_result_path(const std::string& path);
 		void save_progress(Result& solution, std::string add_to_name, std::string time); // zapisuje do jednego pliku tylko aktualny koszt rozwiazania pochodzacy z wektora progress
 		bool save_progress_enabled = true;
+		void save_all_costs(const std::vector<double>& run_results, std::string add_to_name, std::string time);
 	};
 }

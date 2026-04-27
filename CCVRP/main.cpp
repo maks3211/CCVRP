@@ -18,6 +18,10 @@
 #include "include/IO_handlerV2.h"
 #include "include/hybridAvnsLns.h"
 #include "include/bso.h"
+#include "include/ui.h"
+//GLOBAL CONFIG VARIABLES
+
+
 
 std::atomic<bool> loading_done(false);
 
@@ -41,6 +45,10 @@ void loading_animation(std::chrono::high_resolution_clock::time_point start_time
  
 int main()
 {
+ 
+
+
+
     bool run_Skewed_VNS = true;
     bool run_hybrid = false;
     bool run_bso = false;
@@ -51,6 +59,8 @@ int main()
     int number_of_starts_skewed = number_of_starts;
     int number_of_starts_bso    = number_of_starts;
  
+    std::vector<double> run_results;
+
     //=========== LODING ANIMATION ===========
     bool loading_animation_enabled = true;
 
@@ -70,30 +80,51 @@ int main()
     skewed_config.f_alfa = 500;
     skewed_config.SVNS_max_no_improve = 450; //300
 
-
-
     IO_handlerV1::IO_handler io_handlers("Golden_1.vrp");
 	IO_handlerV2::IO_handler io_handlers_v2;
     io_handlers_v2.save_progress_enabled = false;
 
     //=========== USTAWIENIA WEJSCIA ===========
-    const int num_vehicles = 9;
+    int num_vehicles = 9;
     std::string instance_name = "Golden_1.vrp"; //NAZWA PLIKU 
     std::string result_folder_name = "golden1"; //NAZWA FOLDERU WYNIKOWEGO
     
-
-    std::string full_input_path = "D:/Nauka/SEM1/NTWI/CCVRP/CCVRP/InputData/" + instance_name;
+    std::string input_path = "D:/Nauka/SEM1/NTWI/CCVRP/CCVRP/InputData/";
+    std::string full_input_path = input_path + instance_name;
 
     //=========== USTAWIENIA ZAPISU ===========
     std::string main_result_path = "C:/Users/maks0/Desktop/Test/";
     std::string folder_name = "saveTest";  //czyli teraz zapis bedzie np. w /Test/konsultacje/bso
-	bool input_path = io_handlers_v2.set_input_path(full_input_path);
-	std::cout << "Input path set: " << std::boolalpha << input_path << std::endl;
+	bool input_path_bool = io_handlers_v2.set_input_path(full_input_path);
+	std::cout << "Input path set: " << std::boolalpha << input_path_bool << std::endl;
     CVRPInstance input = io_handlers_v2.get_instance();
     //CVRPInstance input = io_handlers.get_instance();
    
 
 
+    Ui ii(bso_config, hybrid_config, skewed_config, 
+        number_of_starts_bso, number_of_starts_hybrid, number_of_starts_skewed,
+        input_path, instance_name, num_vehicles,
+        main_result_path, folder_name);
+    ii.main_menu();
+    full_input_path = input_path + instance_name;
+
+
+    run_bso = (number_of_starts_bso != 0) ? true : false;
+    run_hybrid = (number_of_starts_hybrid != 0) ? true : false; 
+    run_Skewed_VNS = (number_of_starts_skewed != 0) ? true : false;
+
+
+    std::cout << number_of_starts_bso;
+
+
+    size_t pos = instance_name.find_last_of('.');
+    if (pos != std::string::npos) {
+        result_folder_name = instance_name.substr(0, pos);
+    }
+    else {
+        result_folder_name = instance_name; // brak rozszerzenia
+    }
 
 
 	//END CONFIGURATION
@@ -102,9 +133,10 @@ int main()
     if (run_bso)
     {
         std::cout << "\n                =========== ROZPOCZECIE BSO ===========\n";
-        std::string full_result_path = main_result_path + "bso/" + folder_name + "/ " + result_folder_name;
+        std::string full_result_path = main_result_path + "bso/" + folder_name + "/" + result_folder_name;
+        std::cout << "\nSciezka zapisu: " << full_result_path;
         bool res_path = io_handlers_v2.set_result_path(full_result_path);
-        std::cout << "Result path set: " << std::boolalpha << res_path << std::endl;
+        std::cout << "\nResult path set: " << std::boolalpha << res_path << std::endl;
         std::string file_info = "bso_" + result_folder_name;
 
         
@@ -155,11 +187,12 @@ int main()
 
             std::cout << "Czy sa duplikaty: " << any_global_duplicates(result.routes) << " ile wolnego : " << get_total_remaining_capacity(result) << " ile po ";// << calculate_remaining_capacity(hybridResult);
 
-            std::cout << "\nZAKONCZONO run\n";
+            std::cout << "\n        ZAKONCZONO\n";
 
             std::string additional_info =
                 "T1 = " + std::to_string(bso_config.T1) +
                 ", Main loop iterations: " + std::to_string(bso_config.main_loop_itarations);
+            run_results.push_back(result.total_cost);
             io_handlers_v2.save_solution(result, file_info, additional_info);
             avg_bso_cost += result.total_cost;
             avg_bso_time += result.duration_seconds;
@@ -173,6 +206,7 @@ int main()
             {
                worst_bso_cost = result.total_cost;
             }
+          
         }
 
         avg_bso_cost /= number_of_starts_bso;
@@ -188,7 +222,7 @@ int main()
             ", Main loop iterations: " + std::to_string(bso_config.main_loop_itarations) + 
             "\nAverage cost of solution from: " + std::to_string(number_of_starts_bso) +
             " attempts: " + std::to_string(avg_bso_cost) + "\nAverage computing time from: " + std::to_string(number_of_starts_bso) + " attempts: " + std::to_string(avg_bso_time) + "s" + "\n Worst solution cost: " + std::to_string(worst_bso_cost);
-        io_handlers_v2.save_solution(best, file_info, additional_info);
+        io_handlers_v2.save_solution(best, file_info, additional_info, run_results);
 
         std::cout << "\n                =========== KONIEC BSO ===========\n";
     }
@@ -198,9 +232,12 @@ int main()
     //                                                  =========HYBRID=========
     if (run_hybrid)
     {
+        run_results.clear();
         std::cout << "\n                =========== ROZPOCZECIE HYBRID ===========\n";
-        std::string full_result_path = main_result_path + "hybrid/" + folder_name + "/ " + result_folder_name;
+        std::string full_result_path = main_result_path + "hybrid/" + folder_name + "/" + result_folder_name;
+        std::cout << "\nSciezka zapisu: " << full_result_path;
         bool res_path = io_handlers_v2.set_result_path(full_result_path);
+      
         std::cout << "Result path set: " << std::boolalpha << res_path << std::endl;
         std::string file_info = "hybrid_" + result_folder_name;
         
@@ -257,6 +294,7 @@ int main()
             std::string additional_info =
                 "MaxDiv = " + std::to_string(hybrid_config.maxDiv) +
                 ", MaxDiv2 = " + std::to_string(hybrid_config.maxDiv2);
+            run_results.push_back(hybridResult.total_cost);
             io_handlers_v2.save_solution(hybridResult, file_info, additional_info);
             avg_hybrid_cost += hybridResult.total_cost;
             avg_hybrid_time += hybridResult.duration_seconds;
@@ -269,6 +307,7 @@ int main()
             {
                 worst_hybrid_cost = hybridResult.total_cost;
             }
+         
         }
 
         avg_hybrid_cost /= number_of_starts_hybrid;
@@ -283,7 +322,7 @@ int main()
             " ,MaxDiv2 = " + std::to_string(hybrid_config.maxDiv2) +
             "\nAverage cost of solution from: " + std::to_string(number_of_starts_hybrid) +
             " attempts: " + std::to_string(avg_hybrid_cost) + "\nAverage computing time from: " + std::to_string(number_of_starts_hybrid) + " attempts: " + std::to_string(avg_hybrid_time) + "s" + "\n Worst solution cost: " + std::to_string(worst_hybrid_cost);
-        io_handlers_v2.save_solution(best, file_info, additional_info);
+        io_handlers_v2.save_solution(best, file_info, additional_info, run_results);
         std::cout << "\n                =========== KONIEC HYBRID ===========\n";
     }
    
@@ -291,8 +330,10 @@ int main()
     //                                                  =========SKEWED=========
     if (run_Skewed_VNS)
     {
+        run_results.clear();
         std::cout << "\n                =========== ROZPOCZECIE SKEWED ===========\n";
-        std::string full_result_path = main_result_path + "skewed/" + folder_name + "/ " + result_folder_name;
+        std::string full_result_path = main_result_path + "skewed/" + folder_name + "/" + result_folder_name;
+        std::cout << "\nSciezka zapisu: " << full_result_path;
         bool res_path = io_handlers_v2.set_result_path(full_result_path);
         std::cout << "Result path set: " << std::boolalpha << res_path << std::endl;
         std::string file_info = "skewed_" + result_folder_name;
@@ -349,7 +390,7 @@ int main()
 
             std::string additional_info =
                 "F_alfa =  " + std::to_string(skewed_config.f_alfa);
-
+            run_results.push_back(result.total_cost);
             io_handlers_v2.save_solution(result, file_info, additional_info);
             avg_skewed_cost += result.total_cost;
             avg_skewed_time += result.duration_seconds;
@@ -362,6 +403,7 @@ int main()
             {
                 worst_skewed_cost = result.total_cost;
             }
+         
         }
 
         avg_skewed_cost /= number_of_starts_skewed;
@@ -376,7 +418,8 @@ int main()
             "\nSVNS_max_no_improve =  " + std::to_string(skewed_config.SVNS_max_no_improve) +
             "\nAverage cost of solution from: " + std::to_string(number_of_starts_skewed) +
             " attempts: " + std::to_string(avg_skewed_cost) + "\nAverage computing time from: " + std::to_string(number_of_starts_skewed) + " attempts: " + std::to_string(avg_skewed_time) + "s" + "\n Worst solution cost: " + std::to_string(worst_skewed_cost);;
-        io_handlers_v2.save_solution(best, file_info, additional_info);
+        io_handlers_v2.save_solution(best, file_info, additional_info, run_results);
+
         std::cout << "\n                =========== KONIEC SKEWED ===========\n";
     }   
 }

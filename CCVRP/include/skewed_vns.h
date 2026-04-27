@@ -11,7 +11,7 @@
 struct SkewedVNSConfig {
 	int block_size = 3;
 	int delta_alfa = 5;
-	int f_alfa = 10;
+	int f_alfa = 500;
 	int SVNS_max_no_improve = 36;
 };
 

@@ -159,6 +159,7 @@
     <ClCompile Include="src\route.cpp" />
     <ClCompile Include="src\single_route_improvement.cpp" />
     <ClCompile Include="src\skewed_vns.cpp" />
+    <ClCompile Include="src\ui.cpp" />
     <ClCompile Include="src\utils.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -183,6 +184,7 @@
     <ClInclude Include="include\route.h" />
     <ClInclude Include="include\single_route_improvement.h" />
     <ClInclude Include="include\skewed_vns.h" />
+    <ClInclude Include="include\ui.h" />
     <ClInclude Include="include\utils.h" />
     <ClInclude Include="src\json.hpp" />
   </ItemGroup>

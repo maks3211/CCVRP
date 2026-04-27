@@ -110,7 +110,7 @@ namespace IO_handlerV2
     }
 
     //zapisuje rozwiazanie do wybranego folderu - nie tworzy samemu folderu
-    void IO_handler::save_solution(Result& solution, std::string add_to_name,std::string additional_info)
+    void IO_handler::save_solution(Result& solution, std::string add_to_name,std::string additional_info, const std::vector<double>& run_results)
     {
         std::filesystem::path folder(result_path);
 
@@ -154,15 +154,48 @@ namespace IO_handlerV2
         out << "\n" << additional_info << "\n";
 		out << "\n" << IO_handler_utils::create_table(solution);
         save_progress(solution, add_to_name, ss.str());
+        if (!run_results.empty())
+        {
+            std::string to_remove = "_best_of_";
+
+            std::string new_text = add_to_name;
+            size_t pos = new_text.find(to_remove);
+
+            if (pos != std::string::npos) {
+                new_text.erase(pos, to_remove.length());
+            }
+
+            save_all_costs(run_results, new_text, ss.str());
+        }
+
+    }
+
+
+    void IO_handler::save_all_costs(const std::vector<double>& run_results, std::string add_to_name, std::string time)
+    {
+        std::filesystem::path folder(result_path);
+
+        std::string filename = add_to_name + "_all_costs_" + time + ".vrp";
+        std::filesystem::path file = folder / filename;
+
+        std::filesystem::create_directories(folder);
+
+        std::ofstream out(file);
+        if (!out.is_open())
+        {
+            throw std::runtime_error("Nie mozna otworzyc pliku do zapisu: " + file.string());
+        }
+
+        for (int i = 0; i < run_results.size(); i++)
+        {
+            out << run_results[i] << "\n";
+        }
     }
 
 
     void IO_handler::save_progress(Result& solution, std::string add_to_name, std::string time)
     {
         std::filesystem::path folder(result_path);
-
-     
-      
 
         std::string filename = add_to_name + "_progress_" + time + ".vrp";
         std::filesystem::path file = folder / filename;
@@ -178,9 +211,7 @@ namespace IO_handlerV2
         for (int i = 0; i < solution.cost_progress.size(); i++)
         {
             out << solution.cost_progress[i] << "\n";
-        }
-
-        
+        } 
     }
 
     void IO_handler::save_progress(Result& solution)
