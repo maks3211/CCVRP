@@ -19,6 +19,8 @@
 #include "include/hybridAvnsLns.h"
 #include "include/bso.h"
 #include "include/ui.h"
+#include "include/settings.h"
+
 //GLOBAL CONFIG VARIABLES
 
 
@@ -45,99 +47,84 @@ void loading_animation(std::chrono::high_resolution_clock::time_point start_time
  
 int main()
 {
- 
-
-
-
     bool run_Skewed_VNS = true;
     bool run_hybrid = false;
     bool run_bso = false;
+
+
+    Settings s;
+    bool config_loaded = s.load_from_file("settings.json");
+
     
-    
-    int number_of_starts = 1;
-    int number_of_starts_hybrid = number_of_starts;
-    int number_of_starts_skewed = number_of_starts;
-    int number_of_starts_bso    = number_of_starts;
- 
-    std::vector<double> run_results;
 
     //=========== LODING ANIMATION ===========
     bool loading_animation_enabled = true;
+    std::vector<double> run_results;
+    
+   
+   
+ 
+    
 
-    //=========== BSO CONFIG ===========
-    brainConfig bso_config{};
-    bso_config.main_loop_itarations = 6;
-    bso_config.T1 = 50; //wartosc z artykulu = 50
-    bso_config.T2 = 5; // wartosc z artykulu = 5
 
-    //=========== HYBRID CONFIG ===========
-    hybridAvnsLnsConfig hybrid_config{};
-    hybrid_config.maxDiv = 130; //130
-    hybrid_config.maxDiv2 = 110; //110
-
-    //=========== SKEWED CONFIG ===========
-    SkewedVNSConfig skewed_config{};
-    skewed_config.f_alfa = 500;
-    skewed_config.SVNS_max_no_improve = 450; //300
-
-    IO_handlerV1::IO_handler io_handlers("Golden_1.vrp");
 	IO_handlerV2::IO_handler io_handlers_v2;
     io_handlers_v2.save_progress_enabled = false;
 
     //=========== USTAWIENIA WEJSCIA ===========
-    int num_vehicles = 9;
-    std::string instance_name = "Golden_1.vrp"; //NAZWA PLIKU 
-    std::string result_folder_name = "golden1"; //NAZWA FOLDERU WYNIKOWEGO
-    
-    std::string input_path = "D:/Nauka/SEM1/NTWI/CCVRP/CCVRP/InputData/";
-    std::string full_input_path = input_path + instance_name;
+    std::string full_input_path = s.input_path + s.instance_name;
 
-    //=========== USTAWIENIA ZAPISU ===========
-    std::string main_result_path = "C:/Users/maks0/Desktop/Test/";
-    std::string folder_name = "saveTest";  //czyli teraz zapis bedzie np. w /Test/konsultacje/bso
-	bool input_path_bool = io_handlers_v2.set_input_path(full_input_path);
-	std::cout << "Input path set: " << std::boolalpha << input_path_bool << std::endl;
-    CVRPInstance input = io_handlers_v2.get_instance();
+   
     //CVRPInstance input = io_handlers.get_instance();
    
 
 
-    Ui ii(bso_config, hybrid_config, skewed_config, 
-        number_of_starts_bso, number_of_starts_hybrid, number_of_starts_skewed,
-        input_path, instance_name, num_vehicles,
-        main_result_path, folder_name);
+    Ui ii(s.bso, s.hybrid, s.skewed, 
+        s.number_of_starts_bso, s.number_of_starts_hybrid, s.number_of_starts_skewed,
+        s.input_path, s.instance_name, s.num_vehicles,
+        s.main_result_path, s.folder_name, config_loaded);
     ii.main_menu();
-    full_input_path = input_path + instance_name;
+    full_input_path = s.input_path + s.instance_name;
+
+    std::cout << "Input: " << full_input_path << "\n";
+    //=========== USTAWIENIA ZAPISU ===========
+
+    bool input_path_bool = io_handlers_v2.set_input_path(full_input_path);
+    std::cout << "Input path set: " << std::boolalpha << input_path_bool << std::endl;
+    if (!input_path_bool)
+    {
+        std::cout << "\nBledna sciezka wejsciowa";
+            return -1;
+    }
+
+    CVRPInstance input = io_handlers_v2.get_instance();
 
 
-    run_bso = (number_of_starts_bso != 0) ? true : false;
-    run_hybrid = (number_of_starts_hybrid != 0) ? true : false; 
-    run_Skewed_VNS = (number_of_starts_skewed != 0) ? true : false;
+    run_bso = (s.number_of_starts_bso != 0) ? true : false;
+    run_hybrid = (s.number_of_starts_hybrid != 0) ? true : false; 
+    run_Skewed_VNS = (s.number_of_starts_skewed != 0) ? true : false;
 
 
-    std::cout << number_of_starts_bso;
 
-
-    size_t pos = instance_name.find_last_of('.');
+    size_t pos = s.instance_name.find_last_of('.');
     if (pos != std::string::npos) {
-        result_folder_name = instance_name.substr(0, pos);
+        s.result_folder_name = s.instance_name.substr(0, pos);
     }
     else {
-        result_folder_name = instance_name; // brak rozszerzenia
+        s.result_folder_name = s.instance_name; // brak rozszerzenia
     }
 
-
+ 
 	//END CONFIGURATION
     std::cout << std::boolalpha;
     //                                                  =========BSO=========
     if (run_bso)
     {
         std::cout << "\n                =========== ROZPOCZECIE BSO ===========\n";
-        std::string full_result_path = main_result_path + "bso/" + folder_name + "/" + result_folder_name;
+        std::string full_result_path = s.main_result_path + "bso/" + s.folder_name + "/" + s.result_folder_name;
         std::cout << "\nSciezka zapisu: " << full_result_path;
         bool res_path = io_handlers_v2.set_result_path(full_result_path);
         std::cout << "\nResult path set: " << std::boolalpha << res_path << std::endl;
-        std::string file_info = "bso_" + result_folder_name;
+        std::string file_info = "bso_" + s.result_folder_name;
 
         
         double avg_bso_cost = 0.0;
@@ -146,10 +133,10 @@ int main()
         double worst_bso_cost = 0.0;
         Result best;
 
-        for (int rounds = 0; rounds < number_of_starts_bso; rounds++)
+        for (int rounds = 0; rounds < s.number_of_starts_bso; rounds++)
         {
             
-            BrainStormOptimalization bso(input, num_vehicles, io_handlers_v2, bso_config);
+            BrainStormOptimalization bso(input, s.num_vehicles, io_handlers_v2, s.bso);
             loading_done = false;
             auto start = std::chrono::high_resolution_clock::now();
 #ifndef _DEBUG
@@ -190,8 +177,8 @@ int main()
             std::cout << "\n        ZAKONCZONO\n";
 
             std::string additional_info =
-                "T1 = " + std::to_string(bso_config.T1) +
-                ", Main loop iterations: " + std::to_string(bso_config.main_loop_itarations);
+                "T1 = " + std::to_string(s.bso.T1) +
+                ", Main loop iterations: " + std::to_string(s.bso.main_loop_itarations);
             run_results.push_back(result.total_cost);
             io_handlers_v2.save_solution(result, file_info, additional_info);
             avg_bso_cost += result.total_cost;
@@ -209,19 +196,19 @@ int main()
           
         }
 
-        avg_bso_cost /= number_of_starts_bso;
-        avg_bso_time /= number_of_starts_bso;
-          io_handlers_v2.set_result_path(main_result_path + "bso/best");
-          file_info = "bso_" + result_folder_name + "_best_of_" + std::to_string(number_of_starts_bso);
+        avg_bso_cost /= s.number_of_starts_bso;
+        avg_bso_time /= s.number_of_starts_bso;
+          io_handlers_v2.set_result_path(s.main_result_path + "bso/best");
+          file_info = "bso_" + s.result_folder_name + "_best_of_" + std::to_string(s.number_of_starts_bso);
 
         std::cout << "\n======= Zakonczono bso =======" << "\n\nNajlepsze rozwiazanie: " << best_bso_cost;
-        std::cout << "\nSredni koszt z " << number_of_starts_bso << " rozwiazan: " << avg_bso_cost << "\n";
+        std::cout << "\nSredni koszt z " << s.number_of_starts_bso << " rozwiazan: " << avg_bso_cost << "\n";
         std::string additional_info =
-            "T1 = " + std::to_string(bso_config.T1) +
-            ", T2 = " + std::to_string(bso_config.T2) +
-            ", Main loop iterations: " + std::to_string(bso_config.main_loop_itarations) + 
-            "\nAverage cost of solution from: " + std::to_string(number_of_starts_bso) +
-            " attempts: " + std::to_string(avg_bso_cost) + "\nAverage computing time from: " + std::to_string(number_of_starts_bso) + " attempts: " + std::to_string(avg_bso_time) + "s" + "\n Worst solution cost: " + std::to_string(worst_bso_cost);
+            "T1 = " + std::to_string(s.bso.T1) +
+            ", T2 = " + std::to_string(s.bso.T2) +
+            ", Main loop iterations: " + std::to_string(s.bso.main_loop_itarations) + 
+            "\nAverage cost of solution from: " + std::to_string(s.number_of_starts_bso) +
+            " attempts: " + std::to_string(avg_bso_cost) + "\nAverage computing time from: " + std::to_string(s.number_of_starts_bso) + " attempts: " + std::to_string(avg_bso_time) + "s" + "\n Worst solution cost: " + std::to_string(worst_bso_cost);
         io_handlers_v2.save_solution(best, file_info, additional_info, run_results);
 
         std::cout << "\n                =========== KONIEC BSO ===========\n";
@@ -234,12 +221,12 @@ int main()
     {
         run_results.clear();
         std::cout << "\n                =========== ROZPOCZECIE HYBRID ===========\n";
-        std::string full_result_path = main_result_path + "hybrid/" + folder_name + "/" + result_folder_name;
+        std::string full_result_path = s.main_result_path + "hybrid/" + s.folder_name + "/" + s.result_folder_name;
         std::cout << "\nSciezka zapisu: " << full_result_path;
         bool res_path = io_handlers_v2.set_result_path(full_result_path);
       
         std::cout << "Result path set: " << std::boolalpha << res_path << std::endl;
-        std::string file_info = "hybrid_" + result_folder_name;
+        std::string file_info = "hybrid_" + s.result_folder_name;
         
         double avg_hybrid_cost = 0.0;
         double avg_hybrid_time = 0.0;
@@ -247,9 +234,9 @@ int main()
         double worst_hybrid_cost = 0.0;
         Result best;
         //Uruchamia number_of_starts prob dla hybrid, zapisuje kazda z prob w folderze hybrid/final oraz zapisuje best of number_of_starts w hybrid
-        for (int rounds = 0; rounds < number_of_starts_hybrid; rounds++)
+        for (int rounds = 0; rounds < s.number_of_starts_hybrid; rounds++)
         {
-            HybridAvnsLns hybrid(input, num_vehicles, io_handlers_v2, hybrid_config);
+            HybridAvnsLns hybrid(input, s.num_vehicles, io_handlers_v2, s.hybrid);
 
             loading_done = false;
             auto start = std::chrono::high_resolution_clock::now();
@@ -292,8 +279,8 @@ int main()
             std::cout << "\nZAKONCZONO run\n";
 
             std::string additional_info =
-                "MaxDiv = " + std::to_string(hybrid_config.maxDiv) +
-                ", MaxDiv2 = " + std::to_string(hybrid_config.maxDiv2);
+                "MaxDiv = " + std::to_string(s.hybrid.maxDiv) +
+                ", MaxDiv2 = " + std::to_string(s.hybrid.maxDiv2);
             run_results.push_back(hybridResult.total_cost);
             io_handlers_v2.save_solution(hybridResult, file_info, additional_info);
             avg_hybrid_cost += hybridResult.total_cost;
@@ -310,18 +297,18 @@ int main()
          
         }
 
-        avg_hybrid_cost /= number_of_starts_hybrid;
-        avg_hybrid_time /= number_of_starts_hybrid;
-        io_handlers_v2.set_result_path(main_result_path + "hybrid/best");
-        file_info = "hybrid_" + result_folder_name + "_best_of_" + std::to_string(number_of_starts_hybrid);
+        avg_hybrid_cost /= s.number_of_starts_hybrid;
+        avg_hybrid_time /= s.number_of_starts_hybrid;
+        io_handlers_v2.set_result_path(s.main_result_path + "hybrid/best");
+        file_info = "hybrid_" + s.result_folder_name + "_best_of_" + std::to_string(s.number_of_starts_hybrid);
 
         std::cout << "\n======= Zakonczono hybrid =======" << "\n\nNajlepsze rozwiazanie: " << best_hybrid_cost;
-        std::cout << "\nSredni koszt z " << number_of_starts_hybrid << " rozwiazan: " << avg_hybrid_cost << "\n";
+        std::cout << "\nSredni koszt z " << s.number_of_starts_hybrid << " rozwiazan: " << avg_hybrid_cost << "\n";
         std::string additional_info =
-            "MaxDiv = " + std::to_string(hybrid_config.maxDiv) +
-            " ,MaxDiv2 = " + std::to_string(hybrid_config.maxDiv2) +
-            "\nAverage cost of solution from: " + std::to_string(number_of_starts_hybrid) +
-            " attempts: " + std::to_string(avg_hybrid_cost) + "\nAverage computing time from: " + std::to_string(number_of_starts_hybrid) + " attempts: " + std::to_string(avg_hybrid_time) + "s" + "\n Worst solution cost: " + std::to_string(worst_hybrid_cost);
+            "MaxDiv = " + std::to_string(s.hybrid.maxDiv) +
+            " ,MaxDiv2 = " + std::to_string(s.hybrid.maxDiv2) +
+            "\nAverage cost of solution from: " + std::to_string(s.number_of_starts_hybrid) +
+            " attempts: " + std::to_string(avg_hybrid_cost) + "\nAverage computing time from: " + std::to_string(s.number_of_starts_hybrid) + " attempts: " + std::to_string(avg_hybrid_time) + "s" + "\n Worst solution cost: " + std::to_string(worst_hybrid_cost);
         io_handlers_v2.save_solution(best, file_info, additional_info, run_results);
         std::cout << "\n                =========== KONIEC HYBRID ===========\n";
     }
@@ -332,11 +319,11 @@ int main()
     {
         run_results.clear();
         std::cout << "\n                =========== ROZPOCZECIE SKEWED ===========\n";
-        std::string full_result_path = main_result_path + "skewed/" + folder_name + "/" + result_folder_name;
+        std::string full_result_path = s.main_result_path + "skewed/" + s.folder_name + "/" + s.result_folder_name;
         std::cout << "\nSciezka zapisu: " << full_result_path;
         bool res_path = io_handlers_v2.set_result_path(full_result_path);
         std::cout << "Result path set: " << std::boolalpha << res_path << std::endl;
-        std::string file_info = "skewed_" + result_folder_name;
+        std::string file_info = "skewed_" + s.result_folder_name;
 
 
         double avg_skewed_cost = 0.0;
@@ -345,9 +332,9 @@ int main()
         double worst_skewed_cost = 0.0;
         Result best;
 
-        for (int rounds = 0; rounds < number_of_starts_skewed; rounds++)
+        for (int rounds = 0; rounds < s.number_of_starts_skewed; rounds++)
         {
-            Skewed_VNS skewed_vnss(input, num_vehicles, io_handlers_v2, skewed_config);
+            Skewed_VNS skewed_vnss(input, s.num_vehicles, io_handlers_v2, s.skewed);
 
             loading_done = false; 
             auto start = std::chrono::high_resolution_clock::now();
@@ -389,7 +376,7 @@ int main()
 
 
             std::string additional_info =
-                "F_alfa =  " + std::to_string(skewed_config.f_alfa);
+                "F_alfa =  " + std::to_string(s.skewed.f_alfa);
             run_results.push_back(result.total_cost);
             io_handlers_v2.save_solution(result, file_info, additional_info);
             avg_skewed_cost += result.total_cost;
@@ -406,18 +393,18 @@ int main()
          
         }
 
-        avg_skewed_cost /= number_of_starts_skewed;
-        avg_skewed_time /= number_of_starts_skewed;
-        io_handlers_v2.set_result_path(main_result_path + "skewed/best");
-        file_info = "skewed_" + result_folder_name + "_best_of_" + std::to_string(number_of_starts_skewed);
+        avg_skewed_cost /= s.number_of_starts_skewed;
+        avg_skewed_time /= s.number_of_starts_skewed;
+        io_handlers_v2.set_result_path(s.main_result_path + "skewed/best");
+        file_info = "skewed_" + s.result_folder_name + "_best_of_" + std::to_string(s.number_of_starts_skewed);
 
         std::cout << "\n======= Zakonczono skewed =======" << "\n\nNajlepsze rozwiazanie: " << best_skewed_cost;
-        std::cout << "\nSredni koszt z " << number_of_starts_skewed << " rozwiazan: " << avg_skewed_cost << "\n";
+        std::cout << "\nSredni koszt z " << s.number_of_starts_skewed << " rozwiazan: " << avg_skewed_cost << "\n";
         std::string additional_info =
-            "F_alfa =  " + std::to_string(skewed_config.f_alfa) +
-            "\nSVNS_max_no_improve =  " + std::to_string(skewed_config.SVNS_max_no_improve) +
-            "\nAverage cost of solution from: " + std::to_string(number_of_starts_skewed) +
-            " attempts: " + std::to_string(avg_skewed_cost) + "\nAverage computing time from: " + std::to_string(number_of_starts_skewed) + " attempts: " + std::to_string(avg_skewed_time) + "s" + "\n Worst solution cost: " + std::to_string(worst_skewed_cost);;
+            "F_alfa =  " + std::to_string(s.skewed.f_alfa) +
+            "\nSVNS_max_no_improve =  " + std::to_string(s.skewed.SVNS_max_no_improve) +
+            "\nAverage cost of solution from: " + std::to_string(s.number_of_starts_skewed) +
+            " attempts: " + std::to_string(avg_skewed_cost) + "\nAverage computing time from: " + std::to_string(s.number_of_starts_skewed) + " attempts: " + std::to_string(avg_skewed_time) + "s" + "\n Worst solution cost: " + std::to_string(worst_skewed_cost);;
         io_handlers_v2.save_solution(best, file_info, additional_info, run_results);
 
         std::cout << "\n                =========== KONIEC SKEWED ===========\n";

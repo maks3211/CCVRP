@@ -1,0 +1,30 @@
+{
+  "number_of_starts_hybrid": 1,
+  "number_of_starts_skewed": 1,
+  "number_of_starts_bso": 1,
+  "bso_config": {
+    "main_loop_iterations": 6,
+    "T1": 50,
+    "T2": 5,
+	  "alfa_1" : 0.05,
+	  "alfa_2" : 0.05,
+	  "N" : 150,
+	  "single_route_improvement_margin" : 0.01
+  },
+  "hybrid_config": {
+    "maxDiv": 130,
+    "maxDiv2": 110
+  },
+  "skewed_config": {
+    "f_alfa": 500.0,
+    "SVNS_max_no_improve": 450,
+	"delta_alfa" : 5
+  },
+  "paths": {
+    "instance_name": "Golden_1.vrp",
+    "result_folder_name": "golden1",
+    "input_path": "D:/Nauka/SEM1/NTWI/CCVRP/CCVRP/InputData/",
+    "main_result_path": "C:/Users/maks0/Desktop/Test/",
+	  "folder_name": "saveTest"
+  }
+}

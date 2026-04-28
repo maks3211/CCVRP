@@ -15,7 +15,8 @@ public:
 	Ui(brainConfig& bso_config, hybridAvnsLnsConfig& hybrid_config, SkewedVNSConfig& sekwed_config,
 		int& number_bso, int& number_hybrid, int& number_skewed,
 		std::string& input_path, std::string& instance_name,int& num_vehicles,
-		std::string& result_path, std::string& result_folder);
+		std::string& result_path, std::string& result_folder,
+		bool settings_loaded);
 
 
 	brainConfig& bso_config;
@@ -32,6 +33,7 @@ public:
 	std::string& result_path;
 	std::string& result_folder;
 
+	bool settings_loaded;
 
 	void main_menu();
 	void set_params();

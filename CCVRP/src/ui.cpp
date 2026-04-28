@@ -6,11 +6,13 @@
 Ui::Ui(brainConfig& bso_config, hybridAvnsLnsConfig& hybrid_config, SkewedVNSConfig& sekwed_config,
 	int& number_bso, int& number_hybrid, int& number_skewed,
 	std::string& input_path, std::string& instance_name, int& num_vehicles,
-	std::string& result_path, std::string& result_folder)
+	std::string& result_path, std::string& result_folder,
+	bool settings_loaded)
 	: bso_config(bso_config), hybrid_config(hybrid_config), sekwed_config(sekwed_config),
 	number_bso(number_bso), number_hybrid(number_hybrid), number_skewed(number_skewed),
 	input_path(input_path), instance_name(instance_name), num_vehicles(num_vehicles),
-	result_path(result_path), result_folder(result_folder)
+	result_path(result_path), result_folder(result_folder),
+	settings_loaded(settings_loaded)
 
 {
 
@@ -21,6 +23,11 @@ void Ui::main_menu()
 	while (run)
 	{
 		system("cls");
+		if (!settings_loaded)
+		{
+			std::cout << "\nNie znaleziono pliku 'settings.json' \nWczytano konfiguracje domyslna" << std::endl;
+		}
+		
 		std::cout << "\n                ======= Cumulative Capacitated Vehicle Routing Problem  (CCVRP) =======\n";
 		std::cout << "\n1. Edycja parametrow";
 		std::cout << "\n2. Liczba uruchomien";
@@ -36,6 +43,7 @@ void Ui::main_menu()
 		{
 		case 0:
 		{
+			system("cls");
 			run = false;
 			break;
 		}

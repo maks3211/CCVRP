@@ -157,6 +157,7 @@
     <ClCompile Include="src\regret_cost_insertion.cpp" />
     <ClCompile Include="src\ResultsParser.cpp" />
     <ClCompile Include="src\route.cpp" />
+    <ClCompile Include="src\settings.cpp" />
     <ClCompile Include="src\single_route_improvement.cpp" />
     <ClCompile Include="src\skewed_vns.cpp" />
     <ClCompile Include="src\ui.cpp" />
@@ -182,6 +183,7 @@
     <ClInclude Include="include\regret_cost_insertion.h" />
     <ClInclude Include="include\ResultsParser.h" />
     <ClInclude Include="include\route.h" />
+    <ClInclude Include="include\settings.h" />
     <ClInclude Include="include\single_route_improvement.h" />
     <ClInclude Include="include\skewed_vns.h" />
     <ClInclude Include="include\ui.h" />
