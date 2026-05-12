@@ -8,7 +8,7 @@
 #include "../src/json.hpp"
 
 
-using json = nlohmann::json;
+using json = nlohmann::ordered_json;
 class Settings {
 public:
     Settings();
