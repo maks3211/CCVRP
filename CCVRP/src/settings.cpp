@@ -104,4 +104,58 @@ bool Settings::load_from_file(const std::string& file_name)
     return true;
 }
 
+bool Settings::save_to_file(const std::string& file_name)
+{
+    json j;
+    try {
+        j["number_of_starts_hybrid"] = number_of_starts_hybrid;
+        j["number_of_starts_skewed"] = number_of_starts_skewed;
+        j["number_of_starts_bso"] = number_of_starts_bso;
+        j["number_of_vehicles"] = num_vehicles;
+
+        // BSO
+        j["bso_config"]["main_loop_iterations"] = bso.main_loop_itarations;
+        j["bso_config"]["T1"] = bso.T1;
+        j["bso_config"]["T2"] = bso.T2;
+        j["bso_config"]["alfa_1"] = bso.alfa_1;
+        j["bso_config"]["alfa_2"] = bso.alfa_2;
+        j["bso_config"]["N"] = bso.N;
+        j["bso_config"]["single_route_improvement_margin"] = bso.single_route_improvement_margin;
+
+        // Hybrid
+        j["hybrid_config"]["maxDiv"] = hybrid.maxDiv;
+        j["hybrid_config"]["maxDiv2"] = hybrid.maxDiv2;
+
+        // Skewed
+        j["skewed_config"]["f_alfa"] = skewed.f_alfa;
+        j["skewed_config"]["SVNS_max_no_improve"] = skewed.SVNS_max_no_improve;
+        j["skewed_config"]["delta_alfa"] = skewed.delta_alfa;
+
+        // Sciezki
+        j["paths"]["instance_name"] = instance_name;
+        j["paths"]["result_folder_name"] = result_folder_name;
+        j["paths"]["input_path"] = input_path;
+        j["paths"]["main_result_path"] = main_result_path;
+        j["paths"]["folder_name"] = folder_name;
+    }
+    catch (json::exception& e) {
+        std::cerr << "Blad budowania JSON: " << e.what() << std::endl;
+        return false;
+    }
+
+    std::ofstream file(file_name);
+    if (!file.is_open()) {
+        std::cerr << "Blad: Nie mozna otworzyc pliku do zapisu " << file_name << std::endl;
+        return false;
+    }
+
+    file << j.dump(4);   // wciêcie 4 spacje — czytelny plik
+
+    if (file.fail()) {
+        std::cerr << "Blad: Zapis do pliku " << file_name << " nie powiodl sie" << std::endl;
+        return false;
+    }
+
+    return true;
+}
 

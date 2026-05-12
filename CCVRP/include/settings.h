@@ -29,5 +29,6 @@ public:
     std::string folder_name;
 
     bool load_from_file(const std::string& file_name);
+    bool save_to_file(const std::string& file_name);
   
 };

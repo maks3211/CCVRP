@@ -84,6 +84,8 @@ int main()
         s.main_result_path, s.folder_name, config_loaded);
     ii.main_menu();
     full_input_path = s.input_path + s.instance_name;
+    s.save_to_file("settings.json");
+
 
     std::cout << "Input: " << full_input_path << "\n";
     //=========== USTAWIENIA ZAPISU ===========

@@ -7,7 +7,7 @@ Ui::Ui(brainConfig& bso_config, hybridAvnsLnsConfig& hybrid_config, SkewedVNSCon
 	int& number_bso, int& number_hybrid, int& number_skewed,
 	std::string& input_path, std::string& instance_name, int& num_vehicles,
 	std::string& result_path, std::string& result_folder,
-	bool settings_loaded)
+	bool& settings_loaded)
 	: bso_config(bso_config), hybrid_config(hybrid_config), sekwed_config(sekwed_config),
 	number_bso(number_bso), number_hybrid(number_hybrid), number_skewed(number_skewed),
 	input_path(input_path), instance_name(instance_name), num_vehicles(num_vehicles),
@@ -45,6 +45,7 @@ void Ui::main_menu()
 		{
 			system("cls");
 			run = false;
+			
 			break;
 		}
 		case 1:
