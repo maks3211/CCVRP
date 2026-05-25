@@ -71,7 +71,7 @@ int calculate_used_capacity(std::vector<Node>& route);
 
 double get_sum_of_route_cost(std::vector<Route>& routes);
 
-bool add_customer_at_index_with_penalty(Route& route,Node& client);
+bool add_customer_at_index_with_penalty(Route& route, Node& client, double pen = 0.0);
 InsertionResult calculate_insertion_cost(Route& route, Node& i, int insertion_index);
 
 int get_remaining_capacity(const Route& route);

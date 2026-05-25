@@ -4,7 +4,7 @@
 #include "move.h"	
 #include "route.h"	
 #include "gainFunctions.h"
-//brak pliku .cpp ze wzgledu na obecnosc template - wtedy sie stoduje chyba pliki tpp, no ale zrobione jest wszystko w jednym .h
+
 //INTRA - jedna trasa
 //INTER - dwie rozne trasy
 
@@ -107,7 +107,7 @@ bool perform_first_improvement_cross(std::vector<Route>& solution);
 bool perform_first_improvement_relocation(std::vector<Route>& solution);
 
 
-//FUNKCJE POMOCNICZE TO WYLICZANIA NOWEGO KOSZTU TRAS
+//FUNKCJE POMOCNICZE DO WYLICZANIA NOWEGO KOSZTU TRAS
 //dwie trasy
 double calculate_virtual_exchange_cost(const Route& route, int exchange_pos, const Node& new_node, std::vector<double>& buffer_times);
 //jedna trasa 

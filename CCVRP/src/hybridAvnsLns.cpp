@@ -127,13 +127,14 @@ std::vector<Route> HybridAvnsLns::construct_intial_solution()
             // === PERTURBATION ===
             if (instance.nodes.empty()) break;
 
-            Node problematicClient = instance.nodes[0];     // na razie pierwszy (możesz zmienić na max demand)
+            Node problematicClient = instance.nodes[0];     
+
 
            
 
             perform_perturbation(routes, problematicClient,total_customers);
 
-            // Klient został już dodany (normalnie lub z penalizacją) → usuwamy go z listy
+            // Klient został już dodany (normalnie lub z penalizacją) - usuwamy go z listy
             if (!instance.nodes.empty())
                 instance.nodes.erase(instance.nodes.begin());
         }
@@ -206,7 +207,15 @@ void HybridAvnsLns::perform_perturbation(std::vector<Route>& routes, Node client
                     if (!b_inserted)
                     {
                         int worst_r = find_route_with_smallest_violation(routes);
-                        add_customer_at_index_with_penalty(routes[worst_r],clientB);
+                        double avg_cost = 0.0;
+                        for (auto& a : routes)
+                        {
+                            avg_cost += a.route_cost;
+                        }
+                        avg_cost /= routes.size();
+                        int new_used_capacity = routes[worst_r].initial_capacity - routes[worst_r].remaining_capacity + clientB.demand;
+                        double pen = calculate_penalty_hybrid(routes[worst_r].initial_capacity, new_used_capacity, avg_cost);
+                        add_customer_at_index_with_penalty(routes[worst_r],clientB,pen);
                         success = true;
                     }
                 
@@ -226,6 +235,14 @@ void HybridAvnsLns::perform_perturbation(std::vector<Route>& routes, Node client
     {
 
         int r = find_route_with_smallest_violation(routes);
+        double avg_cost = 0.0;
+        for (auto& a : routes)
+        {
+            avg_cost += a.route_cost;
+        }
+        avg_cost /= routes.size();
+        int new_used_capacity = routes[r].initial_capacity - routes[r].remaining_capacity + clientA.demand;
+        double pen = calculate_penalty_hybrid(routes[r].initial_capacity, new_used_capacity, avg_cost);
         add_customer_at_index_with_penalty(routes[r],clientA);
     }
 
@@ -568,9 +585,12 @@ std::vector<Route> HybridAvnsLns::AVNS_stage_two(std::vector<Route>& solution, i
             x_best = x_tylda;
             x_best_cost = x_tylda_cost;
         //    std::cout << "Poprawa x_tylda - Koszt : " << x_best_cost << std::endl;
+            x = x_tylda;
+            x_cost = x_tylda_cost; //TUTAJ PRZENISIONE
         }
-        x = x_tylda;
-        x_cost = x_tylda_cost;
+        //TAK BYLO - PRZENIOSLEM TO DO WARUNKU IF WYZEJ
+       // x = x_tylda;
+       // x_cost = x_tylda_cost;
         
         cost_progress.push_back(x_best_cost);     //  ZAPIS 
 

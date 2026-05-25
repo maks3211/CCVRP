@@ -37,7 +37,7 @@ std::vector<Route> segment_reshuffle(std::vector<Route>& current_solution, int n
 std::vector<Route> cross_exchange(std::vector<Route>& current_solution, int nj = -1, int nk = -1);
 
 
-//bierzemy pioerwsze polowy dwoch losowych tras i zamieniamy je miejscami
+//bierzemy pierwsze polowy dwoch losowych tras i zamieniamy je miejscami
 //te polowy moga miec rozna dlugosc, no ale zawsze jest to polowa trasy
 std::vector<Route> head_swap(std::vector<Route>& current_solution);
 

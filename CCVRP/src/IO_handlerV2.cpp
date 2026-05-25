@@ -109,7 +109,7 @@ namespace IO_handlerV2
 
     }
 
-    //zapisuje rozwiazanie do wybranego folderu - nie tworzy samemu folderu
+    //zapisuje rozwiazanie do wybranego folderu
     void IO_handler::save_solution(Result& solution, std::string add_to_name,std::string additional_info, const std::vector<double>& run_results)
     {
         std::filesystem::path folder(result_path);
@@ -175,7 +175,7 @@ namespace IO_handlerV2
     {
         std::filesystem::path folder(result_path);
 
-        std::string filename = add_to_name + "_all_costs_" + time + ".vrp";
+        std::string filename = "_" + add_to_name + "_all_costs_" + time + ".vrp";
         std::filesystem::path file = folder / filename;
 
         std::filesystem::create_directories(folder);

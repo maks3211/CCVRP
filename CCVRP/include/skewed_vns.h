@@ -95,5 +95,10 @@ public:
 	/// <param name= "changed_routes">- If only some routes changed, pass their indices to avoid recalculating the cost of unchanged routes</param>
 	/// <returns>Solution evaluation</returns>
 	double f(std::vector<Route>& s, const std::vector<int>& changed_routes = {}, bool test = false);
+
+
+
+	//Poprawiona funkcja f, odrazu zapisuje koszt do danej trasy z kara, czyli wejscie s jest modyfikowane, zwaraca calkowity koszt rozwiazania, poprawiona funkcja max(0,...)
+	double f_new(std::vector<Route>& s, const std::vector<int>& changed_routes = {});
 };
 

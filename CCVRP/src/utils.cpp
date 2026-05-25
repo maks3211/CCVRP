@@ -333,7 +333,7 @@ double get_sum_of_route_cost(std::vector<Route>& routes)
     return cost;
 }
 
-bool add_customer_at_index_with_penalty(Route& route, Node& client)
+bool add_customer_at_index_with_penalty(Route& route, Node& client, double pen)
 {
     InsertionResult insert = find_best_insertion(route, client);
     route.customers.insert(route.customers.begin() + insert.place, client);
@@ -341,7 +341,7 @@ bool add_customer_at_index_with_penalty(Route& route, Node& client)
     route.remaining_capacity -= client.demand;
     route.is_penalized = true;
     //CZY MA BYC 50?? OD CZEGO TO ZALEZY
-    route.penatly_eta += 50.0;
+    route.penatly_eta += pen;
     return true;
 }
 
