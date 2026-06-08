@@ -37,19 +37,14 @@ double calculate_gain_1_1_exchange_hybrid(std::vector<Route>& solution, Move& mo
      move.moved_capacity_from = client_X.demand; // pojemnosc klienta przenosznego z trasy 'from' do trasy 'to'
 	 move.moved_capacity_to = client_Y.demand; // pojemnosc klienta przenoszonego z trasy 'to' do trasy 'from'
 
-    //to continue - jest w gemini - szukac pod 2. Implementacja funkcji Gain dla 1-1 Exchange
+   
 
    
 
     //trasa k (zabieramy X wstawiamy Y)
     int new_used_capacity_k = r_k.initial_capacity - r_k.remaining_capacity - move.moved_capacity_from + move.moved_capacity_to;
 
-    //NIE WIEM CZY TO MA BYC CZY NIE, NIE MA ZABARDZO INFOMACJI O TYM
-    //if (new_used_capacity_k > (1 + beta) * r_k.initial_capacity) //warunek 5  - 198
-    //{
-    //    return -std::numeric_limits<double>::infinity();
-    //}
-
+  
     //odrazu sprawdzam zbyt mocne naruszenie pojemnosci przed wykonywaniem obliczen
     int new_used_capacity_l = r_l.initial_capacity - r_l.remaining_capacity - move.moved_capacity_to + move.moved_capacity_from;
     //if (new_used_capacity_l > (1 + beta) * r_l.initial_capacity) //warunek 5  - 198

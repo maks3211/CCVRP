@@ -126,13 +126,13 @@ void BrainStormOptimalization::run()
     //spb - perturbed sb
     //s - rozwiazanie uzyskane 
 
-    //TODO
+   
     std::cout << "\n\t\t\t=========BRAIN STORM OPTIMALIZATION STARTED=========\n";
     std::vector<Route> sb = construct_initial_solution(); //3.1 Initialization of the best-so-far solution
   
     double sb_cost = get_sum_of_route_cost(sb); // koszt najlepszego rozwiazania
     double s_cost = 0.0; // koszt rozwiazanie uzyskanego po polaczeniu podproblemow
-    //NIE JEST TO ZROBIONE NA GOTOWO - TYLKO TAK NA SZYBKO ABY BYL ZARYS GDZIE I JAK Z CZEGO KORZYSTAC
+    
 
     bool stopping_condition = false;
     int my_stopping_condition = 3;
@@ -143,7 +143,7 @@ void BrainStormOptimalization::run()
         //funkcja nie modyfikuje wejscia (routes) tylko zwraca zmodyfikowany element
         std::vector<Route> spb = perturbation(sb, config.alfa_1); //na calym rozwiazaniu 
 
-        //TU MOGE ZAPISAC 
+   
 
 
         std::vector<std::vector<Route>> sub_problems = decomposition(spb);

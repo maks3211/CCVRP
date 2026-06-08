@@ -479,8 +479,7 @@ clientRatioInfo basic_greedy_insertion(std::vector<Route>& solution, Node& new_c
 		}
 	}
 	return result;
-	//jezeli nie znalziono miejsca to 3.2
-	//wywolac perform_perturabtioan - patrz hybridavns - ale to juz poza ta funkjca
+	
 }
 
 

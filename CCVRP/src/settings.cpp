@@ -149,7 +149,7 @@ bool Settings::save_to_file(const std::string& file_name)
         return false;
     }
 
-    file << j.dump(4);   // wciêcie 4 spacje — czytelny plik
+    file << j.dump(4);   
 
     if (file.fail()) {
         std::cerr << "Blad: Zapis do pliku " << file_name << " nie powiodl sie" << std::endl;

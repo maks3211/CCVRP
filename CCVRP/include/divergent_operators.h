@@ -4,9 +4,6 @@
 
 //operatory 3.3 
 
-//w praktyce jest to exchange z local move, ale trzeba dostoowac aby robic konkretny ruch a nie kazy/ first improvemnt
-
-
 /// <summary>
 /// 
 /// </summary>

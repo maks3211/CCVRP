@@ -18,7 +18,7 @@ std::string IO_handler_utils::create_table(Result& solution)
     int total_width = 0;
     for (auto a : column_widths)
     {
-        total_width += a; // +3 for padding and separator
+        total_width += a; 
     }
 
 

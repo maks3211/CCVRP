@@ -228,10 +228,7 @@ std::vector<Route> two_one_interchange(std::vector<Route>& current_solution)
 	{
 		return current_solution;
 	}
-	//Czy w tym miejscu aktualizowac kosz trasy, czy lepiej zrobic to poza funkcja, bo moze nie zawsze chce to aktualizowac??
-	//g(receiver1); 
-	//g(receiver2); // aktualizacja kosztu trasy
-	//g(donor); // aktualizacja kosztu trasy
+
 
 	donor.recalculate_all();
 	receiver1.recalculate_all();

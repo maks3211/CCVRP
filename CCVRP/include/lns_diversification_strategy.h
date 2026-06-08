@@ -8,17 +8,7 @@
 #include "penalty_functions.h"
 #include "hybridAvnsLns.h"
 
-//implentacja punktu 3.8  A LNS diversification strategy with a VNS structure - artykul hybrid 198 
-
-
-//          WAZNE 
-//zastosowac staregie usuwana
-//usunac wybranych klienow
-//przeliczyc wszsytkie dotkniete trasy - czyli nowe koszty, pojemnosci Z1,Z2 itp
-//zasosowac metode wstawiania
-//po wstawieniu danego klienta przeliczyc trase
-
-
+//implentacja punktu 3.8  A LNS diversification strategy with a VNS structure - artykul hybrid 
 
 std::vector<Route> lns_diversification(std::vector<Route>& solution, int lambda, double avg_route_cost, int total_customers);
 

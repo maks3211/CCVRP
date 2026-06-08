@@ -52,8 +52,6 @@ struct Route {
     /// <param name="calculate_precompute">Added becaused of hybrid method</param>
 
     /// <returns></returns>
-    /// 
-    ///  ????????????czy robic nowego customera tak jak w add_customer czy skorzystac z przekazanego  ??
     bool add_customer_at_index(const Node& customer, int index, const double addded_cost, bool calculate_precompute = false);
 
     double calculate_removal_cost(int j, int u = 1);

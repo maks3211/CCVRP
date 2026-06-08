@@ -115,7 +115,7 @@ bool has_negtive_capacity(const Result& result);
 int find_route_with_smallest_violation(const std::vector<Route>& routes);
 
 
-//Funkcje utworzone na potrzeby metody hybrid - 198 - wykorzystywane do obliczania gain - umieszczone w tym miejcu ze wzgledu na to ze moze w przyszlosci beda wykorzystane tez do brain storm opt
+//Funkcje utworzone na potrzeby metody hybrid - 198 - wykorzystywane do obliczania gain - umieszczone w tym miejcu ze wzgledu na to ze moze w przyszlosci beda wykorzystane tez do innych metod
 
 //wyznacza kat miedzy dwoma punktami w stopniach
 double get_angle_deg(const Node& depot, const Node& client);

@@ -141,14 +141,14 @@ void Ui::set_bso_params(brainConfig& config)
 	while (run)
 	{
 		system("cls");
-		std::cout << "\n======= Aktualne wartosci konfiguracyjne Brain Storm Optimalization =======\n";
-		std::cout << "\n1. T1 (50) = " << config.T1   << "		Single route improvement iteration number"	;
-		std::cout << "\n2. T2 (5) = " << config.T2 << "		Divergent operation iteration number";
-		std::cout << "\n3. alfa_1 (0.05) = " << config.alfa_1 << "		 Perturbation on the best-so-far solution elemnts count multiplayer";
-		std::cout << "\n4. alfa_2 (0.05) = " << config.alfa_2 << "		 Divergent operation elemnts count multiplayer";
-		std::cout << "\n5. N (150) = " << config.N << "		Number of new solutions generating for each subproblem";
-		std::cout << "\n6. Main loop itarations (4) = " << config.main_loop_itarations;
-		std::cout << "\n7. Single route improvement margin (0.01) = " << config.single_route_improvement_margin;
+		std::cout << "\n======= Aktualne wartosci konfiguracyjne Brain Storm Optimization =======\n";
+		std::cout << "\n1. T1 (50) = " << config.T1 << "        Liczba iteracji poprawy pojedynczej trasy";
+		std::cout << "\n2. T2 (5) = " << config.T2 << "        Liczba iteracji operacji dywergencyjnej";
+		std::cout << "\n3. alfa_1 (0.05) = " << config.alfa_1 << "        Mnoznik liczby elementów poddawanych perturbacji w najlepszym dotychczas rozwiazaniu";
+		std::cout << "\n4. alfa_2 (0.05) = " << config.alfa_2 << "        Mnoznik liczby elementów modyfikowanych w operacji dywergencyjnej";
+		std::cout << "\n5. N (150) = " << config.N << "        Liczba nowych rozwiazan generowanych dla ka¿dego podproblemu";
+		std::cout << "\n6. Liczba iteracji glownej petli (4) = " << config.main_loop_itarations;
+		std::cout << "\n7. Margines poprawy pojedynczej trasy (0.01) = " << config.single_route_improvement_margin;
 		std::cout << "\n0. Wyjscie\n";
 
 		std::cout << "Wybierz opcje: ";

@@ -118,7 +118,7 @@ InsertionResult calculate_insertion_cost(Route& route, Node& i, int insertion_in
     }
 
     b = euclidean_distance(route.customers[insertion_index], i);
-    //ZASTAPIENIE TEGO CO JEST POD AKTUALNYM TMP, I DODANIE MNOZENIE 2*a - W WYZNACZANIU CURRENTCOST
+    
     int tmp = p - insertion_index + 1;
     if (p - insertion_index + 1 < 1)
     {

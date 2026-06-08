@@ -1,5 +1,5 @@
 #include "local_search_engine_moves.h"
-//brak pliku .cpp ze wzgledu na obecnosc template - wtedy sie stoduje chyba pliki tpp, no ale zrobione jest wszystko w jednym .h
+
 //INTRA - jedna trasa
 //INTER - dwie rozne trasy
 

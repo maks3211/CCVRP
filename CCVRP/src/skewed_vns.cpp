@@ -294,9 +294,9 @@
             {
                 s_prim = s;
  
-                //?????
+               
                 calculate_remaining_capacity(s);
-				//TAK BYLO NA POCZATKU
+				
                 for (int i = 1; i <= k; i++)
                 {
                     int random_perturbation_proc = random_int_from_to(1, 3);
@@ -339,8 +339,7 @@
                 {
                     s_best = s_bis;
                     no_improve_count = 0;
-                    //tymczasowe !!!
-                    //TU BYLO RESULT_S_BEST_TESULT - TO KTORE JEST WYCIAGNIECTE POZA TEGO IFA
+                    
 					s_best_result.routes = s_best;                                
                     for (int i = 0; i < s_best_result.routes.size(); i++)
                     {
