@@ -75,7 +75,7 @@ std::vector<Route> HybridAvnsLns::construct_intial_solution()
     instance.nodes.erase(instance.nodes.begin());
 
 	
-    //WCZESNIEJ TU BYLO int total_customers = instance.nodes.size()
+    
 
 
     InsertionResult best_feasible_insertion;
